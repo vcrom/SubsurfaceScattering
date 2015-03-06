@@ -14,7 +14,7 @@
    <string>mainwindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="widget" native="true">
+   <widget class="GLWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -23,11 +23,11 @@
       <height>501</height>
      </rect>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>591</width>
-      <height>501</height>
-     </size>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
@@ -122,6 +122,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>GLWidget</class>
+   <extends>QWidget</extends>
+   <header>glwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="mainwindow.qrc"/>
  </resources>
