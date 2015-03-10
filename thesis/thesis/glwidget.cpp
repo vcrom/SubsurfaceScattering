@@ -1,15 +1,22 @@
 #include "glwidget.h"
+
 #include <iostream>
+#include <exception>
+
+#include <QMessageBox>
+
+#include "utils.h"
 
 GLWidget::GLWidget(QWidget *parent)
 	: QGLWidget(parent)
 {
 	setFocusPolicy(Qt::StrongFocus);
+	core_engine_ = new Core();
 }
 
 GLWidget::~GLWidget()
 {
-
+	delete core_engine_;
 }
 
 /// <summary>
@@ -17,8 +24,23 @@ GLWidget::~GLWidget()
 /// </summary>
 void GLWidget::initializeGL()
 {
-	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-
+	try
+	{
+		core_engine_->initialize();
+	}
+	catch(my_exception e){
+		std::cout << "Error: \n" << e.what() << std::endl;
+		QMessageBox* msgBox = new QMessageBox(this);
+		msgBox->setAttribute(Qt::WA_DeleteOnClose);
+		msgBox->setStandardButtons(QMessageBox::Ok);
+		msgBox->setWindowTitle(tr("Error"));
+		msgBox->setText(tr(e.what()));
+		//msgBox->setModal(false);
+		msgBox->open();
+		//msgBox->open(this, SLOT(msgBoxClosed(QAbstractButton*)));
+		//std::exit(0);
+		
+	}
 	std::cout << "Initialization successfull" << std::endl;
 }
 

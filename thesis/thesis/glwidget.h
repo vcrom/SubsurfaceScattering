@@ -1,8 +1,11 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#include <GL/glew.h>
 #include <QGLWidget>
 #include <QMouseEvent>
+
+#include "core.h"
 
 class GLWidget : public QGLWidget
 {
@@ -24,7 +27,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent* event);
 
 private:
-	
+	Core *core_engine_;
 };
 
 #endif // GLWIDGET_H
