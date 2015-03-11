@@ -14,6 +14,7 @@ public:
 
 	void initialize();
 	void render();
+	void resize(unsigned int w, unsigned int h);
 
 private:
 	void initializeGL();

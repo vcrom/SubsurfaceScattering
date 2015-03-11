@@ -8,7 +8,7 @@
 #include "utils.h"
 
 GLWidget::GLWidget(QWidget *parent)
-	: QGLWidget(parent)
+	: QOpenGLWidget(parent)
 {
 	setFocusPolicy(Qt::StrongFocus);
 	core_engine_ = new Core();
@@ -16,6 +16,7 @@ GLWidget::GLWidget(QWidget *parent)
 
 GLWidget::~GLWidget()
 {
+	//core_engine_->delete();
 	delete core_engine_;
 }
 
@@ -28,18 +29,27 @@ void GLWidget::initializeGL()
 	{
 		core_engine_->initialize();
 	}
-	catch(my_exception e){
+	catch(non_critical_exception e){
 		std::cout << "Error: \n" << e.what() << std::endl;
-		QMessageBox* msgBox = new QMessageBox(this);
-		msgBox->setAttribute(Qt::WA_DeleteOnClose);
-		msgBox->setStandardButtons(QMessageBox::Ok);
-		msgBox->setWindowTitle(tr("Error"));
-		msgBox->setText(tr(e.what()));
-		//msgBox->setModal(false);
-		msgBox->open();
-		//msgBox->open(this, SLOT(msgBoxClosed(QAbstractButton*)));
-		//std::exit(0);
+		QMessageBox msgBox;
+		msgBox.setStandardButtons(QMessageBox::Close);
+		msgBox.setWindowTitle(tr("Error"));
+		msgBox.setText(tr(e.what()));
+		msgBox.setModal(true);
+		//msgBox.open(this, SLOT(msgBoxClosed(QAbstractButton*)));
+		msgBox.exec();
 		
+	}
+	catch (critical_exception e){
+		std::cout << "Critical error: \n" << e.what() << std::endl;
+		QMessageBox msgBox;
+		msgBox.setStandardButtons(QMessageBox::Close);
+		msgBox.setWindowTitle(tr("Critical error"));
+		msgBox.setText(tr(e.what()));
+		msgBox.setModal(true);
+		//msgBox.open(this, SLOT(msgBoxClosed(QAbstractButton*)));
+		msgBox.exec();
+		exit(EXIT_FAILURE);
 	}
 	std::cout << "Initialization successfull" << std::endl;
 }
@@ -51,8 +61,8 @@ void GLWidget::initializeGL()
 /// <param name="h">window height.</param>
 void GLWidget::resizeGL(int w, int h)
 {
-	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
-	glViewport(0, 0, w, h);
+	core_engine_->resize(w, h);
+	//glViewport(0, 0, w, h);
 	//cam.UpdateProjection(glm::radians(fov), float(w) / float(h));
 	//scene.ResizeBuffers(w, h);
 }
@@ -62,8 +72,10 @@ void GLWidget::resizeGL(int w, int h)
 /// </summary>
 void GLWidget::paintGL()
 {
+	std::cout << "FBO" << this->defaultFramebufferObject() << std::endl;
 	glClear(GL_COLOR_BUFFER_BIT);
 	std::cout << "Paint GL" << std::endl;
+	core_engine_->render();
 }
 
 

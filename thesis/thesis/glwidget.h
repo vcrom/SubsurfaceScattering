@@ -2,12 +2,13 @@
 #define GLWIDGET_H
 
 #include <GL/glew.h>
-#include <QGLWidget>
+//#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QMouseEvent>
 
 #include "core.h"
 
-class GLWidget : public QGLWidget
+class GLWidget : public QOpenGLWidget
 {
 	Q_OBJECT
 

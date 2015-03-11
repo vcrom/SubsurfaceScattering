@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="abstractcamera.cpp" />
     <ClCompile Include="core.cpp" />
+    <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_glwidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -166,6 +167,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="glslshader.cpp" />
     <ClCompile Include="glwidget.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
@@ -215,7 +217,9 @@
   <ItemGroup>
     <ClInclude Include="abstractcamera.h" />
     <ClInclude Include="core.h" />
+    <ClInclude Include="exceptions.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
+    <ClInclude Include="glslshader.h" />
     <ClInclude Include="targetcamera.h" />
     <ClInclude Include="utils.h" />
     <CustomBuild Include="glwidget.h">

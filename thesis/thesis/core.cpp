@@ -26,16 +26,16 @@ void Core::glewInitialization()
 			std::cout << "Driver supports OpenGL 3.3\nDetails:" << std::endl;
 		}
 	}
-	err = glGetError(); //this is to ignore INVALID ENUM error 1282
-	checkOpenGLError();
+	//err = glGetError(); //this is to ignore INVALID ENUM error 1282
+	checkCritOpenGLError();
 
-		//output hardware information
+	//output hardware information
 	std::cout << "\tUsing GLEW " << glewGetString(GLEW_VERSION) << std::endl;
 	std::cout << "\tVendor: " << glGetString(GL_VENDOR) << std::endl;
 	std::cout << "\tRenderer: " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "\tVersion: " << glGetString(GL_VERSION) << std::endl;
 	std::cout << "\tGLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-	checkOpenGLError();
+	checkCritOpenGLError();
 }
 
 void Core::initializeGL()
@@ -48,7 +48,8 @@ void Core::initializeGL()
 	//glBindTexture(GL_TEXTURE_2D, textureID);
 	//glTexParameteri(GL_TEXTURE_2D, GL_REPEAT, GL_REPEAT);
 
-	//checkOpenGLError();
+	//std::cout << "OpenGL No init" << std::endl;
+	//checkCritOpenGLError();
 
 
 	std::cout << "OpenGL init" << std::endl;
@@ -62,8 +63,14 @@ void Core::initialize()
 	std::cout << "Core initialized" << std::endl;
 }
 
+void Core::resize(unsigned int w, unsigned int h)
+{
+	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
+	glViewport(0, 0, w, h);
+}
+
 void Core::render()
 {
 	std::cout << "Render" << std::endl;
-	checkOpenGLError();
+	checkCritOpenGLError();
 }
