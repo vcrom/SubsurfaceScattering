@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="abstractcamera.cpp" />
+    <ClCompile Include="colormesh.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_glwidget.cpp">
@@ -171,6 +172,9 @@
     <ClCompile Include="glwidget.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="meshimporter.cpp" />
+    <ClCompile Include="renderableobject.cpp" />
     <ClCompile Include="targetcamera.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
@@ -216,10 +220,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="abstractcamera.h" />
+    <ClInclude Include="colormesh.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="exceptions.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="glslshader.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="meshimporter.h" />
+    <ClInclude Include="renderableobject.h" />
     <ClInclude Include="targetcamera.h" />
     <ClInclude Include="utils.h" />
     <CustomBuild Include="glwidget.h">
