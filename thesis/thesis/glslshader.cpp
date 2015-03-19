@@ -36,17 +36,16 @@ void GlslShader::loadFromString(GLenum type, const std::string& source)
 	glCompileShader(shader);
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
-		//std::cerr<<"Shader:"<< source << std::endl;
 		GLint infoLogLength;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 		GLchar *infoLog = new GLchar[infoLogLength];
 		glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
 		std::cerr << "Compile log: " << infoLog << std::endl;
 		delete[] infoLog;
-		//		assert(false);
-		throw_non_critical("Compile log: " + std::string(infoLog));
+		//assert(false);
+		throw_non_critical("Compile log("+source+"): " + std::string(infoLog));
 	}
-	//{ VERTEX_SHADER, FRAGMENT_SHADER, GEOMETRY_SHADER };
+
 	switch (type)
 	{
 		case GL_VERTEX_SHADER:
@@ -62,7 +61,6 @@ void GlslShader::loadFromString(GLenum type, const std::string& source)
 			assert(false);
 			break;
 	}
-	
 }
 
 
