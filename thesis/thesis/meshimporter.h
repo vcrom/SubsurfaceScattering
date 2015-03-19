@@ -3,7 +3,7 @@
 
 #include "mesh.h"
 
-static class MeshImporter
+class MeshImporter
 {
 public:
 	//static Mesh importMeshFromFile(const std::string& path);

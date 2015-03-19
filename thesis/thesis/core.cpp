@@ -22,9 +22,9 @@ void Core::glewInitialization()
 	}
 	else {
 		if (GLEW_VERSION_3_3)
-		{
 			std::cout << "Driver supports OpenGL 3.3\nDetails:" << std::endl;
-		}
+		else
+			throw_critical("Driver does not support openGL 3.3");
 	}
 	//err = glGetError(); //this is to ignore INVALID ENUM error 1282
 	checkCritOpenGLError();
