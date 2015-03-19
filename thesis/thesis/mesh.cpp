@@ -6,6 +6,7 @@
 //}
 
 Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals)
+	: RenderableObject()
 {
 	initialize(idx, vertices, normals);
 }
@@ -50,21 +51,6 @@ void Mesh::initializeNormalsBuffer()
 	GL_CHECK_ERRORS
 }
 
-unsigned int Mesh::getTotalVertices()
-{
-	return vertices_.size();
-}
-
-unsigned int Mesh::getTotalIndices()
-{
-	return vTable_.size();
-}
-
-GLenum Mesh::getPrimitiveType()
-{
-	return GL_TRIANGLES;
-}
-
 void Mesh::fillVertexBuffer(GLfloat* pBuffer)
 {
 	glm::vec3* vert = (glm::vec3*)(pBuffer);
@@ -84,4 +70,24 @@ void Mesh::fillNormalBuffer(GLfloat* pBuffer)
 	glm::vec3* norm = (glm::vec3*)(pBuffer);
 	for (glm::uint i = 0; i < totalVertices_; ++i)
 		norm[i] = normals_[i];
+}
+
+unsigned int Mesh::getTotalVertices()
+{
+	return vertices_.size();
+}
+
+unsigned int Mesh::getTotalIndices()
+{
+	return vTable_.size();
+}
+
+GLenum Mesh::getPrimitiveType()
+{
+	return GL_TRIANGLES;
+}
+
+unsigned int Mesh::sizeOfVertexElement()
+{
+	sizeof(glm::vec3);
 }

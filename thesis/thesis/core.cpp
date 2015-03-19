@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "utils.h"
+#include "meshimporter.h"
 
 Core::Core()
 {
@@ -73,4 +74,10 @@ void Core::render()
 {
 	std::cout << "Render" << std::endl;
 	checkCritOpenGLError();
+}
+
+void Core::loadMesh(const std::string& path)
+{
+	Mesh m = MeshImporter::importMeshFromFile(path);
+	std::cout << "LOALA" << std::endl;
 }

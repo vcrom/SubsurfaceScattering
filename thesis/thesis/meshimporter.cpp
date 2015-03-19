@@ -1,26 +1,29 @@
 #include "meshimporter.h"
 
 #include <iostream>
+#include <memory>
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
 #undef AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE
 #define AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE 80.0f
 
 #include "utils.h"
 
-inline std::vector<glm::vec3> getAiMeshVertices(aiMesh* mesh)
+inline std::vector<glm::vec3> getAiMeshVertices(std::unique_ptr<aiMesh>& mesh)
 {
 	std::vector<glm::vec3> vertices(mesh->mNumVertices);
-	for (glm::uint i = 0; i < mesh->mNumVertices; ++i)
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 		vertices[i] = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 	return vertices;
 }
 
-inline std::vector<glm::vec3> getAiMeshNormals(aiMesh* mesh)
+inline std::vector<glm::vec3> getAiMeshNormals(std::unique_ptr<aiMesh>& mesh)
 {
 	std::vector<glm::vec3> normals(mesh->mNumVertices);
-	for (glm::uint i = 0; i < mesh->mNumVertices; ++i)
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
 		aiVector3D norm = mesh->mNormals[i].Normalize();
 		normals[i] = glm::vec3(norm.x, norm.y, norm.z);
@@ -28,10 +31,10 @@ inline std::vector<glm::vec3> getAiMeshNormals(aiMesh* mesh)
 	return normals;
 }
 
-inline std::vector<unsigned int> getAiFaces(aiMesh* mesh)
+inline std::vector<unsigned int> getAiFaces(std::unique_ptr<aiMesh>& mesh)
 {
 	std::vector<unsigned int> faces(mesh->mNumFaces*3);
-	for (glm::uint i = 0; i < mesh->mNumFaces; ++i)
+	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
 		aiFace face = mesh->mFaces[i];
 		assert(face.mNumIndices == 3);
@@ -41,9 +44,9 @@ inline std::vector<unsigned int> getAiFaces(aiMesh* mesh)
 	return faces;
 }
 
-inline aiMesh* importAiMesh(const std::string& path)
+Mesh MeshImporter::importMeshFromFile(const std::string& path)
 {
-	std::cout << "Importing: " << path << std::endl;
+	std::cout << "Loading: " << path << std::endl;
 	Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(path,
 		aiProcess_Triangulate |
@@ -60,14 +63,12 @@ inline aiMesh* importAiMesh(const std::string& path)
 		std::cerr << importer.GetErrorString() << std::endl;
 		throw_non_critical(importer.GetErrorString());
 	}
-	return scene->mMeshes[0];
-}
+	std::unique_ptr<aiMesh> mesh(scene->mMeshes[0]);
 
-Mesh MeshImporter::importMeshFromFile(const std::string& path)
-{
-	aiMesh *mesh = importAiMesh(path);
 	std::vector<unsigned int> faces = getAiFaces(mesh);
 	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
 	std::vector<glm::vec3> normals = getAiMeshNormals(mesh);
+	std::cout << "...Loaded." <<std::endl;
+	mesh.release();
 	return Mesh(faces, vertices, normals);
 }

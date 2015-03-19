@@ -1,7 +1,5 @@
 #include "renderableobject.h"
 
-#include <glm\glm.hpp>
-
 RenderableObject::RenderableObject()
 {
 
@@ -30,7 +28,7 @@ void RenderableObject::initialize() {
 
 	//vertices
 	glBindBuffer(GL_ARRAY_BUFFER, vboVerticesId_);
-	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeof(glm::vec3), 0, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfVertexElement(), 0, GL_STATIC_DRAW);
 
 	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
 	fillVertexBuffer(pBuffer);

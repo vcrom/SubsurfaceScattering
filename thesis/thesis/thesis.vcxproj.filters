@@ -89,6 +89,9 @@
     <ClCompile Include="renderableobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="screenquad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -136,6 +139,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="renderableobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="screenquad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

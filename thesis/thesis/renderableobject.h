@@ -2,6 +2,7 @@
 #define RENDERABLEOBJECT_H
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 class RenderableObject
 {
@@ -24,6 +25,7 @@ protected:
 	virtual unsigned int getTotalVertices() = 0;
 	virtual unsigned int getTotalIndices() = 0;
 	virtual GLenum getPrimitiveType() = 0;
+	virtual unsigned int sizeOfVertexElement() = 0;
 	virtual void fillVertexBuffer(GLfloat* pBuffer) = 0;
 	virtual void fillIndexBuffer(GLuint* pBuffer) = 0;
 	

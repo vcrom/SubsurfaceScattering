@@ -78,17 +78,22 @@ void GLWidget::paintGL()
 	core_engine_->render();
 }
 
-
+#include <QFileDialog>
 /// <summary>
 /// QT Key the pressed event handling.
 /// </summary>
 /// <param name="event">QT key event.</param>
 void GLWidget::keyPressEvent(QKeyEvent* event)
 {
-	if (event->key() == Qt::Key_F)
+	if (event->key() == Qt::Key_M)
 	{
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load Face"), "./", tr("PLY Files (*.ply);;All files (*)"));
+		if (!filename.isNull())
+		{
+			core_engine_->loadMesh(filename.toStdString());
+		}
 	}
-	std::cout << "key press event" << std::endl;
+	else std::cout << "key press event" << std::endl;
 }
 
 /// <summary>

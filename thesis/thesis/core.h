@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include <iostream>
+
 #include "targetcamera.h"
 
 class Core
@@ -15,12 +17,14 @@ public:
 	void initialize();
 	void render();
 	void resize(unsigned int w, unsigned int h);
+	void loadMesh(const std::string& path);
 
 private:
 	void initializeGL();
 	void glewInitialization();
 
 	TargetCamera cam_;
+	//std::vector<
 	
 };
 
