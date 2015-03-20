@@ -16,15 +16,13 @@ protected:
 	unsigned int getTotalVertices();
 	unsigned int getTotalIndices();
 	GLenum getPrimitiveType();
+	unsigned int sizeOfVertexElement();
 	void fillVertexBuffer(GLfloat* pBuffer);
 	void fillIndexBuffer(GLuint* pBuffer);
-	void fillNormalBuffer(GLfloat* pBuffer);
 
 private:
-	const glm::vec2 vertices[4] = { glm::vec2(0.0, 0.0), glm::vec2(1.0, 0.0), glm::vec2(1.0, 1.0), glm::vec2(0.0, 1.0)};
-	const GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
-
-
+	static const glm::vec2 vertices_[4];
+	static const unsigned int indices_[6];
 };
 
 #endif // SCREENQUAD_H
