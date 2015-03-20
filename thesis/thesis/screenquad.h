@@ -3,11 +3,12 @@
 
 #include "renderableobject.h"
 #include <glm\glm.hpp>
+#include <vector>
 
 class ScreenQuad : public RenderableObject
 {
 public:
-	ScreenQuad();
+	static ScreenQuad* getInstance();
 	~ScreenQuad();
 
 protected:
@@ -17,12 +18,18 @@ protected:
 	unsigned int getTotalIndices();
 	GLenum getPrimitiveType();
 	unsigned int sizeOfVertexElement();
+	unsigned int vertexNumberOfComponents();
 	void fillVertexBuffer(GLfloat* pBuffer);
 	void fillIndexBuffer(GLuint* pBuffer);
 
 private:
-	static const glm::vec2 vertices_[4];
-	static const unsigned int indices_[6];
+	ScreenQuad();
+	ScreenQuad(ScreenQuad const&) = delete;
+	void operator=(ScreenQuad const&) = delete;
+
+	static const std::vector<glm::vec2> vertices_;
+	static const std::vector<unsigned int> indices_;
+	static ScreenQuad* instance_;
 };
 
 #endif // SCREENQUAD_H

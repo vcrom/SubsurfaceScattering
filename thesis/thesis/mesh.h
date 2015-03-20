@@ -20,6 +20,7 @@ protected:
 	unsigned int getTotalIndices();
 	GLenum getPrimitiveType();
 	unsigned int sizeOfVertexElement();
+	unsigned int vertexNumberOfComponents();
 	void fillVertexBuffer(GLfloat* pBuffer);
 	void fillIndexBuffer(GLuint* pBuffer);
 	void fillNormalBuffer(GLfloat* pBuffer);

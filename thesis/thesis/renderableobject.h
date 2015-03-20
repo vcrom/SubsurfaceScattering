@@ -26,6 +26,7 @@ protected:
 	virtual unsigned int getTotalIndices() = 0;
 	virtual GLenum getPrimitiveType() = 0;
 	virtual unsigned int sizeOfVertexElement() = 0;
+	virtual unsigned int vertexNumberOfComponents() = 0;
 	virtual void fillVertexBuffer(GLfloat* pBuffer) = 0;
 	virtual void fillIndexBuffer(GLuint* pBuffer) = 0;
 	

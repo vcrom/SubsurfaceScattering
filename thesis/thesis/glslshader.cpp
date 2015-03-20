@@ -43,7 +43,7 @@ void GlslShader::loadFromString(GLenum type, const std::string& source)
 		std::cerr << "Compile log: " << infoLog << std::endl;
 		delete[] infoLog;
 		//assert(false);
-		throw_non_critical("Compile log("+source+"): " + std::string(infoLog));
+		throw_non_critical("Compile log: " + std::string(infoLog));
 	}
 
 	switch (type)

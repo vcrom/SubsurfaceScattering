@@ -12,6 +12,12 @@ GLWidget::GLWidget(QWidget *parent)
 {
 	setFocusPolicy(Qt::StrongFocus);
 	core_engine_ = new Core();
+
+	QSurfaceFormat newFormat = this->format();
+	//newFormat.setSampleBuffers(true);
+	newFormat.setSamples(16);
+	this->setFormat(newFormat);
+
 }
 
 GLWidget::~GLWidget()
@@ -73,7 +79,6 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::paintGL()
 {
 	std::cout << "FBO" << this->defaultFramebufferObject() << std::endl;
-	glClear(GL_COLOR_BUFFER_BIT);
 	std::cout << "Paint GL" << std::endl;
 	core_engine_->render();
 }

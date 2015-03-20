@@ -33,6 +33,9 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{364d6ad3-a2c9-43c7-a788-cf08a6cd7b5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -144,5 +147,13 @@
     <ClInclude Include="screenquad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\screen_space_quad.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\screen_space_quad.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

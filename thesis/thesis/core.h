@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "targetcamera.h"
+#include "glslshader.h"
 
 class Core
 {
@@ -24,6 +25,7 @@ private:
 	void glewInitialization();
 
 	TargetCamera cam_;
+	GlslShader shader;
 	//std::vector<
 	
 };

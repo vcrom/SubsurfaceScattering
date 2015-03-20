@@ -91,3 +91,8 @@ unsigned int Mesh::sizeOfVertexElement()
 {
 	return sizeof(glm::vec3);
 }
+
+unsigned int Mesh::vertexNumberOfComponents()
+{
+	return 3;
+}

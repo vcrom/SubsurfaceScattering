@@ -35,7 +35,7 @@ void RenderableObject::initialize() {
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(0, vertexNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
 
 	//Faces indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesId_);
