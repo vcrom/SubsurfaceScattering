@@ -13,10 +13,10 @@ GLWidget::GLWidget(QWidget *parent)
 	setFocusPolicy(Qt::StrongFocus);
 	core_engine_ = new Core();
 
-	QSurfaceFormat newFormat = this->format();
-	//newFormat.setSampleBuffers(true);
-	newFormat.setSamples(16);
-	this->setFormat(newFormat);
+	//QSurfaceFormat newFormat = this->format();
+	////newFormat.setSampleBuffers(true);
+	//newFormat.setSamples(16);
+	//this->setFormat(newFormat);
 
 }
 
