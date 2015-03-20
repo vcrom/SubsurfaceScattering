@@ -44,10 +44,11 @@ inline std::vector<unsigned int> getAiFaces(std::unique_ptr<aiMesh>& mesh)
 	return faces;
 }
 
-Mesh MeshImporter::importMeshFromFile(const std::string& path)
+Assimp::Importer importer;
+
+std::unique_ptr<aiMesh> loadMeshFromFile(const std::string& path)
 {
-	std::cout << "Loading: " << path << std::endl;
-	Assimp::Importer importer;
+	//Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(path,
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
@@ -63,8 +64,13 @@ Mesh MeshImporter::importMeshFromFile(const std::string& path)
 		std::cerr << importer.GetErrorString() << std::endl;
 		throw_non_critical(importer.GetErrorString());
 	}
-	std::unique_ptr<aiMesh> mesh(scene->mMeshes[0]);
+	return std::unique_ptr<aiMesh> (scene->mMeshes[0]);
+}
 
+Mesh MeshImporter::importMeshFromFile(const std::string& path)
+{
+	std::cout << "Loading: " << path << std::endl;
+	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
 	std::vector<unsigned int> faces = getAiFaces(mesh);
 	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
 	std::vector<glm::vec3> normals = getAiMeshNormals(mesh);
