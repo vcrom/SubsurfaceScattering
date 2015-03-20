@@ -89,5 +89,5 @@ GLenum Mesh::getPrimitiveType()
 
 unsigned int Mesh::sizeOfVertexElement()
 {
-	sizeof(glm::vec3);
+	return sizeof(glm::vec3);
 }
