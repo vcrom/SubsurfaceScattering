@@ -178,6 +178,7 @@
     <ClCompile Include="renderableobject.cpp" />
     <ClCompile Include="screenquad.cpp" />
     <ClCompile Include="targetcamera.cpp" />
+    <ClCompile Include="texturemanager.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -232,6 +233,7 @@
     <ClInclude Include="renderableobject.h" />
     <ClInclude Include="screenquad.h" />
     <ClInclude Include="targetcamera.h" />
+    <ClInclude Include="texturemanager.h" />
     <ClInclude Include="utils.h" />
     <CustomBuild Include="glwidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
