@@ -9,6 +9,8 @@
 #include "targetcamera.h"
 #include "glslshader.h"
 
+#include "texturemanager.h"
+
 class Core
 {
 public:

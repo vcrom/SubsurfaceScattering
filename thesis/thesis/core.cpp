@@ -72,6 +72,12 @@ void Core::initialize()
 	shader.unUse();
 	checkCritOpenGLError();
 	std::cout << "Core initialized" << std::endl;
+
+
+	TextureManager tex_man;
+	//tex_man.loadTexture("textures/squares.jpg");
+	tex_man.loadTexture("textures/squares.png");
+
 }
 
 void Core::resize(unsigned int w, unsigned int h)
