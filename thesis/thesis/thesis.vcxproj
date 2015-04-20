@@ -176,6 +176,7 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="meshimporter.cpp" />
     <ClCompile Include="renderableobject.cpp" />
+    <ClCompile Include="renderstep.cpp" />
     <ClCompile Include="screenquad.cpp" />
     <ClCompile Include="targetcamera.cpp" />
     <ClCompile Include="utils.cpp" />
@@ -230,6 +231,7 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="meshimporter.h" />
     <ClInclude Include="renderableobject.h" />
+    <ClInclude Include="renderstep.h" />
     <ClInclude Include="screenquad.h" />
     <ClInclude Include="targetcamera.h" />
     <ClInclude Include="utils.h" />
