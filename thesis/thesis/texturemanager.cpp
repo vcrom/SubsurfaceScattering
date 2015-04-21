@@ -24,22 +24,23 @@ void TextureManager::loadTexture(const std::string& path)
 		//bool converted = image.convertToFloat();
 		bool converted = image.flipVertical();
 		std::cout << "size: " << image.getWidth() << " " << image.getHeight() << std::endl;
-		std::cout << "is gray: " << image.isGrayscale() << std::endl;
+		std::cout << "Line W: " << image.getLine() << std::endl;
 		std::cout << "bytes per pix: " << image.getBitsPerPixel() << std::endl;
 		std::cout << "line: " << image.getLine() << std::endl;
+		std::cout << "size of float: " << CHAR_BIT * sizeof (float) << std::endl;
 		//FreeImage loads in BGR format, so you need to swap some bytes(Or use GL_BGR).
-		int channels = 4;
+		int channels = 3;
 		//float* tex_data = new float[channels*image.getWidth()*image.getHeight()];
-		auto pixeles = static_cast<unsigned char*>/*(float*)*/(image.accessPixels());
+		auto pixeles = (float*)/*static_cast<unsigned char*>*//*(float*)*/(image.accessPixels());
 
 		for (unsigned int i = 0; i < image.getWidth()*image.getHeight(); ++i){
 			std::cout << "pixel " << i << ": (";
 			for (int j = 0; j < channels; ++j)
 			{
 				//tex_data[i * channels + j] = pixeles[i * channels + j];
-				std::cout << int(pixeles[i * channels + j]) << ", ";
+				std::cout << pixeles[i * channels + j] << ", ";
 			}
-			std::cout << std::endl;
+			std::cout << ")" << std::endl;
 			//tex_data[j * channels + 0] = pixeles[j * 4 + 2];
 			//tex_data[j * 4 + 1] = pixeles[j * 4 + 1];
 			//tex_data[j * 4 + 2] = pixeles[j * 4 + 0];

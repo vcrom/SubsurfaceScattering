@@ -76,7 +76,9 @@ void Core::initialize()
 
 	TextureManager tex_man;
 	//tex_man.loadTexture("textures/squares.jpg");
-	tex_man.loadTexture("textures/squares.png");
+	//tex_man.loadTexture("textures/squares.png");
+	tex_man.loadTexture("textures/hdr_is.hdr");
+
 
 }
 

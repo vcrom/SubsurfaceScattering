@@ -135,11 +135,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib64;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-<<<<<<< HEAD
       <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;assimp.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
-=======
-      <AdditionalDependencies>FreeImagePlus.lib;FreeImage.lib;assimp.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
->>>>>>> a9a09ba3554992ce1e730d05c9687422b3380320
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -147,6 +143,7 @@
     <ClCompile Include="colormesh.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="fimage.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_glwidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -175,11 +172,14 @@
     </ClCompile>
     <ClCompile Include="glslshader.cpp" />
     <ClCompile Include="glwidget.cpp" />
+    <ClCompile Include="hdrimage.cpp" />
+    <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="meshimporter.cpp" />
     <ClCompile Include="renderableobject.cpp" />
+    <ClCompile Include="rgbimage.cpp" />
     <ClCompile Include="screenquad.cpp" />
     <ClCompile Include="targetcamera.cpp" />
     <ClCompile Include="texturemanager.cpp" />
@@ -230,11 +230,15 @@
     <ClInclude Include="colormesh.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="exceptions.h" />
+    <ClInclude Include="fimage.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="glslshader.h" />
+    <ClInclude Include="hdrimage.h" />
+    <ClInclude Include="image.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="meshimporter.h" />
     <ClInclude Include="renderableobject.h" />
+    <ClInclude Include="rgbimage.h" />
     <ClInclude Include="screenquad.h" />
     <ClInclude Include="targetcamera.h" />
     <ClInclude Include="texturemanager.h" />
