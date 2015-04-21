@@ -135,7 +135,11 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib64;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+<<<<<<< HEAD
       <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;assimp.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
+=======
+      <AdditionalDependencies>FreeImagePlus.lib;FreeImage.lib;assimp.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
+>>>>>>> a9a09ba3554992ce1e730d05c9687422b3380320
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
