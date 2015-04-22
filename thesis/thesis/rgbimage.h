@@ -9,6 +9,7 @@ public:
 	RGBImage();
 	~RGBImage();
 
+	void loadImage(const void* buffer, unsigned int width, unsigned int height);
 	void loadImage(const std::string& path);
 	GLint getOpenGLFormat();
 	GLint getOpenGLImageType();

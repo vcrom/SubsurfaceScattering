@@ -13,17 +13,26 @@ fImage::~fImage()
 	_image.clear();
 }
 
-unsigned int fImage::imageHeight()
+void fImage::writeImage(const std::string& path)
+{
+	bool b = _image.save(path.c_str());
+	if (!b)
+	{
+		throw_non_critical("FAILED TO SAVE");
+	}
+}
+
+unsigned int fImage::getHeight()
 {
 	return _image.getHeight();
 }
 
-unsigned int fImage::imageWidth()
+unsigned int fImage::getWidth()
 {
 	return _image.getWidth();
 }
 
-void* fImage::getImageData()
+unsigned char* fImage::getImageData()
 {
 	return _image.accessPixels();
 }
@@ -37,6 +46,6 @@ void fImage::loadFromPath(const std::string& path)
 	}
 	else
 	{
-		_image.flipVertical();
+		//_image.flipVertical();
 	}
 }

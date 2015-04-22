@@ -11,10 +11,12 @@ public:
 	fImage();
 	~fImage();
 
+	virtual void loadImage(const void* buffer, unsigned int width, unsigned int height) = 0;
 	virtual void loadImage(const std::string& path) = 0;
-	unsigned int imageHeight();
-	unsigned int imageWidth();
-	virtual void* getImageData();
+	virtual void writeImage(const std::string& path);
+	unsigned int getHeight();
+	unsigned int getWidth();
+	virtual unsigned char* getImageData();
 	virtual GLint getOpenGLFormat() = 0;
 	virtual GLint getOpenGLImageType() = 0;
 	virtual GLint getOpenGLImageInternalFormat() = 0;

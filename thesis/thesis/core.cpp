@@ -56,6 +56,8 @@ void Core::initializeGL()
 	std::cout << "OpenGL init" << std::endl;
 }
 
+#include "rgbimage.h"
+
 void Core::initialize()
 {
 	initializeGL();
@@ -77,7 +79,12 @@ void Core::initialize()
 	TextureManager tex_man;
 	//tex_man.loadTexture("textures/squares.jpg");
 	//tex_man.loadTexture("textures/squares.png");
-	tex_man.loadTexture("textures/hdr_is.hdr");
+	//tex_man.loadTexture("textures/hdr_is.hdr");
+	RGBImage image, image2;
+	image.loadImage("textures/flower.jpg");
+
+	image2.loadImage(image.getImageData(), image.getWidth(), image.getHeight());
+	image2.writeImage("textures/blep.jpg");
 
 
 }

@@ -11,6 +11,12 @@ HDRImage::~HDRImage()
 
 }
 
+void HDRImage::loadImage(const void* buffer, unsigned int width, unsigned int height)
+{
+
+
+}
+
 void HDRImage::loadImage(const std::string& path)
 {
 	fImage::loadFromPath(path);
