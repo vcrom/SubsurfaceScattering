@@ -39,7 +39,7 @@ void Texture2D::allocateTextureStorage(GLsizei levels, GLenum internalformat, GL
 void Texture2D::loadImageToTexture(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
 {
 	assert(isBinded());
-	assert(level < _levels);
+	assert(level >= 0 && level < _levels);
 	glTextureSubImage2D(_target, level, xoffset, yoffset, width, height, format, type,  pixels);
 
 }
