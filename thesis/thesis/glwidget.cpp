@@ -12,6 +12,7 @@ GLWidget::GLWidget(QWidget *parent)
 {
 	setFocusPolicy(Qt::StrongFocus);
 	core_engine_ = new Core();
+	//void* foo = wglGetCurrentContext();
 
 	//QSurfaceFormat newFormat = this->format();
 	////newFormat.setSampleBuffers(true);

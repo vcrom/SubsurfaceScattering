@@ -182,6 +182,8 @@
     <ClCompile Include="rgbimage.cpp" />
     <ClCompile Include="screenquad.cpp" />
     <ClCompile Include="targetcamera.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="texture2d.cpp" />
     <ClCompile Include="texturemanager.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
@@ -241,6 +243,8 @@
     <ClInclude Include="rgbimage.h" />
     <ClInclude Include="screenquad.h" />
     <ClInclude Include="targetcamera.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="texture2d.h" />
     <ClInclude Include="texturemanager.h" />
     <ClInclude Include="utils.h" />
     <CustomBuild Include="glwidget.h">
