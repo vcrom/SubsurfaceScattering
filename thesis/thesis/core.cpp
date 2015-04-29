@@ -57,7 +57,7 @@ void Core::initializeGL()
 }
 
 #include "rgbimage.h"
-
+#include "textureloader.h"
 void Core::initialize()
 {
 	initializeGL();
@@ -85,6 +85,10 @@ void Core::initialize()
 
 	image2.loadImage(image.getImageData(), image.getWidth(), image.getHeight());
 	image2.writeImage("textures/blep.jpg");
+
+	Texture2D tex = TextureLoader::Load2DTexture("textures/flower.jpg");
+	checkCritOpenGLError();
+
 
 
 }

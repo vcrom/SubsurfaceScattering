@@ -116,6 +116,9 @@
     <ClCompile Include="texture2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="textureloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -187,6 +190,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="texture2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textureloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
