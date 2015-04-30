@@ -56,7 +56,7 @@ void Core::initializeGL()
 	std::cout << "OpenGL init" << std::endl;
 }
 
-#include "rgbimage.h"
+#include "fimage.h"
 #include "textureloader.h"
 void Core::initialize()
 {
@@ -80,13 +80,13 @@ void Core::initialize()
 	//tex_man.loadTexture("textures/squares.jpg");
 	//tex_man.loadTexture("textures/squares.png");
 	//tex_man.loadTexture("textures/hdr_is.hdr");
-	RGBImage image, image2;
+	fImage image, image2;
 	image.loadImage("textures/flower.jpg");
 
 	image2.loadImage(image.getImageData(), image.getWidth(), image.getHeight());
 	image2.writeImage("textures/blep.jpg");
 
-	Texture2D tex = TextureLoader::Load2DTexture("textures/flower.jpg");
+	Texture2D tex = TextureLoader::Load2DTexture("textures/squares.png");
 	checkCritOpenGLError();
 
 

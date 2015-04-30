@@ -66,5 +66,5 @@ bool Texture::isBinded()
 {
 	GLint texture_binded;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture_binded);
-	return texture_binded = _id;
+	return texture_binded == _id;
 }
