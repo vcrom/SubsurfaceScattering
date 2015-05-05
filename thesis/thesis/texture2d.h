@@ -13,13 +13,21 @@ public:
 	//getters
 	GLsizei getWidth();
 	GLsizei getHeight();
+	unsigned char* getTextureData();
+	unsigned char* getTextureData(GLint level, GLenum format, GLenum type, unsigned int channels = 3);
 
 	//utils
-	void allocateTextureStorage(GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
-	void loadImageToTexture(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+	void resize(GLsizei width, GLsizei height);
+
+	//loaders
+	void loadBufferToTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels);
+	void loadBufferToTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
+	void loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border);
+	void loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height);
 
 private:
 	GLsizei _width, _height;
+	GLint _border;
 	
 };
 

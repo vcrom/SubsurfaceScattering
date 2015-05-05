@@ -44,6 +44,7 @@ void Core::initializeGL()
 	glewInitialization();
 	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 
+	//glEnable(GL_TEXTURE_2D);
 	//GLuint textureID;
 	//glGenTextures(1, &textureID);
 	//glBindTexture(GL_TEXTURE_2D, textureID);
@@ -57,7 +58,9 @@ void Core::initializeGL()
 }
 
 #include "fimage.h"
-#include "textureloader.h"
+#include <chrono>
+#include <thread>
+
 void Core::initialize()
 {
 	initializeGL();
@@ -76,21 +79,33 @@ void Core::initialize()
 	std::cout << "Core initialized" << std::endl;
 
 
-	TextureManager tex_man;
+	//TextureManager tex_man;
 	//tex_man.loadTexture("textures/squares.jpg");
 	//tex_man.loadTexture("textures/squares.png");
 	//tex_man.loadTexture("textures/hdr_is.hdr");
 	fImage image, image2;
 	image.loadImage("textures/flower.jpg");
 
-	image2.loadImage(image.getImageData(), image.getWidth(), image.getHeight());
-	image2.writeImage("textures/blep.jpg");
-
-	Texture2D tex = TextureLoader::Load2DTexture("textures/squares.png");
+	tex->use(GL_TEXTURE0);
 	checkCritOpenGLError();
 
+	//unsigned int n_pixels = tex->getWidth()*tex->getHeight()*3;
+	//unsigned char *pixels = new unsigned char[n_pixels];
+	//std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	//start = std::chrono::high_resolution_clock::now();
+	//glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, pixels);
+	//end = std::chrono::high_resolution_clock::now();
+	//std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
+	//std::cout << "time obtaining the texture: " << elapsed_mseconds.count() << std::endl;
+	//checkCritOpenGLError();
 
-
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	start = std::chrono::high_resolution_clock::now();
+	image2.loadImage(tex->getTextureData(), tex->getWidth(), tex->getHeight());
+	image2.writeImage("textures/blep.jpg");
+	end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
+	std::cout << "MAIN time writing the image: " << elapsed_mseconds.count() << std::endl;
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -105,26 +120,11 @@ void Core::render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	std::cout << "Render" << std::endl;
+	tex->use(GL_TEXTURE0);
 	ScreenQuad* quad = ScreenQuad::getInstance();
 	shader.use();
 		quad->render();
 	shader.unUse();
-	//glEnableVertexAttribArray(0);
-	//glBindBuffer(GL_ARRAY_BUFFER, cosa_);
-	//glVertexAttribPointer(
-	//	0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-	//	3,                  // size
-	//	GL_FLOAT,           // type
-	//	GL_FALSE,           // normalized?
-	//	0,                  // stride
-	//	(void*)0            // array buffer offset
-	//	);
-
-	//// Draw the triangle !
-	//glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-
-	//glDisableVertexAttribArray(0);
-
 	checkCritOpenGLError();
 }
 

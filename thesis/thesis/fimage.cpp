@@ -12,8 +12,36 @@ fImage::~fImage()
 {
 	_image.clear();
 }
+#include <thread>
+#include <chrono>
+#include <iostream>
+#include <memory>
+
+void writeImageToPathT(const fipImage& image, const std::string& path)
+{
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	start = std::chrono::high_resolution_clock::now();
+	bool saved = image.save(path.c_str());
+	end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
+	std::cout << "IMAGE time writing the image: " << elapsed_mseconds.count() << std::endl;
+	if (!saved)
+		throw_non_critical("FAILED TO SAVE");
+}
 
 void fImage::writeImage(const std::string& path)
+{
+#ifdef THREADED
+	//std::thread t1;
+	//if(t1.joinable()) t1.join();
+	std::thread saver(writeImageToPathT, _image, path);
+	saver.detach();
+#else
+	writeImageToPath(const std::string& path);
+#endif
+}
+
+void fImage::writeImageToPath(const std::string& path)
 {
 	bool b = _image.save(path.c_str());
 	if (!b)
@@ -34,7 +62,7 @@ unsigned int fImage::getWidth()
 
 unsigned char* fImage::getImageData()
 {
-	return _image.accessPixels();
+	return static_cast<unsigned char*>(_image.accessPixels());
 }
 
 void  fImage::loadImage(const void* buffer, unsigned int width, unsigned int height)

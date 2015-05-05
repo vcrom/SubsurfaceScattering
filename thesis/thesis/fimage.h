@@ -24,6 +24,10 @@ public:
 protected:
 	fipImage _image;
 	void loadFromPath(const std::string& path);
+	void writeImageToPath(const std::string& path);
+
+private:
+	#define THREADED
 };
 
 #endif // FIMAGE_H

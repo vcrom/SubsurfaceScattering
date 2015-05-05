@@ -9,7 +9,7 @@
 #include "targetcamera.h"
 #include "glslshader.h"
 
-#include "texturemanager.h"
+#include "textureloader.h"
 
 class Core
 {
@@ -28,6 +28,7 @@ private:
 
 	TargetCamera cam_;
 	GlslShader shader;
+	Texture2D *tex;
 	//std::vector<
 	
 };

@@ -2,6 +2,7 @@
 
 //#define NDEBUG
 #include <cassert>
+#include "utils.h"
 
 Texture::Texture(GLenum target) :_target(target)
 {
@@ -9,12 +10,13 @@ Texture::Texture(GLenum target) :_target(target)
 	_internal_format = 0;
 	_id = 0;
 	glGenTextures(1, &_id);
-	assert(target == _target);
+	checkCritOpenGLError();
 }
 
 Texture::~Texture()
 {
 	glDeleteTextures(1, &_id);
+	checkCritOpenGLError();
 }
 
 GLuint Texture::getTextureID()
@@ -41,6 +43,7 @@ void Texture::use(GLenum tex_unit)
 {
 	glActiveTexture(tex_unit);
 	glBindTexture(_target, _id);
+	checkCritOpenGLError();
 	assert(isBinded());
 }
 
@@ -48,23 +51,25 @@ void Texture::setTexParameter(GLenum pname, GLint param)
 {
 	assert(isBinded());
 	glTexParameteri(_target, pname, param);
+	checkCritOpenGLError();
 }
 
 void Texture::setTexParameter(GLenum pname, GLfloat param)
 {
 	assert(isBinded());
 	glTexParameterf(_target, pname, param);
+	checkCritOpenGLError();
 }
-
-//void Texture::allocateTextureStorage(GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
-//{
-//	assert(isBinded());
-//	glTexStorage2D(_target, levels, internalformat, width, height);
-//}
 
 bool Texture::isBinded()
 {
+	return _id == getBindedTextured();
+}
+
+GLint Texture::getBindedTextured()
+{
 	GLint texture_binded;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture_binded);
-	return texture_binded == _id;
+	checkCritOpenGLError();
+	return texture_binded;
 }

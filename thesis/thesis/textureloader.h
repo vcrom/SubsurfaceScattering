@@ -11,7 +11,8 @@ public:
 	TextureLoader() = delete;
 	~TextureLoader() = delete;
 
-	static Texture2D Load2DTexture(const std::string& path);
+	static Texture2D* Create2DTexture(const std::string& path);
+	static Texture2D* Create2DTexture(const std::string& path, GLint internalformat);
 	//static Texture2D LoadCubemap(const std::string& path);
 
 private:
