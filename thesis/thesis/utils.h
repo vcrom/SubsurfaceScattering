@@ -3,6 +3,8 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+//#define NDEBUG
+#include <cassert>
 
 #include "exceptions.h"
 
@@ -13,4 +15,13 @@
 //#define checkNonCritOpenGLError() {GLenum _err_ = glGetError(); if(_err_ != GL_NO_ERROR) throw_non_critical("OpenGL error : " + std::to_string(_err_))};
 #define checkCritOpenGLError() assert(glGetError() == GL_NO_ERROR);
 #define checkNonCritOpenGLError() assert(glGetError() == GL_NO_ERROR);
+
+#ifndef GL_CHECK_ERRORS
+#define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
+#endif
+
+#ifndef GL_CHECK_ERRORS_PRINT
+#define GL_CHECK_ERRORS_PRINT {GLenum err; while ((err = glGetError()) != GL_NO_ERROR) {std::cerr << "OpenGL error: " << err << std::endl;} exit(err);}
+#endif
+
 #endif // UTILS_H

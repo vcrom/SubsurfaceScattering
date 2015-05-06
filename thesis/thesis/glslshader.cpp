@@ -40,10 +40,11 @@ void GlslShader::loadFromString(GLenum type, const std::string& source)
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 		GLchar *infoLog = new GLchar[infoLogLength];
 		glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
-		std::cerr << "Compile log: " << infoLog << std::endl;
+		std::string info(infoLog);
 		delete[] infoLog;
+		std::cerr << "Compile log: " << info << std::endl;
 		//assert(false);
-		throw_non_critical("Compile log: " + std::string(infoLog));
+		throw_non_critical("Compile log: " + info);
 	}
 
 	switch (type)
@@ -87,9 +88,10 @@ void GlslShader::createAndLinkProgram()
 		glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &infoLogLength);
 		GLchar *infoLog = new GLchar[infoLogLength];
 		glGetProgramInfoLog(_program, infoLogLength, NULL, infoLog);
-		std::cerr << "Link log: " << infoLog << std::endl;
+		std::string info(infoLog);
 		delete[] infoLog;
-		throw_non_critical("Link log: " + std::string(infoLog));
+		std::cerr << "Link log: " << info << std::endl;
+		throw_non_critical("Link log: " + info);
 	}
 
 	glDeleteShader(_shaders[VERTEX_SHADER]);

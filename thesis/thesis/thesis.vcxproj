@@ -102,7 +102,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib64;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp.lib;glew32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;assimp.lib;glew32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -135,7 +135,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib64;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>assimp.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;assimp.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -143,6 +143,7 @@
     <ClCompile Include="colormesh.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="fimage.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_glwidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -171,14 +172,20 @@
     </ClCompile>
     <ClCompile Include="glslshader.cpp" />
     <ClCompile Include="glwidget.cpp" />
+    <ClCompile Include="hdrimage.cpp" />
+    <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="meshimporter.cpp" />
     <ClCompile Include="renderableobject.cpp" />
-    <ClCompile Include="renderstep.cpp" />
+    <ClCompile Include="rgbimage.cpp" />
     <ClCompile Include="screenquad.cpp" />
     <ClCompile Include="targetcamera.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="texture2d.cpp" />
+    <ClCompile Include="textureloader.cpp" />
+    <ClCompile Include="texturemanager.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -226,14 +233,21 @@
     <ClInclude Include="colormesh.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="exceptions.h" />
+    <ClInclude Include="fimage.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="glslshader.h" />
+    <ClInclude Include="hdrimage.h" />
+    <ClInclude Include="image.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="meshimporter.h" />
     <ClInclude Include="renderableobject.h" />
-    <ClInclude Include="renderstep.h" />
+    <ClInclude Include="rgbimage.h" />
     <ClInclude Include="screenquad.h" />
     <ClInclude Include="targetcamera.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="texture2d.h" />
+    <ClInclude Include="textureloader.h" />
+    <ClInclude Include="texturemanager.h" />
     <ClInclude Include="utils.h" />
     <CustomBuild Include="glwidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
