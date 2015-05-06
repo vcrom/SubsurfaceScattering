@@ -86,6 +86,7 @@ void Core::initialize()
 	fImage image, image2;
 	image.loadImage("textures/flower.jpg");
 
+	tex = TextureLoader::Create2DTexture("textures/flower.jpg");
 	tex->use(GL_TEXTURE0);
 	checkCritOpenGLError();
 
