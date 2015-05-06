@@ -5,6 +5,7 @@
 GlslShader::GlslShader(void)
 {
 	_totalShaders = 0;
+	_program = 0;
 	_shaders[VERTEX_SHADER] = 0;
 	_shaders[FRAGMENT_SHADER] = 0;
 	_shaders[GEOMETRY_SHADER] = 0;
@@ -19,7 +20,7 @@ GlslShader::~GlslShader(void)
 }
 
 void GlslShader::deleteShaderProgram() {
-	glDeleteProgram(_program);
+	if (_program != 0) glDeleteProgram(_program);
 }
 
 #include "utils.h"

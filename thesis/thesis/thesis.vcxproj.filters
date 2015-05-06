@@ -95,19 +95,16 @@
     <ClCompile Include="screenquad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="texturemanager.cpp">
+    <ClCompile Include="fimage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hdrimage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fimage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rgbimage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hdrimage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
@@ -117,6 +114,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="textureloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texturemanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneproperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glslshadermanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -171,19 +177,16 @@
     <ClInclude Include="screenquad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="texturemanager.h">
+    <ClInclude Include="fimage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hdrimage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fimage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rgbimage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hdrimage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
@@ -195,12 +198,27 @@
     <ClInclude Include="textureloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="texturemanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneproperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glslshadermanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\screen_space_quad.frag">
       <Filter>shaders</Filter>
     </None>
     <None Include="shaders\screen_space_quad.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\pass_through_shader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\pass_through_shader.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

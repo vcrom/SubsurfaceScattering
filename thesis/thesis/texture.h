@@ -10,6 +10,8 @@ public:
 	Texture(GLenum target);
 	~Texture();
 
+	void createTexture();
+	void deleteTexture();
 
 	//getters
 	GLuint getTextureID();

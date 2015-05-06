@@ -9,14 +9,23 @@ Texture::Texture(GLenum target) :_target(target)
 	_levels = 0;
 	_internal_format = 0;
 	_id = 0;
-	glGenTextures(1, &_id);
 	checkCritOpenGLError();
 }
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &_id);
+	//glDeleteTextures(1, &_id);
 	checkCritOpenGLError();
+}
+
+void Texture::createTexture()
+{
+	glGenTextures(1, &_id);
+}
+
+void Texture::deleteTexture()
+{
+	glDeleteTextures(1, &_id);
 }
 
 GLuint Texture::getTextureID()
