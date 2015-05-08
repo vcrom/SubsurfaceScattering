@@ -125,6 +125,7 @@ void Core::render()
 	glClear(GL_COLOR_BUFFER_BIT);
 	std::cout << "Render" << std::endl;
 	tex->use(GL_TEXTURE0);
+	//FIXME obtain shader
 	ScreenQuad* quad = ScreenQuad::getInstance();
 	//shader 
 	shader.use();
