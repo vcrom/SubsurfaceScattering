@@ -145,7 +145,7 @@ void GlslShader::loadFromFile(GLenum whichShader, const  std::string& filename){
 		loadFromString(whichShader, buffer);
 	}
 	else {
-		std::cerr << "Error loading shader: " << filename << std::endl;
-		throw_non_critical("Error loading shader: " + filename);
+		std::cerr << "Error opening shader: " << filename << std::endl;
+		throw_non_critical("Error opening shader: " + filename);
 	}
 }

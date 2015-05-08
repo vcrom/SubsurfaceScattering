@@ -60,23 +60,26 @@ void Core::initializeGL()
 #include "fimage.h"
 #include <chrono>
 #include <thread>
+#include "glslshadermanager.h"
 
 void Core::initialize()
 {
 	initializeGL();
+	GlslShaderManager shader_manager = GlslShaderManager::instance();
+	shader_manager.initializeShaders();
 
-	std::cout << "Init shaders" << std::endl;
+	//std::cout << "Init shaders" << std::endl;
 
-	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
-	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/screen_space_quad.frag");
-	shader.createAndLinkProgram();
-	shader.use();
-	shader.addAttribute("vVertex");
-	shader.addUniform("color_texture");
-	glUniform1i(shader("color_texture"), 0);
-	shader.unUse();
-	checkCritOpenGLError();
-	std::cout << "Core initialized" << std::endl;
+	//shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	//shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/screen_space_quad.frag");
+	//shader.createAndLinkProgram();
+	//shader.use();
+	//shader.addAttribute("vVertex");
+	//shader.addUniform("color_texture");
+	//glUniform1i(shader("color_texture"), 0);
+	//shader.unUse();
+	//checkCritOpenGLError();
+	//std::cout << "Core initialized" << std::endl;
 
 
 	//TextureManager tex_man;
@@ -123,6 +126,7 @@ void Core::render()
 	std::cout << "Render" << std::endl;
 	tex->use(GL_TEXTURE0);
 	ScreenQuad* quad = ScreenQuad::getInstance();
+	//shader 
 	shader.use();
 		quad->render();
 	shader.unUse();

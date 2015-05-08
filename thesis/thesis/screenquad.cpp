@@ -5,6 +5,7 @@ const std::vector<unsigned int> ScreenQuad::indices_ = { 0, 1, 2, 0, 2, 3 };
 
 ScreenQuad* ScreenQuad::instance_ = nullptr;
 
+//TODO get instance like managers(http://gameprogrammingpatterns.com/singleton.html)
 ScreenQuad* ScreenQuad::getInstance()
 {
 	return instance_ != nullptr ? instance_ : (instance_ = new ScreenQuad);
