@@ -60,12 +60,14 @@ void Core::initializeGL()
 #include "fimage.h"
 #include <chrono>
 #include <thread>
-#include "glslshadermanager.h"
+
+//GlslShaderManager shader_manager = GlslShaderManager::instance();
 
 void Core::initialize()
 {
 	initializeGL();
-	GlslShaderManager shader_manager = GlslShaderManager::instance();
+	//GlslShaderManager shader_manager = GlslShaderManager::instance();
+	//shader_manager = GlslShaderManager::instance();
 	shader_manager.initializeShaders();
 
 	//std::cout << "Init shaders" << std::endl;
@@ -128,6 +130,7 @@ void Core::render()
 	//FIXME obtain shader
 	ScreenQuad* quad = ScreenQuad::getInstance();
 	//shader 
+	shader = shader_manager.getShader(GlslShaderManager::Shaders::TEXTURE_TO_SCREEN);
 	shader.use();
 		quad->render();
 	shader.unUse();

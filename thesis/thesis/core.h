@@ -11,6 +11,8 @@
 
 #include "textureloader.h"
 
+#include "glslshadermanager.h"
+
 class Core
 {
 public:
@@ -29,6 +31,8 @@ private:
 	TargetCamera cam_;
 	GlslShader shader;
 	Texture2D *tex;
+	GlslShaderManager shader_manager = GlslShaderManager::instance();
+	//GlslShaderManager shader_manager;
 	//std::vector<
 	
 };

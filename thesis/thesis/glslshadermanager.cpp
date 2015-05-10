@@ -24,6 +24,7 @@ GlslShaderManager& GlslShaderManager::instance()
 void GlslShaderManager::initializeShaders()
 {
 	std::cout << "Initializeing default shaders..." << std::endl;
+	initTextureToScreenShader();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -32,6 +33,12 @@ void GlslShaderManager::deleteShaders()
 		shader.deleteShaderProgram();
 	}
 	_shaders.clear();
+}
+
+GlslShader& GlslShaderManager::getShader(Shaders shader)
+{
+	assert(uint(shader) < _shaders.size());
+	return _shaders[shader];
 }
 
 void GlslShaderManager::initTextureToScreenShader()

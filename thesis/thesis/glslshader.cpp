@@ -15,12 +15,12 @@ GlslShader::GlslShader(void)
 
 GlslShader::~GlslShader(void)
 {
-	_attributeList.clear();
-	_uniformLocationList.clear();
 }
 
 void GlslShader::deleteShaderProgram() {
 	if (_program != 0) glDeleteProgram(_program);
+	_attributeList.clear();
+	_uniformLocationList.clear();
 }
 
 #include "utils.h"
