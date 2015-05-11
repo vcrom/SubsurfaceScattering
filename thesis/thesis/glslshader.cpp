@@ -15,6 +15,7 @@ GlslShader::GlslShader(void)
 
 GlslShader::~GlslShader(void)
 {
+
 }
 
 void GlslShader::deleteShaderProgram() {

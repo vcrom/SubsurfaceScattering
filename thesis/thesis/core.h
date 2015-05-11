@@ -23,6 +23,7 @@ public:
 	void render();
 	void resize(unsigned int w, unsigned int h);
 	void loadMesh(const std::string& path);
+	void setDefaultFBO(GLuint fbo);
 
 private:
 	void initializeGL();
@@ -31,7 +32,7 @@ private:
 	TargetCamera cam_;
 	GlslShader shader;
 	Texture2D *tex;
-	GlslShaderManager shader_manager = GlslShaderManager::instance();
+	GlslShaderManager *shader_manager = GlslShaderManager::instance();
 	//GlslShaderManager shader_manager;
 	//std::vector<
 	

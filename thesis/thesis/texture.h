@@ -24,7 +24,7 @@ public:
 	static GLint getBindedTextured();
 
 	//uils
-	void use(GLenum tex_unit = GL_TEXTURE0);
+	void use(GLenum tex_unit = GL_TEXTURE0) const;
 	void setTexParameter(GLenum pname, GLint param);
 	void setTexParameter(GLenum pname, GLfloat param);
 
@@ -33,7 +33,7 @@ protected:
 	GLsizei _levels;
 	GLuint _id;
 
-	bool isBinded();
+	bool isBinded() const;
 
 private:
 };

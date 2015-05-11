@@ -8,7 +8,8 @@
 class ScreenQuad : public RenderableObject
 {
 public:
-	static ScreenQuad* getInstance();
+	static ScreenQuad& getInstance();
+	static ScreenQuad* getInstanceP();
 	~ScreenQuad();
 
 protected:

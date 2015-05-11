@@ -119,10 +119,10 @@
     <ClCompile Include="texturemanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sceneproperties.cpp">
+    <ClCompile Include="glslshadermanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="glslshadermanager.cpp">
+    <ClCompile Include="renderalgorithms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -201,10 +201,10 @@
     <ClInclude Include="texturemanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sceneproperties.h">
+    <ClInclude Include="glslshadermanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glslshadermanager.h">
+    <ClInclude Include="renderalgorithms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

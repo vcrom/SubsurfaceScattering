@@ -12,14 +12,20 @@ GlslShaderManager::GlslShaderManager()
 
 GlslShaderManager::~GlslShaderManager()
 {
-
+	deleteShaders();
 }
 
-GlslShaderManager& GlslShaderManager::instance()
+GlslShaderManager* GlslShaderManager::instance()
 {
 	static GlslShaderManager *instance = new GlslShaderManager();
-	return *instance;
+	return instance;
 }
+
+//GlslShaderManager& GlslShaderManager::instance()
+//{
+//	static GlslShaderManager *instance = new GlslShaderManager();
+//	return *instance;
+//}
 
 void GlslShaderManager::initializeShaders()
 {

@@ -11,7 +11,8 @@ class GlslShaderManager
 public:
 	enum Shaders : uint { TEXTURE_TO_SCREEN, PASS_THROUGH_SHADER, Count };
 
-	static GlslShaderManager& instance();
+	static GlslShaderManager* instance();
+	//static GlslShaderManager& instance();
 	~GlslShaderManager();
 
 	void initializeShaders();

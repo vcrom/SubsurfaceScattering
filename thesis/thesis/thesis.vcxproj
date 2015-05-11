@@ -180,8 +180,8 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="meshimporter.cpp" />
     <ClCompile Include="renderableobject.cpp" />
+    <ClCompile Include="renderalgorithms.cpp" />
     <ClCompile Include="rgbimage.cpp" />
-    <ClCompile Include="sceneproperties.cpp" />
     <ClCompile Include="screenquad.cpp" />
     <ClCompile Include="targetcamera.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -244,8 +244,8 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="meshimporter.h" />
     <ClInclude Include="renderableobject.h" />
+    <ClInclude Include="renderalgorithms.h" />
     <ClInclude Include="rgbimage.h" />
-    <ClInclude Include="sceneproperties.h" />
     <ClInclude Include="screenquad.h" />
     <ClInclude Include="targetcamera.h" />
     <ClInclude Include="texture.h" />

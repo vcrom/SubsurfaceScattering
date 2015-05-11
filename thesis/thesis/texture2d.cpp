@@ -16,6 +16,7 @@ Texture2D::Texture2D(GLenum target) : Texture(target)
 
 Texture2D::~Texture2D()
 {
+
 }
 
 GLsizei Texture2D::getWidth()

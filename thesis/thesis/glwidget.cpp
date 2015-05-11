@@ -69,6 +69,7 @@ void GLWidget::initializeGL()
 void GLWidget::resizeGL(int w, int h)
 {
 	core_engine_->resize(w, h);
+	core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 	//glViewport(0, 0, w, h);
 	//cam.UpdateProjection(glm::radians(fov), float(w) / float(h));
 	//scene.ResizeBuffers(w, h);
@@ -79,8 +80,9 @@ void GLWidget::resizeGL(int w, int h)
 /// </summary>
 void GLWidget::paintGL()
 {
-	std::cout << "FBO" << this->defaultFramebufferObject() << std::endl;
-	std::cout << "Paint GL" << std::endl;
+	//core_engine_->setDefaultFBO(this->defaultFramebufferObject());
+	//std::cout << "QT FBO" << this->defaultFramebufferObject() << std::endl;
+	std::cout << "QGL Paint GL" << std::endl;
 	core_engine_->render();
 }
 

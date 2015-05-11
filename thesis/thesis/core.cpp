@@ -4,6 +4,7 @@
 
 #include "utils.h"
 #include "meshimporter.h"
+#include "renderalgorithms.h"
 
 Core::Core()
 {
@@ -68,7 +69,7 @@ void Core::initialize()
 	initializeGL();
 	//GlslShaderManager shader_manager = GlslShaderManager::instance();
 	//shader_manager = GlslShaderManager::instance();
-	shader_manager.initializeShaders();
+	shader_manager->initializeShaders();
 
 	//std::cout << "Init shaders" << std::endl;
 
@@ -105,13 +106,13 @@ void Core::initialize()
 	//std::cout << "time obtaining the texture: " << elapsed_mseconds.count() << std::endl;
 	//checkCritOpenGLError();
 
-	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-	start = std::chrono::high_resolution_clock::now();
-	image2.loadImage(tex->getTextureData(), tex->getWidth(), tex->getHeight());
-	image2.writeImage("textures/blep.jpg");
-	end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
-	std::cout << "MAIN time writing the image: " << elapsed_mseconds.count() << std::endl;
+	//std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	//start = std::chrono::high_resolution_clock::now();
+	//image2.loadImage(tex->getTextureData(), tex->getWidth(), tex->getHeight());
+	//image2.writeImage("textures/blep.jpg");
+	//end = std::chrono::high_resolution_clock::now();
+	//std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
+	//std::cout << "MAIN time writing the image: " << elapsed_mseconds.count() << std::endl;
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -125,20 +126,25 @@ void Core::render()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	std::cout << "Render" << std::endl;
-	tex->use(GL_TEXTURE0);
-	//FIXME obtain shader
-	ScreenQuad* quad = ScreenQuad::getInstance();
-	//shader 
-	shader = shader_manager.getShader(GlslShaderManager::Shaders::TEXTURE_TO_SCREEN);
-	shader.use();
-		quad->render();
-	shader.unUse();
-	checkCritOpenGLError();
+	RenderAlgorithms::renderTexture(RenderAlgorithms::default_buffer, *tex);
+	//tex->use(GL_TEXTURE0);
+	//ScreenQuad* quad = ScreenQuad::getInstanceP();
+	////shader 
+	shader = shader_manager->getShader(GlslShaderManager::Shaders::TEXTURE_TO_SCREEN);
+	//shader.use();
+	//quad->render();
+	//shader.unUse();
+	//checkCritOpenGLError();
+	
 }
 
 void Core::loadMesh(const std::string& path)
 {
 	Mesh m = MeshImporter::importMeshFromFile(path);
 	std::cout << "LOALA" << std::endl;
+}
+
+void Core::setDefaultFBO(GLuint fbo)
+{
+	RenderAlgorithms::default_buffer = fbo;
 }

@@ -48,7 +48,7 @@ GLsizei Texture::getLevels()
 	return _levels;
 }
 
-void Texture::use(GLenum tex_unit)
+void Texture::use(GLenum tex_unit) const
 {
 	glActiveTexture(tex_unit);
 	glBindTexture(_target, _id);
@@ -70,7 +70,7 @@ void Texture::setTexParameter(GLenum pname, GLfloat param)
 	checkCritOpenGLError();
 }
 
-bool Texture::isBinded()
+bool Texture::isBinded() const
 {
 	return _id == getBindedTextured();
 }
