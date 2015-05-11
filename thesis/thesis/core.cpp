@@ -130,7 +130,7 @@ void Core::render()
 	//tex->use(GL_TEXTURE0);
 	//ScreenQuad* quad = ScreenQuad::getInstanceP();
 	////shader 
-	shader = shader_manager->getShader(GlslShaderManager::Shaders::TEXTURE_TO_SCREEN);
+	//shader = shader_manager->getShader(GlslShaderManager::Shaders::TEXTURE_TO_SCREEN);
 	//shader.use();
 	//quad->render();
 	//shader.unUse();
