@@ -41,10 +41,10 @@ void GlslShaderManager::deleteShaders()
 	_shaders.clear();
 }
 
-GlslShader& GlslShaderManager::getShader(Shaders shader)
+GlslShader* GlslShaderManager::getShader(Shaders shader)
 {
 	assert(uint(shader) < _shaders.size());
-	return _shaders[shader];
+	return &_shaders[shader];
 }
 
 void GlslShaderManager::initTextureToScreenShader()

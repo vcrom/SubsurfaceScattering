@@ -24,6 +24,7 @@ public:
 	void loadBufferToTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
 	void loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border);
 	void loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height);
+	void loadEmptyTexture(GLint internalformat, GLsizei width, GLsizei height);
 
 private:
 	GLsizei _width, _height;

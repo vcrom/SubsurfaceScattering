@@ -113,12 +113,34 @@ void Core::initialize()
 	//end = std::chrono::high_resolution_clock::now();
 	//std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
 	//std::cout << "MAIN time writing the image: " << elapsed_mseconds.count() << std::endl;
+	tex_col = new Texture2D(GL_TEXTURE_2D);
+	tex_col->createTexture();
+	tex_col->use(GL_TEXTURE1);
+	tex_col->loadEmptyTexture(GL_RGBA32F, 32, 32);
+	buffer = new FrameBuffer();
+	buffer->createFrameBuffer();
+	//glBindFramebuffer(GL_FRAMEBUFFER, buffer->getFrameBufferID());
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex_col->getTextureID(), 0);
+	//GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	//if (status == GL_FRAMEBUFFER_COMPLETE) std::cout << "FBO horizontal blur successful." << std::endl;
+	//else std::cout << "Error in FBO horizontal blur. " << status << std::endl;
+
+	buffer->useFrameBuffer();
+	buffer->colorBuffer(tex_col->getTextureID(), 0);
+	if (buffer->checkStatus()) std::cout << "Buffer init" << std::endl;
+	else std::cout << "Buffer NO init" << std::endl;
+	checkCritOpenGLError();
+
+	_qt_buffer = new FrameBuffer(RenderAlgorithms::default_buffer, 1);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
 {
 	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
 	glViewport(0, 0, w, h);
+	tex_col->use(GL_TEXTURE1);
+	tex_col->resize(w, h);
+	checkCritOpenGLError();
 }
 
 #include "screenquad.h"
@@ -126,14 +148,9 @@ void Core::render()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	RenderAlgorithms::renderTexture(RenderAlgorithms::default_buffer, *tex);
-	//tex->use(GL_TEXTURE0);
-	//ScreenQuad* quad = ScreenQuad::getInstanceP();
-	////shader 
-	shader = shader_manager->getShader(GlslShaderManager::Shaders::TEXTURE_TO_SCREEN);
-	//shader.use();
-	//quad->render();
-	//shader.unUse();
+	RenderAlgorithms::renderTexture(*buffer, *tex);
+	RenderAlgorithms::renderTexture(*_qt_buffer, *tex);
+
 	//checkCritOpenGLError();
 	
 }
@@ -147,4 +164,5 @@ void Core::loadMesh(const std::string& path)
 void Core::setDefaultFBO(GLuint fbo)
 {
 	RenderAlgorithms::default_buffer = fbo;
+	_qt_buffer = new FrameBuffer(fbo, 1);
 }

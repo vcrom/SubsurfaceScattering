@@ -3,6 +3,7 @@
 
 #include "glslshadermanager.h"
 #include "texture2d.h"
+#include "framebuffer.h"
 
 class RenderAlgorithms
 {
@@ -11,7 +12,7 @@ public:
 	~RenderAlgorithms();
 	static GLuint default_buffer;
 
-	static void renderTexture(GLuint fbo, const Texture2D& tex);
+	static void renderTexture(FrameBuffer fbo, const Texture2D& tex);
 	//void render(std::vector<);
 private:
 	static GlslShaderManager *shader_manager;

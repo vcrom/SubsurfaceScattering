@@ -18,7 +18,7 @@ public:
 	void initializeShaders();
 	void deleteShaders();
 
-	GlslShader& getShader(Shaders shader);
+	GlslShader* getShader(Shaders shader);
 
 protected:
 	GlslShaderManager();

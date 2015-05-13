@@ -15,7 +15,7 @@ Texture::Texture(GLenum target) :_target(target)
 Texture::~Texture()
 {
 	//glDeleteTextures(1, &_id);
-	checkCritOpenGLError();
+	//checkCritOpenGLError();
 }
 
 void Texture::createTexture()
@@ -50,6 +50,7 @@ GLsizei Texture::getLevels()
 
 void Texture::use(GLenum tex_unit) const
 {
+	assert(_id != 0);
 	glActiveTexture(tex_unit);
 	glBindTexture(_target, _id);
 	checkCritOpenGLError();
