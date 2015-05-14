@@ -12,6 +12,7 @@
 #include "textureloader.h"
 
 #include "glslshadermanager.h"
+#include "framebuffer.h"
 
 class Core
 {
@@ -30,9 +31,9 @@ private:
 	void glewInitialization();
 
 	TargetCamera cam_;
-	GlslShader shader;
-	Texture2D *tex;
+	Texture2D *tex, *tex_col;
 	GlslShaderManager *shader_manager = GlslShaderManager::instance();
+	FrameBuffer *buffer, *_qt_buffer;
 	//GlslShaderManager shader_manager;
 	//std::vector<
 	

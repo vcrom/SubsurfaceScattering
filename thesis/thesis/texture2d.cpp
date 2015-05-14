@@ -68,12 +68,17 @@ void Texture2D::resize(GLsizei width, GLsizei height)
 
 void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border)
 {
-	loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+	loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 }
 
 void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height)
 {
 	loadEmptyTexture(level, internalformat, width, height, 0);
+}
+
+void Texture2D::loadEmptyTexture(GLint internalformat, GLsizei width, GLsizei height)
+{
+	loadEmptyTexture(0, internalformat, width, height);
 }
 
 void Texture2D::loadBufferToTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)

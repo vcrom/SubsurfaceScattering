@@ -28,8 +28,7 @@ protected:
 	virtual unsigned int sizeOfVertexElement() = 0;
 	virtual unsigned int vertexNumberOfComponents() = 0;
 	virtual void fillVertexBuffer(GLfloat* pBuffer) = 0;
-	virtual void fillIndexBuffer(GLuint* pBuffer) = 0;
-	
+	virtual void fillIndexBuffer(GLuint* pBuffer) = 0;	
 };
 
 #endif // RENDERABLEOBJECT_H

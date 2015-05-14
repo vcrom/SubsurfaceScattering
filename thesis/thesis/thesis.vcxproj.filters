@@ -125,6 +125,9 @@
     <ClCompile Include="renderalgorithms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -205,6 +208,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="renderalgorithms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

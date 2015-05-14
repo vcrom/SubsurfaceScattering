@@ -144,6 +144,7 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="fimage.cpp" />
+    <ClCompile Include="framebuffer.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_glwidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -236,6 +237,7 @@
     <ClInclude Include="core.h" />
     <ClInclude Include="exceptions.h" />
     <ClInclude Include="fimage.h" />
+    <ClInclude Include="framebuffer.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="glslshader.h" />
     <ClInclude Include="glslshadermanager.h" />

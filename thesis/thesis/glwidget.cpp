@@ -34,6 +34,7 @@ void GLWidget::initializeGL()
 {
 	try
 	{
+		core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 		core_engine_->initialize();
 	}
 	catch(non_critical_exception e){
