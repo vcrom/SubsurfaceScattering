@@ -5,7 +5,7 @@
 class MeshImporter
 {
 public:
-	static Mesh importMeshFromFile(const std::string& path);
+	static Mesh* importMeshFromFile(const std::string& path);
 private:
 	//static void getVertices();
 };

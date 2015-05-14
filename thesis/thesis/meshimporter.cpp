@@ -67,7 +67,7 @@ std::unique_ptr<aiMesh> loadMeshFromFile(const std::string& path)
 	return std::unique_ptr<aiMesh> (scene->mMeshes[0]);
 }
 
-Mesh MeshImporter::importMeshFromFile(const std::string& path)
+Mesh* MeshImporter::importMeshFromFile(const std::string& path)
 {
 	std::cout << "Loading: " << path << std::endl;
 	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
@@ -76,5 +76,5 @@ Mesh MeshImporter::importMeshFromFile(const std::string& path)
 	std::vector<glm::vec3> normals = getAiMeshNormals(mesh);
 	std::cout << "...Loaded." <<std::endl;
 	mesh.release();
-	return Mesh(faces, vertices, normals);
+	return new Mesh(faces, vertices, normals);
 }

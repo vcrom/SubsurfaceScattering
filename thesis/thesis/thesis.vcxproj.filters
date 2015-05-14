@@ -128,6 +128,9 @@
     <ClCompile Include="framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -140,6 +143,9 @@
       <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="glwidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="bbox.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

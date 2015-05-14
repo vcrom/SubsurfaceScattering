@@ -61,7 +61,7 @@ void Core::initializeGL()
 #include "fimage.h"
 #include <chrono>
 #include <thread>
-
+#include "cb"
 //GlslShaderManager shader_manager = GlslShaderManager::instance();
 
 void Core::initialize()
@@ -96,23 +96,6 @@ void Core::initialize()
 	tex->use(GL_TEXTURE0);
 	checkCritOpenGLError();
 
-	//unsigned int n_pixels = tex->getWidth()*tex->getHeight()*3;
-	//unsigned char *pixels = new unsigned char[n_pixels];
-	//std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-	//start = std::chrono::high_resolution_clock::now();
-	//glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, pixels);
-	//end = std::chrono::high_resolution_clock::now();
-	//std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
-	//std::cout << "time obtaining the texture: " << elapsed_mseconds.count() << std::endl;
-	//checkCritOpenGLError();
-
-	//std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-	//start = std::chrono::high_resolution_clock::now();
-	//image2.loadImage(tex->getTextureData(), tex->getWidth(), tex->getHeight());
-	//image2.writeImage("textures/blep.jpg");
-	//end = std::chrono::high_resolution_clock::now();
-	//std::chrono::duration<double, std::milli> elapsed_mseconds = end - start;
-	//std::cout << "MAIN time writing the image: " << elapsed_mseconds.count() << std::endl;
 	tex_col = new Texture2D(GL_TEXTURE_2D);
 	tex_col->createTexture();
 	tex_col->use(GL_TEXTURE1);
@@ -132,6 +115,9 @@ void Core::initialize()
 	checkCritOpenGLError();
 
 	_qt_buffer = new FrameBuffer(RenderAlgorithms::default_buffer, 1);
+	mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
+	cam.UpdateProjection(glm::radians(fov), float(this->size().width()) / float(this->size().height()));
+	cam.InitFromBBox(CBBox(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)));
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -149,7 +135,7 @@ void Core::render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	RenderAlgorithms::renderTexture(*buffer, *tex);
-	RenderAlgorithms::renderTexture(*_qt_buffer, *tex);
+	RenderAlgorithms::renderTexture(*_qt_buffer, *tex_col);
 
 	//checkCritOpenGLError();
 	
@@ -157,7 +143,7 @@ void Core::render()
 
 void Core::loadMesh(const std::string& path)
 {
-	Mesh m = MeshImporter::importMeshFromFile(path);
+	mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
 	std::cout << "LOALA" << std::endl;
 }
 

@@ -13,6 +13,7 @@
 
 #include "glslshadermanager.h"
 #include "framebuffer.h"
+#include "meshimporter.h"
 
 class Core
 {
@@ -34,6 +35,9 @@ private:
 	Texture2D *tex, *tex_col;
 	GlslShaderManager *shader_manager = GlslShaderManager::instance();
 	FrameBuffer *buffer, *_qt_buffer;
+
+	Mesh *mesh;
+
 	//GlslShaderManager shader_manager;
 	//std::vector<
 	

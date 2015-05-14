@@ -60,7 +60,7 @@ void FrameBuffer::colorBuffer(GLuint tex, unsigned int attachment, GLint level)
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &max_color);
 	assert(level < max_color);
 #endif
-	max_color = std::max(unsigned int(max_color), unsigned int(attachment+1));
+	_color_levels = std::max(unsigned int(_color_levels), unsigned int(attachment + 1));
 	attachTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, tex, level);
 	checkCritOpenGLError();
 }
