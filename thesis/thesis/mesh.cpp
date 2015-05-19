@@ -45,9 +45,9 @@ void Mesh::initializeNormalsBuffer()
 	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
 	fillNormalBuffer(pBuffer);
 	glUnmapBuffer(GL_ARRAY_BUFFER);
-
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(1, vertexNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
+
 	glBindVertexArray(0);
 	GL_CHECK_ERRORS
 }

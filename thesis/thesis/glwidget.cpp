@@ -96,11 +96,10 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_M)
 	{
-		QString filename = QFileDialog::getOpenFileName(this, tr("Load Face"), "./", tr("PLY Files (*.ply);;All files (*)"));
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load Mesh"), "./", tr("PLY Files (*.ply);;All files (*)"));
 		if (!filename.isNull())
-		{
 			core_engine_->loadMesh(filename.toStdString());
-		}
+		update();
 	}
 	else std::cout << "key press event" << std::endl;
 }
@@ -111,7 +110,11 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 /// <param name="event">QT mouse event.</param>
 void GLWidget::mousePressEvent(QMouseEvent* event)
 {
-	std::cout << "mouse press event" << std::endl;
+	Core::Input in = Core::NOTHING;
+	if (event->button() == Qt::LeftButton) in = Core::MOUSE_LEFT_BUTTON;
+	else if (event->button() == Qt::RightButton)in = Core::MOUSE_RIGHT_BUTTON; 
+	core_engine_->mouseclick(event->x(), event->y(), in);
+	update();
 }
 
 /// <summary>
@@ -120,7 +123,11 @@ void GLWidget::mousePressEvent(QMouseEvent* event)
 /// <param name="event">QT mouse event.</param>
 void GLWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	std::cout << "mouse move event" << std::endl;
+	Core::Input in = Core::NOTHING;
+	if (event->buttons() & Qt::LeftButton) in = Core::MOUSE_LEFT_BUTTON;
+	else if (event->buttons() & Qt::RightButton)in = Core::MOUSE_RIGHT_BUTTON;
+	core_engine_->mouseMoved(event->x(), event->y(), in);
+	update();
 }
 
 /// <summary>
@@ -129,5 +136,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent* event)
 /// <param name="event">QT mouse event.</param>
 void GLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-	std::cout << "mpouse rel event" << std::endl;
+	Core::Input in = Core::NOTHING;
+	if (event->buttons() & Qt::LeftButton) in = Core::MOUSE_LEFT_BUTTON;
+	else if (event->buttons() & Qt::RightButton)in = Core::MOUSE_RIGHT_BUTTON;
+	core_engine_->mouseReleased(event->x(), event->y(), in);
+	update();
 }

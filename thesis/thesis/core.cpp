@@ -8,7 +8,7 @@
 
 Core::Core()
 {
-
+	_mouse_x = _mouse_y = 0;
 }
 
 Core::~Core()
@@ -45,6 +45,7 @@ void Core::initializeGL()
 	glewInitialization();
 	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 
+	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_TEXTURE_2D);
 	//GLuint textureID;
 	//glGenTextures(1, &textureID);
@@ -115,10 +116,13 @@ void Core::initialize()
 	checkCritOpenGLError();
 
 	_qt_buffer = new FrameBuffer(RenderAlgorithms::default_buffer, 1);
-	mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
+	//mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
+	//mesh = MeshImporter::importMeshFromFile("meshes/bunny.ply");
+	mesh = MeshImporter::importMeshFromFile("meshes/tests.ply");
 	
 	_cam.updateProjection(glm::radians(45.0f), 1.0f);
 	_cam.initFromBBox(mesh->getBBox());
+	_cam.update();
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -126,6 +130,7 @@ void Core::resize(unsigned int w, unsigned int h)
 	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
 	glViewport(0, 0, w, h);
 	_cam.updateProjection(glm::radians(45.0f), float(w) / float(h));
+	_cam.update();
 	tex_col->use(GL_TEXTURE1);
 	tex_col->resize(w, h);
 	checkCritOpenGLError();
@@ -147,11 +152,59 @@ void Core::render()
 
 void Core::loadMesh(const std::string& path)
 {
+	if (mesh != nullptr){
+		delete mesh;
+		mesh = nullptr;
+	}
 	mesh = MeshImporter::importMeshFromFile(path);
+	_cam.initFromBBox(mesh->getBBox()); 
+	_cam.update();
 }
 
 void Core::setDefaultFBO(GLuint fbo)
 {
 	RenderAlgorithms::default_buffer = fbo;
 	_qt_buffer = new FrameBuffer(fbo, 1);
+}
+
+void Core::mouseclick(int x, int y, Input button)
+{
+	switch (button)
+	{
+	case Input::MOUSE_LEFT_BUTTON:
+		_mouse_x = x;
+		_mouse_y = y;
+		std::cout << "click: " << _mouse_x << "  " << _mouse_y << std::endl;
+		break;
+	default:
+		break;
+	}
+	std::cout << "mouse press event" << std::endl;
+}
+
+void Core::mouseMoved(int x, int y, Input button)
+{
+	switch (button)
+	{
+	case Input::MOUSE_LEFT_BUTTON:
+		std::cout << "move: " << y - _mouse_y << "  " << x - _mouse_x << std::endl;
+		_cam.rotate(-(y - _mouse_y)*ROT_SPEED, (x - _mouse_x)*ROT_SPEED);
+		//_cam.update();
+		_mouse_x = x;
+		_mouse_y = y;
+		break;
+	default:
+		break;
+	}
+	std::cout << "mouse move event" << std::endl;
+}
+
+void Core::mouseReleased(int x, int y, Input button)
+{
+	switch (button)
+	{
+	default:
+		break;
+	}
+	std::cout << "mpouse rel event" << std::endl;
 }

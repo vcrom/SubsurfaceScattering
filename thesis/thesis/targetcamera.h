@@ -10,6 +10,7 @@ public:
 	TargetCamera();
 	~TargetCamera();
 
+	void initialize();
 	void update();
 	void rotate(const float yaw, const float pitch);
 	void initFromBBox(BBox bbox);
@@ -25,8 +26,9 @@ public:
 protected:
 
 	glm::vec3 target_;
-
-	float min_y_angle_, max_y_angle_, x_axis_angle_, y_axis_angle_;
+	const float min_y_angle_ = -60.0f;
+	const float max_y_angle_ = 60.0f;
+	float x_axis_angle_, y_axis_angle_;
 	float distance_to_target_;
 	float min_distance_to_target_, max_distance_to_target_;
 };

@@ -11,16 +11,7 @@
 TargetCamera::TargetCamera()
 	: AbstractCamera()
 {
-	right_vector_ = glm::vec3(1, 0, 0);
-	up_vector_ = glm::vec3(0, 1, 0);
-	look_vector_ = glm::vec3(0, 0, -1);
-	min_y_angle_ = glm::radians(-60.0f);
-	max_y_angle_ = glm::radians(60.0f);
-	min_distance_to_target_ = 1;
-	max_distance_to_target_ = 10;
-	x_axis_angle_ = 0;
-	y_axis_angle_ = 0;
-	distance_to_target_ = 0;
+	initialize();
 }
 
 TargetCamera::~TargetCamera()
@@ -28,8 +19,21 @@ TargetCamera::~TargetCamera()
 
 }
 
+void TargetCamera::initialize()
+{
+	right_vector_ = glm::vec3(1, 0, 0);
+	up_vector_ = glm::vec3(0, 1, 0);
+	look_vector_ = glm::vec3(0, 0, -1);
+	min_distance_to_target_ = 1;
+	max_distance_to_target_ = 10;
+	x_axis_angle_ = 0;
+	y_axis_angle_ = 0;
+	distance_to_target_ = 0;
+}
+
 void TargetCamera::initFromBBox(BBox bbox)
 {
+	initialize();
 	target_ = bbox.getCenter();
 	float rad = bbox.getCircumRadius();
 	min_distance_to_target_ = 1.2f*rad;
@@ -41,6 +45,7 @@ void TargetCamera::initFromBBox(BBox bbox)
 	z_far_ = 5.0f * rad;
 	//CAbstractCamera::Rotate(0, 0, 0);
 	setupProjection(fov_, aspect_ratio_, z_near_, z_far_);
+	rotate(0, 0);
 	update();
 }
 

@@ -67,10 +67,19 @@ std::unique_ptr<aiMesh> loadMeshFromFile(const std::string& path)
 	return std::unique_ptr<aiMesh> (scene->mMeshes[0]);
 }
 
+inline void meshInfo(const std::unique_ptr<aiMesh>& mesh)
+{
+	std::cout << "\t #faces: " << mesh->mNumFaces << std::endl;
+	std::cout << "\t #vertices: " << mesh->mNumVertices << std::endl;
+	if (mesh->HasVertexColors(0)) std::cout << "\t Has color per vertex" << std::endl;
+	if (mesh->HasNormals()) std::cout << "\t Has normals" << std::endl;
+}
+
 Mesh* MeshImporter::importMeshFromFile(const std::string& path)
 {
-	std::cout << "Loading: " << path << std::endl;
+	std::cout << "Loading... " << path << std::endl;
 	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
+	meshInfo(mesh);
 	std::vector<unsigned int> faces = getAiFaces(mesh);
 	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
 	std::vector<glm::vec3> normals = getAiMeshNormals(mesh);
