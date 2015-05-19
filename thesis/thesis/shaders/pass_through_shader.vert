@@ -10,4 +10,5 @@ void main()
 {  
     gl_Position = MVP*vec4(vVertex.xyz,1);
     Normal = vNormal;
+	//
 }
