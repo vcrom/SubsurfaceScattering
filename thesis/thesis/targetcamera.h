@@ -2,6 +2,7 @@
 #define TARGETCAMERA_H
 
 #include "abstractcamera.h"
+#include "bbox.h"
 
 class TargetCamera : public AbstractCamera
 {
@@ -11,7 +12,7 @@ public:
 
 	void update();
 	void rotate(const float yaw, const float pitch);
-	//void initFromBBox(CBBox bbox);
+	void initFromBBox(BBox bbox);
 	void updateProjection(const float fovy, const float aspRatio);
 
 	const glm::vec3 getTarget() const;

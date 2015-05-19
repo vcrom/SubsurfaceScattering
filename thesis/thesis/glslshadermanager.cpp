@@ -31,6 +31,7 @@ void GlslShaderManager::initializeShaders()
 {
 	std::cout << "Initializeing default shaders..." << std::endl;
 	initTextureToScreenShader();
+	initPassThroughShader();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -65,7 +66,19 @@ void GlslShaderManager::initTextureToScreenShader()
 	std::cout << "\tTexture to screen shader initialized" << std::endl;
 }
 
-void initPassThroughShader()
+void GlslShaderManager::initPassThroughShader()
 {
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addAttribute("vNormal");
+	shader.addUniform("MVP");
+	shader.unUse();
+	checkCritOpenGLError();
 
+	_shaders[Shaders::PASS_THROUGH_SHADER] = shader;
+	std::cout << "\tPass Through shader initialized" << std::endl;
 }

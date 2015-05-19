@@ -31,7 +31,7 @@ private:
 	void initializeGL();
 	void glewInitialization();
 
-	TargetCamera cam_;
+	TargetCamera _cam;
 	Texture2D *tex, *tex_col;
 	GlslShaderManager *shader_manager = GlslShaderManager::instance();
 	FrameBuffer *buffer, *_qt_buffer;

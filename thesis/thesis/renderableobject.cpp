@@ -57,7 +57,8 @@ void RenderableObject::destroy() {
 }
 
 
-void RenderableObject::render() {
+void RenderableObject::render() const
+{
 	//Bind vao and draw it.
 	glBindVertexArray(vaoId_);
 	glDrawElements(primType_, totalIndices_, GL_UNSIGNED_INT, 0);

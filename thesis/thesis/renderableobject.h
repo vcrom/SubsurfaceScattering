@@ -9,7 +9,7 @@ class RenderableObject
 public:
 	RenderableObject();
 	~RenderableObject();
-	void render();
+	void render() const;
 
 protected:
 	void initialize();

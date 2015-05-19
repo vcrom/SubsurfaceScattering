@@ -17,7 +17,7 @@ GLuint RenderAlgorithms::default_buffer = 0;
 #include <iostream>
 #include "screenquad.h"
 #include "utils.h"
-void RenderAlgorithms::renderTexture(FrameBuffer fbo, const Texture2D& tex)
+void RenderAlgorithms::renderTexture(const FrameBuffer& fbo, const Texture2D& tex)
 {
 	fbo.useFrameBuffer();
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -34,4 +34,19 @@ void RenderAlgorithms::renderTexture(FrameBuffer fbo, const Texture2D& tex)
 	checkCritOpenGLError();
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, RenderAlgorithms::default_buffer);
+}
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+
+void RenderAlgorithms::renderMesh(const FrameBuffer& fbo, const Mesh *mesh, glm::mat4 V, glm::mat4 P)
+{
+	fbo.useFrameBuffer();
+	GlslShader* shader = shader_manager->getShader(GlslShaderManager::Shaders::PASS_THROUGH_SHADER);
+	shader->use();
+		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V));
+		mesh->render();
+	shader->unUse();
 }

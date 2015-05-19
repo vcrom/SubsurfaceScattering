@@ -9,6 +9,7 @@ Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &v
 	: RenderableObject()
 {
 	initialize(idx, vertices, normals);
+	bbox_computed_ = false;
 }
 
 Mesh::~Mesh()
@@ -95,4 +96,25 @@ unsigned int Mesh::sizeOfVertexElement()
 unsigned int Mesh::vertexNumberOfComponents()
 {
 	return 3;
+}
+
+BBox Mesh::getBBox()
+{
+	if (!bbox_computed_)
+		computeBBox();
+	return bbox_;
+}
+
+void Mesh::computeBBox()
+{
+	glm::vec3 min = vertices_[0];
+	glm::vec3 max = vertices_[0];
+
+	for (unsigned int i = 1; i < vertices_.size(); ++i)
+	{
+		min = glm::min(min, vertices_[i]);
+		max = glm::max(max, vertices_[i]);
+	}
+	bbox_.set(min, max);
+	bbox_computed_ = true;
 }

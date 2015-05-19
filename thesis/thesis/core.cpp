@@ -61,7 +61,7 @@ void Core::initializeGL()
 #include "fimage.h"
 #include <chrono>
 #include <thread>
-#include "cb"
+#include "bbox.h"
 //GlslShaderManager shader_manager = GlslShaderManager::instance();
 
 void Core::initialize()
@@ -116,14 +116,16 @@ void Core::initialize()
 
 	_qt_buffer = new FrameBuffer(RenderAlgorithms::default_buffer, 1);
 	mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
-	cam.UpdateProjection(glm::radians(fov), float(this->size().width()) / float(this->size().height()));
-	cam.InitFromBBox(CBBox(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)));
+	
+	_cam.updateProjection(glm::radians(45.0f), 1.0f);
+	_cam.initFromBBox(mesh->getBBox());
 }
 
 void Core::resize(unsigned int w, unsigned int h)
 {
 	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
 	glViewport(0, 0, w, h);
+	_cam.updateProjection(glm::radians(45.0f), float(w) / float(h));
 	tex_col->use(GL_TEXTURE1);
 	tex_col->resize(w, h);
 	checkCritOpenGLError();
@@ -132,10 +134,12 @@ void Core::resize(unsigned int w, unsigned int h)
 #include "screenquad.h"
 void Core::render()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	RenderAlgorithms::renderTexture(*buffer, *tex);
-	RenderAlgorithms::renderTexture(*_qt_buffer, *tex_col);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//RenderAlgorithms::renderTexture(*buffer, *tex);
+	//RenderAlgorithms::renderTexture(*_qt_buffer, *tex_col);
+	//glClear(GL_DEPTH_BUFFER_BIT);
+	RenderAlgorithms::renderMesh(*_qt_buffer, mesh, _cam.getViewMatrix(), _cam.getProjectionMatrix());
 
 	//checkCritOpenGLError();
 	
@@ -143,8 +147,7 @@ void Core::render()
 
 void Core::loadMesh(const std::string& path)
 {
-	mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
-	std::cout << "LOALA" << std::endl;
+	mesh = MeshImporter::importMeshFromFile(path);
 }
 
 void Core::setDefaultFBO(GLuint fbo)

@@ -34,7 +34,7 @@ void FrameBuffer::deleteFrameBuffer()
 	checkCritOpenGLError();
 }
 
-void FrameBuffer::useFrameBuffer()
+void FrameBuffer::useFrameBuffer() const
 {
 	assert(_id != 0);
 	FrameBuffer::useFrameBuffer(_id);
