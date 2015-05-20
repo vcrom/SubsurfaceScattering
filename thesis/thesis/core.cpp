@@ -65,6 +65,9 @@ void Core::initializeGL()
 #include "bbox.h"
 //GlslShaderManager shader_manager = GlslShaderManager::instance();
 
+/// <summary>
+/// Initializes core objects and openGL context
+/// </summary>
 void Core::initialize()
 {
 	initializeGL();

@@ -129,6 +129,11 @@
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +148,7 @@
     <ClCompile Include="bbox.cpp" />
     <ClCompile Include="colormesh.cpp" />
     <ClCompile Include="core.cpp" />
+    <ClCompile Include="entity.cpp" />
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="fimage.cpp" />
     <ClCompile Include="framebuffer.cpp" />
@@ -262,6 +268,7 @@
     </CustomBuild>
     <ClInclude Include="colormesh.h" />
     <ClInclude Include="core.h" />
+    <ClInclude Include="entity.h" />
     <ClInclude Include="exceptions.h" />
     <ClInclude Include="fimage.h" />
     <ClInclude Include="framebuffer.h" />
