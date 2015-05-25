@@ -31,8 +31,10 @@ void RenderableObject::initialize() {
 	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfVertexElement(), 0, GL_STATIC_DRAW);
 
 	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+	assert(pBuffer != nullptr);
 	fillVertexBuffer(pBuffer);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glUnmapBuffer(GL_ARRAY_BUFFER)
+	assert(glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, vertexNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
@@ -42,8 +44,10 @@ void RenderableObject::initialize() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices_ * sizeof(GLuint), 0, GL_STATIC_DRAW);
 
 	GLuint* pIBuffer = static_cast<GLuint*>(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
+	assert(pIBuffer != nullptr);
 	fillIndexBuffer(pIBuffer);
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+	//glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+	assert(glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER) == GL_TRUE);
 
 	glBindVertexArray(0);
 	GL_CHECK_ERRORS

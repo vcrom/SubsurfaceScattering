@@ -6,18 +6,22 @@
 #include "meshimporter.h"
 #include "renderalgorithms.h"
 
+
 Core::Core()
 {
 	_mouse_x = _mouse_y = 0;
+	_object = nullptr;
+	_load_mesh_event = false;
 }
 
 Core::~Core()
 {
-
+	_object.reset();
 }
 
 void Core::glewInitialization()
 {
+	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 	if (GLEW_OK != err)	{
 		std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
@@ -73,21 +77,8 @@ void Core::initialize()
 	initializeGL();
 	//GlslShaderManager shader_manager = GlslShaderManager::instance();
 	//shader_manager = GlslShaderManager::instance();
+	GlslShaderManager *shader_manager = GlslShaderManager::instance();
 	shader_manager->initializeShaders();
-
-	//std::cout << "Init shaders" << std::endl;
-
-	//shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
-	//shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/screen_space_quad.frag");
-	//shader.createAndLinkProgram();
-	//shader.use();
-	//shader.addAttribute("vVertex");
-	//shader.addUniform("color_texture");
-	//glUniform1i(shader("color_texture"), 0);
-	//shader.unUse();
-	//checkCritOpenGLError();
-	//std::cout << "Core initialized" << std::endl;
-
 
 	//TextureManager tex_man;
 	//tex_man.loadTexture("textures/squares.jpg");
@@ -104,27 +95,33 @@ void Core::initialize()
 	tex_col->createTexture();
 	tex_col->use(GL_TEXTURE1);
 	tex_col->loadEmptyTexture(GL_RGBA32F, 32, 32);
-	buffer = new FrameBuffer();
-	buffer->createFrameBuffer();
-	//glBindFramebuffer(GL_FRAMEBUFFER, buffer->getFrameBufferID());
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex_col->getTextureID(), 0);
-	//GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	//if (status == GL_FRAMEBUFFER_COMPLETE) std::cout << "FBO horizontal blur successful." << std::endl;
-	//else std::cout << "Error in FBO horizontal blur. " << status << std::endl;
+	_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
+	_buffer->createFrameBuffer();
 
-	buffer->useFrameBuffer();
-	buffer->colorBuffer(tex_col->getTextureID(), 0);
-	if (buffer->checkStatus()) std::cout << "Buffer init" << std::endl;
+	_buffer->useFrameBuffer();
+	_buffer->colorBuffer(tex_col->getTextureID(), 0);
+	if (_buffer->checkStatus()) std::cout << "Buffer init" << std::endl;
 	else std::cout << "Buffer NO init" << std::endl;
 	checkCritOpenGLError();
 
-	_qt_buffer = new FrameBuffer(RenderAlgorithms::default_buffer, 1);
-	//mesh = MeshImporter::importMeshFromFile("meshes/sphere.ply");
-	//mesh = MeshImporter::importMeshFromFile("meshes/bunny.ply");
-	mesh = MeshImporter::importMeshFromFile("meshes/tests.ply");
-	
+	_qt_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(RenderAlgorithms::default_buffer, 1));
+
 	_cam.updateProjection(glm::radians(45.0f), 1.0f);
-	_cam.initFromBBox(mesh->getBBox());
+	//loadMesh("meshes/bunny.ply");
+	//loadMesh("meshes/tests.ply");
+	//loadMesh("C:/Users/crv/Source/Repos/Master thesis/thesis/thesis/meshes/sphere.ply");
+
+	//_cam.updateProjection(glm::radians(45.0f), 1.0f);
+	//_object = std::shared_ptr<Entity> (new Entity(MeshImporter::importMeshFromFile("meshes/tests.ply")));
+	//_object->setUnitary();
+	//std::cout << "Mesh box: " << _object->getMeshBBox() << std::endl;
+	//std::cout << "Obj box: " << _object->getBBox() << std::endl;
+	//initializeCam();	
+}
+
+void Core::initializeCam()
+{
+	if (_object) _cam.initFromBBox(_object.get()->getBBox());
 	_cam.update();
 }
 
@@ -144,30 +141,52 @@ void Core::render()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	if (!_object) return;
+	//else std::cout << "Obj box: " << _object->getBBox() << std::endl;
+
 	//RenderAlgorithms::renderTexture(*buffer, *tex);
 	//RenderAlgorithms::renderTexture(*_qt_buffer, *tex_col);
 	//glClear(GL_DEPTH_BUFFER_BIT);
-	RenderAlgorithms::renderMesh(*_qt_buffer, mesh, _cam.getViewMatrix(), _cam.getProjectionMatrix());
-
-	//checkCritOpenGLError();
-	
+	RenderAlgorithms::renderMesh(_qt_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
 }
 
+//void Core::processMeshLoadingEvents()
+//{
+//	if (_load_mesh_event)
+//	{
+//		loadMesh(_path_to_load);
+//		_load_mesh_event = false;
+//	}
+//}
+//
+//void Core::queueToLoadMesh(const std::string& path)
+//{
+//	_load_mesh_event = true;
+//	_path_to_load = path;
+//}
+
+/// <summary>
+/// Loads the mesh from path. In order to efectivelly load the mesh, teh openGl context must be active
+/// </summary>
+/// <param name="path">The path of teh mesh.</param>
 void Core::loadMesh(const std::string& path)
 {
-	if (mesh != nullptr){
-		delete mesh;
-		mesh = nullptr;
-	}
-	mesh = MeshImporter::importMeshFromFile(path);
-	_cam.initFromBBox(mesh->getBBox()); 
-	_cam.update();
+	unloadMesh();
+	_object = std::shared_ptr<Entity>(new Entity(MeshImporter::importMeshFromFile(path)));
+	_object->setUnitary();
+	initializeCam();
+}
+
+void Core::unloadMesh()
+{
+	if (_object) _object.reset();
 }
 
 void Core::setDefaultFBO(GLuint fbo)
 {
 	RenderAlgorithms::default_buffer = fbo;
-	_qt_buffer = new FrameBuffer(fbo, 1);
+	_qt_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(fbo, 1));
 }
 
 void Core::mouseclick(int x, int y, Input button)

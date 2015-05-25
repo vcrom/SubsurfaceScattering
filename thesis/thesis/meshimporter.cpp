@@ -75,15 +75,16 @@ inline void meshInfo(const std::unique_ptr<aiMesh>& mesh)
 	if (mesh->HasNormals()) std::cout << "\t Has normals" << std::endl;
 }
 
-Mesh* MeshImporter::importMeshFromFile(const std::string& path)
+std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path)
 {
 	std::cout << "Loading... " << path << std::endl;
 	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
+	std::cout << "mesh  " << mesh.get() << std::endl;
 	meshInfo(mesh);
 	std::vector<unsigned int> faces = getAiFaces(mesh);
 	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
 	std::vector<glm::vec3> normals = getAiMeshNormals(mesh);
 	std::cout << "...Loaded." <<std::endl;
 	mesh.release();
-	return new Mesh(faces, vertices, normals);
+	return  std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals));
 }

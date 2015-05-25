@@ -27,7 +27,7 @@ protected:
 private:
 	void initTextureToScreenShader();
 	void initPassThroughShader();
-
+	static GlslShaderManager _instance;
 };
 
 #endif // GLSLSHADERMANAGER_H

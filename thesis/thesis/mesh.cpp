@@ -40,11 +40,13 @@ void Mesh::initializeNormalsBuffer()
 	glGenBuffers(1, &vboNormalsId_);
 	glBindVertexArray(vaoId_);
 	glBindBuffer(GL_ARRAY_BUFFER, vboNormalsId_);
-	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeof(glm::vec3), 0, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfVertexElement(), 0, GL_STATIC_DRAW);
 
 	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+	assert(pBuffer != nullptr);
 	fillNormalBuffer(pBuffer);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
+	assert(glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, vertexNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
 

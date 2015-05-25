@@ -15,10 +15,11 @@ GlslShaderManager::~GlslShaderManager()
 	deleteShaders();
 }
 
+GlslShaderManager GlslShaderManager::_instance = GlslShaderManager();
+
 GlslShaderManager* GlslShaderManager::instance()
 {
-	static GlslShaderManager *instance = new GlslShaderManager();
-	return instance;
+	return &_instance;
 }
 
 //GlslShaderManager& GlslShaderManager::instance()

@@ -5,6 +5,8 @@
 #include <GL/gl.h>
 
 #include <iostream>
+#include <memory>
+//#include <vld.h>
 
 #include "targetcamera.h"
 #include "glslshader.h"
@@ -14,6 +16,7 @@
 #include "glslshadermanager.h"
 #include "framebuffer.h"
 #include "meshimporter.h"
+#include "entity.h"
 	
 class Core
 {
@@ -26,7 +29,10 @@ public:
 	void initialize();
 	void render();
 	void resize(uint w, uint h);
+	//void loadMesh(const std::string& path);
+	//void queueToLoadMesh(const std::string& path);
 	void loadMesh(const std::string& path);
+	void unloadMesh();
 	void setDefaultFBO(GLuint fbo);
 
 	enum Input { NOTHING, MOUSE_LEFT_BUTTON, MOUSE_RIGHT_BUTTON };
@@ -37,19 +43,25 @@ public:
 private:
 	void initializeGL();
 	void glewInitialization();
+	void initializeCam();
+
+	//void processMeshLoadingEvents();
+	//void loadMesh(const std::string& path);
 
 	TargetCamera _cam;
 	Texture2D *tex, *tex_col;
-	GlslShaderManager *shader_manager = GlslShaderManager::instance();
-	FrameBuffer *buffer, *_qt_buffer;
+	std::shared_ptr<FrameBuffer> _qt_buffer, _buffer;
 
-	Mesh *mesh;
+	//Mesh *mesh;
+	std::shared_ptr<Entity> _object, _light;
 
 	//constants
 	const float ROT_SPEED = 0.5f;
 	int _mouse_x, _mouse_y;
 	//GlslShaderManager shader_manager;
 	//std::vector<
+	std::string _path_to_load;
+	bool _load_mesh_event;
 	
 };
 

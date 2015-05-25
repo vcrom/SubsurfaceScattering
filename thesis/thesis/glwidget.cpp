@@ -25,6 +25,7 @@ GLWidget::~GLWidget()
 {
 	//core_engine_->delete();
 	delete core_engine_;
+	core_engine_ = nullptr;
 }
 
 /// <summary>
@@ -98,7 +99,10 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 	{
 		QString filename = QFileDialog::getOpenFileName(this, tr("Load Mesh"), "./", tr("PLY Files (*.ply);;All files (*)"));
 		if (!filename.isNull())
+		{
+			makeCurrent();
 			core_engine_->loadMesh(filename.toStdString());
+		}
 		update();
 	}
 	else std::cout << "key press event" << std::endl;

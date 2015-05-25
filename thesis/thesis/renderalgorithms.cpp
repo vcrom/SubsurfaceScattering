@@ -26,9 +26,9 @@ static void resizeTexture(unsigned int id, unsigned int w, unsigned int h);
 #include <iostream>
 #include "screenquad.h"
 #include "utils.h"
-void RenderAlgorithms::renderTexture(const FrameBuffer& fbo, const Texture2D& tex)
+void RenderAlgorithms::renderTexture(const std::shared_ptr<FrameBuffer> fbo, const Texture2D& tex)
 {
-	fbo.useFrameBuffer();
+	fbo->useFrameBuffer();
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	//glDrawBuffers(1, render_buff);
 	
@@ -50,13 +50,13 @@ void RenderAlgorithms::renderTexture(const FrameBuffer& fbo, const Texture2D& te
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
-void RenderAlgorithms::renderMesh(const FrameBuffer& fbo, const Mesh *mesh, glm::mat4 V, glm::mat4 P)
+void RenderAlgorithms::renderMesh(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P)
 {
 	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
-	fbo.useFrameBuffer();
+	fbo->useFrameBuffer();
 	GlslShader* shader = _shader_manager->getShader(GlslShaderManager::Shaders::PASS_THROUGH_SHADER);
 	shader->use();
-		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V));
+		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
 		mesh->render();
 	shader->unUse();
 	checkCritOpenGLError();

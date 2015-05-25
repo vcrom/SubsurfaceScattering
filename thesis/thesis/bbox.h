@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "glm\glm.hpp"
-
+#include "glm/gtx/string_cast.hpp"
 
 class BBox
 {
@@ -12,6 +12,13 @@ public:
 	BBox();
 	BBox(const glm::vec3 &minPoint, const glm::vec3 &maxPoint);
 	~BBox();
+
+	friend std::ostream& operator<<(std::ostream& out, const BBox& box)
+	{
+		std::vector<glm::vec3> lim = box.getMinMax();
+		out << "BBox ( min: " << glm::to_string(lim[0]) << ", max: " << glm::to_string(lim[1]) << ")";
+		return out;
+	}
 
 	void set(const glm::vec3 &minPoint, const glm::vec3 &maxPoint);
 

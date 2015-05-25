@@ -3,17 +3,19 @@
 
 #include "mesh.h"
 #include "glm\glm.hpp"
+#include <memory>
 
 class Entity
 {
 public:
-	Entity(Mesh* mesh);
+	Entity(std::shared_ptr<Mesh> mesh);
 	~Entity();
 
 	void render();
 	glm::mat4 getTransformations();
 
 	void setUnitary();
+	void translateToOrigin();
 	void setScale(glm::vec3 scale);
 	void setPosition(glm::vec3 pos);
 	void setRotation(glm::vec3 rot);
@@ -26,10 +28,12 @@ public:
 
 	BBox getMeshBBox();
 	BBox getBBox();
+	std::shared_ptr<Mesh> getMeshPtr();
 
 
 private:
-	Mesh* _mesh;
+	std::shared_ptr<Mesh> _mesh;
+	//Mesh* _mesh;
 	glm::mat4 _transformations;
 	glm::vec3 _position, _scale, _rotation;
 	bool _updated;
