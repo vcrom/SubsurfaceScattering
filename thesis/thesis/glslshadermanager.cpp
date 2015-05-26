@@ -77,6 +77,7 @@ void GlslShaderManager::initPassThroughShader()
 	shader.addAttribute("vVertex");
 	shader.addAttribute("vNormal");
 	shader.addUniform("MVP");
+	shader.addUniform("color");
 	shader.unUse();
 	checkCritOpenGLError();
 

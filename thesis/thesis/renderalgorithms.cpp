@@ -50,13 +50,14 @@ void RenderAlgorithms::renderTexture(const std::shared_ptr<FrameBuffer> fbo, con
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
-void RenderAlgorithms::renderMesh(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P)
+void RenderAlgorithms::renderMesh(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::vec3 col)
 {
 	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
 	fbo->useFrameBuffer();
 	GlslShader* shader = _shader_manager->getShader(GlslShaderManager::Shaders::PASS_THROUGH_SHADER);
 	shader->use();
 		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+		glUniform3fv(shader->operator()("color"), 1, glm::value_ptr(col));
 		mesh->render();
 	shader->unUse();
 	checkCritOpenGLError();

@@ -11,7 +11,6 @@ Core::Core()
 {
 	_mouse_x = _mouse_y = 0;
 	_object = nullptr;
-	_load_mesh_event = false;
 }
 
 Core::~Core()
@@ -116,7 +115,14 @@ void Core::initialize()
 	//_object->setUnitary();
 	//std::cout << "Mesh box: " << _object->getMeshBBox() << std::endl;
 	//std::cout << "Obj box: " << _object->getBBox() << std::endl;
-	//initializeCam();	
+	//initializeCam();
+	_sphere = MeshImporter::importMeshFromFile("meshes/sphere.ply");
+	_light = std::shared_ptr<Entity>(new Entity(_sphere));
+	_light->setUnitary();
+
+	loadMesh("meshes/tests.ply");
+	_light->scale(glm::vec3(0.19));
+	_light->setPosition(glm::vec3(0.5, 1, 0.5));
 }
 
 void Core::initializeCam()
@@ -149,6 +155,9 @@ void Core::render()
 	//RenderAlgorithms::renderTexture(*_qt_buffer, *tex_col);
 	//glClear(GL_DEPTH_BUFFER_BIT);
 	RenderAlgorithms::renderMesh(_qt_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
+	RenderAlgorithms::renderMesh(_qt_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+	std::cout << glm::to_string(_object->getBBox().getCenter()) << std::endl;
+	std::cout << glm::to_string(_light->getBBox().getCenter()) << std::endl;
 }
 
 //void Core::processMeshLoadingEvents()
@@ -196,11 +205,14 @@ void Core::mouseclick(int x, int y, Input button)
 	case Input::MOUSE_LEFT_BUTTON:
 		_mouse_x = x;
 		_mouse_y = y;
-		std::cout << "click: " << _mouse_x << "  " << _mouse_y << std::endl;
+		break;
+	case Input::MOUSE_RIGHT_BUTTON:
+		_mouse_y = y;
 		break;
 	default:
 		break;
 	}
+	std::cout << "click: " << _mouse_x << "  " << _mouse_y << std::endl;
 	std::cout << "mouse press event" << std::endl;
 }
 
@@ -209,15 +221,20 @@ void Core::mouseMoved(int x, int y, Input button)
 	switch (button)
 	{
 	case Input::MOUSE_LEFT_BUTTON:
-		std::cout << "move: " << y - _mouse_y << "  " << x - _mouse_x << std::endl;
+		
 		_cam.rotate(-(y - _mouse_y)*ROT_SPEED, (x - _mouse_x)*ROT_SPEED);
 		//_cam.update();
 		_mouse_x = x;
 		_mouse_y = y;
 		break;
+	case Input::MOUSE_RIGHT_BUTTON:
+		_cam.zoom((y - _mouse_y) * ZOOM_SPEED);
+		_mouse_y = y;
+		break;
 	default:
 		break;
 	}
+	std::cout << "zoom: " << y - _mouse_y << "  " << x - _mouse_x << std::endl;
 	std::cout << "mouse move event" << std::endl;
 }
 

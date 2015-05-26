@@ -21,7 +21,7 @@ public:
 	static void resizeTexture(unsigned int id, unsigned int w, unsigned int h);
 
 	static void renderTexture(const std::shared_ptr<FrameBuffer> fbo, const Texture2D& tex);
-	static void renderMesh(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P);
+	static void renderMesh(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::vec3 col = glm::vec3(1));
 	//void render(std::vector<);
 private:
 	static GlslShaderManager *_shader_manager;

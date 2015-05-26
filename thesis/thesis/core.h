@@ -52,17 +52,13 @@ private:
 	Texture2D *tex, *tex_col;
 	std::shared_ptr<FrameBuffer> _qt_buffer, _buffer;
 
-	//Mesh *mesh;
+	std::shared_ptr<Mesh> _sphere;
 	std::shared_ptr<Entity> _object, _light;
 
 	//constants
 	const float ROT_SPEED = 0.5f;
-	int _mouse_x, _mouse_y;
-	//GlslShaderManager shader_manager;
-	//std::vector<
-	std::string _path_to_load;
-	bool _load_mesh_event;
-	
+	const float ZOOM_SPEED = 0.05f;
+	int _mouse_x, _mouse_y;	
 };
 
 #endif // CORE_H

@@ -172,12 +172,13 @@ void Entity::computetransformationMatrix()
 	_transformations = glm::mat4(1);
 	glm::vec3 box_center = _mesh->getBBox().getCenter();
 
-	_transformations = glm::translate(_transformations, -box_center);
+	_transformations = glm::translate(_transformations, _position);
 	_transformations = glm::rotate(_transformations, _rotation.x, glm::vec3(1,0,0));
 	_transformations = glm::rotate(_transformations, _rotation.y, glm::vec3(0, 1, 0));
 	_transformations = glm::rotate(_transformations, _rotation.z, glm::vec3(0, 0, 1));
 	_transformations = glm::scale(_transformations, _scale);
-	_transformations = glm::translate(_transformations, _position);
+	_transformations = glm::translate(_transformations, -box_center);
+
 
 	_updated = true;
 }
