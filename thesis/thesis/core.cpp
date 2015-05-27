@@ -11,6 +11,7 @@ Core::Core()
 {
 	_mouse_x = _mouse_y = 0;
 	_object = nullptr;
+	_control_boolean_params = std::vector<bool>(10, false);
 }
 
 Core::~Core()
@@ -76,7 +77,7 @@ void Core::initialize()
 	initializeGL();
 	//GlslShaderManager shader_manager = GlslShaderManager::instance();
 	//shader_manager = GlslShaderManager::instance();
-	GlslShaderManager *shader_manager = GlslShaderManager::instance();
+	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
 	shader_manager->initializeShaders();
 
 	//TextureManager tex_man;
@@ -86,24 +87,31 @@ void Core::initialize()
 	fImage image, image2;
 	image.loadImage("textures/flower.jpg");
 
-	tex = TextureLoader::Create2DTexture("textures/flower.jpg");
-	tex->use(GL_TEXTURE0);
-	checkCritOpenGLError();
+	_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_shadow_map_texture->use();
+	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT, 32, 32);
 
-	tex_col = new Texture2D(GL_TEXTURE_2D);
-	tex_col->createTexture();
-	tex_col->use(GL_TEXTURE1);
-	tex_col->loadEmptyTexture(GL_RGBA32F, 32, 32);
-	_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
-	_buffer->createFrameBuffer();
+	_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
+	_background_texture->use();
 
-	_buffer->useFrameBuffer();
-	_buffer->colorBuffer(tex_col->getTextureID(), 0);
-	if (_buffer->checkStatus()) std::cout << "Buffer init" << std::endl;
-	else std::cout << "Buffer NO init" << std::endl;
-	checkCritOpenGLError();
+	//tex = TextureLoader::Create2DTexture("textures/flower.jpg");
+	//tex->use(GL_TEXTURE0);
+	//checkCritOpenGLError();
 
-	_qt_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(RenderAlgorithms::default_buffer, 1));
+	//tex_col = new Texture2D(GL_TEXTURE_2D);
+	//tex_col->createTexture();
+	//tex_col->use(GL_TEXTURE1);
+	//tex_col->loadEmptyTexture(GL_RGBA32F, 32, 32);
+	//_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
+	//_buffer->createFrameBuffer();
+
+	//_buffer->useFrameBuffer();
+	//_buffer->colorBuffer(tex_col->getTextureID(), 0);
+	//if (_buffer->checkStatus()) std::cout << "Buffer init" << std::endl;
+	//else std::cout << "Buffer NO init" << std::endl;
+	//checkCritOpenGLError();
+
+	_default_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(RenderAlgorithms::default_buffer, 1));
 
 	_cam.updateProjection(glm::radians(45.0f), 1.0f);
 	//loadMesh("meshes/bunny.ply");
@@ -137,43 +145,44 @@ void Core::resize(unsigned int w, unsigned int h)
 	glViewport(0, 0, w, h);
 	_cam.updateProjection(glm::radians(45.0f), float(w) / float(h));
 	_cam.update();
-	tex_col->use(GL_TEXTURE1);
-	tex_col->resize(w, h);
+	//tex_col->use(GL_TEXTURE1);
+	//tex_col->resize(w, h);
 	checkCritOpenGLError();
 }
 
-#include "screenquad.h"
+//#include "screenquad.h"
+#include <glm/gtc/matrix_transform.hpp>
 void Core::render()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	RenderAlgorithms::renderTexture(_default_buffer, _background_texture);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	if (!_object) return;
 	//else std::cout << "Obj box: " << _object->getBBox() << std::endl;
 
 	//RenderAlgorithms::renderTexture(*buffer, *tex);
-	//RenderAlgorithms::renderTexture(*_qt_buffer, *tex_col);
+	//RenderAlgorithms::renderTexture(*_default_buffer, *tex_col);
 	//glClear(GL_DEPTH_BUFFER_BIT);
-	RenderAlgorithms::renderMesh(_qt_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
-	RenderAlgorithms::renderMesh(_qt_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+	if (!_control_boolean_params[0])
+	{
+		RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
+		RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+	}
+
+	else
+	{
+		glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
+		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
+		RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L);
+	}
+
+
 	std::cout << glm::to_string(_object->getBBox().getCenter()) << std::endl;
 	std::cout << glm::to_string(_light->getBBox().getCenter()) << std::endl;
 }
-
-//void Core::processMeshLoadingEvents()
-//{
-//	if (_load_mesh_event)
-//	{
-//		loadMesh(_path_to_load);
-//		_load_mesh_event = false;
-//	}
-//}
-//
-//void Core::queueToLoadMesh(const std::string& path)
-//{
-//	_load_mesh_event = true;
-//	_path_to_load = path;
-//}
 
 /// <summary>
 /// Loads the mesh from path. In order to efectivelly load the mesh, teh openGl context must be active
@@ -195,7 +204,7 @@ void Core::unloadMesh()
 void Core::setDefaultFBO(GLuint fbo)
 {
 	RenderAlgorithms::default_buffer = fbo;
-	_qt_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(fbo, 1));
+	_default_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(fbo, 1));
 }
 
 void Core::mouseclick(int x, int y, Input button)
@@ -246,4 +255,11 @@ void Core::mouseReleased(int x, int y, Input button)
 		break;
 	}
 	std::cout << "mpouse rel event" << std::endl;
+}
+
+
+void Core::toggleControlBool(unsigned int i)
+{
+	assert(i < _control_boolean_params.size());
+	_control_boolean_params[i] = !_control_boolean_params[i];
 }

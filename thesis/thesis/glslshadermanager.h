@@ -2,6 +2,7 @@
 #define GLSLSHADERMANAGER_H
 
 #include <vector>
+#include <memory>
 
 #include "glslshader.h"
 
@@ -11,14 +12,14 @@ class GlslShaderManager
 public:
 	enum Shaders : uint { TEXTURE_TO_SCREEN, PASS_THROUGH_SHADER, Count };
 
-	static GlslShaderManager* instance();
+	static std::shared_ptr<GlslShaderManager> instance();
 	//static GlslShaderManager& instance();
 	~GlslShaderManager();
 
 	void initializeShaders();
 	void deleteShaders();
 
-	GlslShader* getShader(Shaders shader);
+	std::shared_ptr<GlslShader> getShader(Shaders shader);
 
 protected:
 	GlslShaderManager();
@@ -27,7 +28,6 @@ protected:
 private:
 	void initTextureToScreenShader();
 	void initPassThroughShader();
-	static GlslShaderManager _instance;
 };
 
 #endif // GLSLSHADERMANAGER_H

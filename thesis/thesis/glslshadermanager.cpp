@@ -15,11 +15,10 @@ GlslShaderManager::~GlslShaderManager()
 	deleteShaders();
 }
 
-GlslShaderManager GlslShaderManager::_instance = GlslShaderManager();
-
-GlslShaderManager* GlslShaderManager::instance()
+std::shared_ptr<GlslShaderManager> GlslShaderManager::instance()
 {
-	return &_instance;
+	static std::shared_ptr<GlslShaderManager> instance = std::make_shared<GlslShaderManager>(GlslShaderManager());
+	return instance;
 }
 
 //GlslShaderManager& GlslShaderManager::instance()
@@ -43,10 +42,10 @@ void GlslShaderManager::deleteShaders()
 	_shaders.clear();
 }
 
-GlslShader* GlslShaderManager::getShader(Shaders shader)
+std::shared_ptr<GlslShader> GlslShaderManager::getShader(Shaders shader)
 {
 	assert(uint(shader) < _shaders.size());
-	return &_shaders[shader];
+	return std::make_shared<GlslShader>(_shaders[shader]);
 }
 
 void GlslShaderManager::initTextureToScreenShader()

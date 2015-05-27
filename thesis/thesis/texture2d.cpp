@@ -68,7 +68,15 @@ void Texture2D::resize(GLsizei width, GLsizei height)
 
 void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border)
 {
-	loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	switch (internalformat)
+	{
+	case GL_DEPTH_COMPONENT:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		break;
+	default:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		break;
+	}
 }
 
 void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height)
@@ -96,6 +104,8 @@ void Texture2D::loadBufferToTexture(GLint level, GLint internalformat, GLsizei w
 
 	//create/init openGl texture
 	glTexImage2D(_target, level, internalformat, width, height, border, format, type, pixels);
+
+	//glTexImage2D(_target, level, internalformat, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	checkCritOpenGLError();
 
 }

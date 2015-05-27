@@ -9,6 +9,7 @@ Texture::Texture(GLenum target) :_target(target)
 	_levels = 0;
 	_internal_format = 0;
 	_id = 0;
+	createTexture();
 	checkCritOpenGLError();
 }
 
@@ -16,6 +17,7 @@ Texture::~Texture()
 {
 	//glDeleteTextures(1, &_id);
 	//checkCritOpenGLError();
+	deleteTexture();
 }
 
 void Texture::createTexture()

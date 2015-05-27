@@ -81,6 +81,43 @@ void Entity::setRotationd(glm::vec3 rot)
 	setRotation(glm::radians(rot));
 }
 
+
+/// <summary>
+/// Gets the scale.
+/// </summary>
+/// <returns></returns>
+glm::vec3 Entity::getScale()
+{
+	return _scale;
+}
+
+/// <summary>
+/// Gets the position.
+/// </summary>
+/// <returns></returns>
+glm::vec3 Entity::getPosition()
+{
+	return _position;
+}
+
+/// <summary>
+/// Gets the rotation in radians.
+/// </summary>
+/// <returns></returns>
+glm::vec3 Entity::getRotation()
+{
+	return _rotation;
+}
+
+/// <summary>
+/// Gets the rotation in degrees.
+/// </summary>
+/// <returns></returns>
+glm::vec3 Entity::getRotationd()
+{
+	return glm::degrees(_rotation);
+}
+
 /// <summary>
 /// Scales the entity accrding to the param.
 /// </summary>

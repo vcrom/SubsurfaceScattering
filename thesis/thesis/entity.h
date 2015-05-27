@@ -16,11 +16,20 @@ public:
 
 	void setUnitary();
 	void translateToOrigin();
+	
+	//Setters
 	void setScale(glm::vec3 scale);
 	void setPosition(glm::vec3 pos);
 	void setRotation(glm::vec3 rot);
 	void setRotationd(glm::vec3 rot);
 
+	//Getters
+	glm::vec3 getScale();
+	glm::vec3 getPosition();
+	glm::vec3 getRotation();
+	glm::vec3 getRotationd();
+
+	//Funcs
 	void scale(glm::vec3 s);
 	void translate(glm::vec3 t);
 	void rotated(glm::vec3 r);
