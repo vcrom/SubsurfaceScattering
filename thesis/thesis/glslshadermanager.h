@@ -10,7 +10,7 @@ class GlslShaderManager
 {
 	using uint = unsigned int;
 public:
-	enum Shaders : uint { TEXTURE_TO_SCREEN, PASS_THROUGH_SHADER, Count };
+	enum Shaders : uint { TEXTURE_TO_SCREEN, PASS_THROUGH, SHADOWS_AND_DIFFUSE, Count };
 
 	static std::shared_ptr<GlslShaderManager> instance();
 	//static GlslShaderManager& instance();
@@ -28,6 +28,7 @@ protected:
 private:
 	void initTextureToScreenShader();
 	void initPassThroughShader();
+	void initShadowsAndDiffuseShader();
 };
 
 #endif // GLSLSHADERMANAGER_H

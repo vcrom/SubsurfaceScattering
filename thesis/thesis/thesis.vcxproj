@@ -329,6 +329,8 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\diffuse_and_shadows.frag" />
+    <None Include="shaders\diffuse_and_shadows.vert" />
     <None Include="shaders\pass_through_shader.frag" />
     <None Include="shaders\pass_through_shader.vert" />
     <None Include="shaders\screen_space_quad.frag" />

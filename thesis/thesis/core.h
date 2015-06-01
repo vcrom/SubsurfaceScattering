@@ -47,18 +47,22 @@ private:
 	void glewInitialization();
 	void initializeCam();
 
+	void resizeTextures(unsigned int w, unsigned int h);
+	
+
 	TargetCamera _cam;
 
-	//Texture Managment
-	//Texture2D *tex, *tex_col;
+	//Textures
 	std::shared_ptr<Texture2D> _background_texture, _shadow_map_texture;
-	std::shared_ptr<FrameBuffer> _default_buffer, _buffer;
+	//Buffers
+	std::shared_ptr<FrameBuffer> _default_buffer, _generic_buffer;
 
 	std::shared_ptr<Mesh> _sphere;
 	std::shared_ptr<Entity> _object, _light;
 
 	//control params
 	std::vector<bool> _control_boolean_params;
+	glm::vec2 _window_size;
 
 	int _mouse_x, _mouse_y;
 
