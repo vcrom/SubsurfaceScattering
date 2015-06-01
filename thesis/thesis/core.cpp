@@ -152,7 +152,7 @@ void Core::initializeCam()
 void Core::resizeTextures(unsigned int w, unsigned int h)
 {
 	_shadow_map_texture->use();
-	_shadow_map_texture->resize(w, h);
+	_shadow_map_texture->resize(w*2, h*2);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
