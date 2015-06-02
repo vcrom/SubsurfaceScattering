@@ -1,4 +1,5 @@
 #version 330 core
+//precision highp float;
 
 layout(location=0) in vec3 vVertex;
 layout(location=1) in vec3 vNormal;
@@ -19,6 +20,7 @@ void main()
 {
     vEyeSpaceNormal = vec4(normalize(N*vec4(vNormal,0))).xyz;
     vEyeSpacePosition = vec4(MV*vec4(vVertex,1)).xyz;
-    vShadowCoords = S*(vec4(vVertex,1));
+    //vShadowCoords = S*(vec4(vVertex, 1));
+    vShadowCoords = S*(vec4(vVertex + 0.025*vNormal, 1));
     gl_Position = MVP*vec4(vVertex,1);
 }

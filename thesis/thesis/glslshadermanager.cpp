@@ -37,10 +37,18 @@ void GlslShaderManager::initializeShaders()
 
 void GlslShaderManager::deleteShaders()
 {
+	std::cout << "Deleteing default shaders..." << std::endl;
 	for (auto &shader : _shaders) {
 		shader.deleteShaderProgram();
 	}
 	_shaders.clear();
+}
+
+void GlslShaderManager::reloadShaders()
+{
+	std::cout << "Reloading default shaders..." << std::endl;
+	deleteShaders();
+	initializeShaders();
 }
 
 std::shared_ptr<GlslShader> GlslShaderManager::getShader(Shaders shader)
@@ -107,4 +115,40 @@ void GlslShaderManager::initShadowsAndDiffuseShader()
 
 	_shaders[Shaders::SHADOWS_AND_DIFFUSE] = shader;
 	std::cout << "\tShadows and diffuse shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initThicknessShader()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/thickness_shader.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/thickness_shader.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addUniform("MVP");
+	shader.addUniform("MV");
+	shader.addUniform("z_far");
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::THICKNESS_SHADER] = shader;
+	std::cout << "\tthickness shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initLinealDeepthShader()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/linear_depth_shader.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/linear_depth_shader.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addUniform("MVP");
+	shader.addUniform("MV");
+	shader.addUniform("z_far");
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::LINEAL_DEEPTH] = shader;
+	std::cout << "\tLineal deepth shader initialized" << std::endl;
 }

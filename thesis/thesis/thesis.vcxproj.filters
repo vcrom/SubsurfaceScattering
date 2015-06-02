@@ -245,5 +245,23 @@
     <None Include="shaders\diffuse_and_shadows.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\translucency_shader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\translucency_shader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\thickness_shader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\thickness_shader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\linear_depth_shader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\linear_depth_shader.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

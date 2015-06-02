@@ -70,7 +70,7 @@ void RenderAlgorithms::renderMesh(const std::shared_ptr<FrameBuffer> fbo, const 
 /// <summary>
 /// Uses the framebuffer fbo to write in its deepth channel the mesh deepth info from a ceirtain point of view.
 /// </summary>
-/// <param name="fbo">FrameBuffer.</param>
+/// <param name="fbo">FrameBuffer with depth atachment.</param>
 /// <param name="mesh">Mesh.</param>
 /// <param name="M">The model transformation matrix.</param>
 /// <param name="V">The view transformation matrix.</param>
@@ -85,7 +85,9 @@ void RenderAlgorithms::getShadowMap(const std::shared_ptr<FrameBuffer> fbo, cons
 	fbo->useFrameBuffer();
 	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	//glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
+
 
 	shader->use();
 		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
@@ -100,6 +102,7 @@ void RenderAlgorithms::getShadowMap(const std::shared_ptr<FrameBuffer> fbo, cons
 
 void RenderAlgorithms::renderDiffuseAndShadows(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, glm::vec3 light_pos)
 {
+	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
 	//RenderAlgorithms::renderMesh(fbo, mesh, M, V, P, glm::vec3(1, 0, 0));
 
 	//bias matrix
@@ -110,6 +113,7 @@ void RenderAlgorithms::renderDiffuseAndShadows(const std::shared_ptr<FrameBuffer
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+
 	shadow_tex->use(GL_TEXTURE0);
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::SHADOWS_AND_DIFFUSE);
 	fbo->useFrameBuffer();
@@ -128,7 +132,63 @@ void RenderAlgorithms::renderDiffuseAndShadows(const std::shared_ptr<FrameBuffer
 	checkCritOpenGLError();
 }
 
+void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, float z_far, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
+{
+	renderMesh(fbo, mesh, M, V, P, glm::vec3(0, 1, 0));
+	return;
+	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+
+	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::LINEAL_DEEPTH);
+	fbo->useFrameBuffer();
+	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
+
+	shader->use();
+		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+		glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
+		glUniform1f(shader->operator()("z_far"), z_far);
+		mesh->render();
+	shader->unUse();
+
+	glDisable(GL_CULL_FACE);
+	glViewport(0, 0, viewport_size.x, viewport_size.y);
+	checkCritOpenGLError();
+}
 bool RenderAlgorithms::checkGLEnabled(GLenum param)
 {
 	return glIsEnabled(param);
+}
+
+void RenderAlgorithms::renderThickness(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, float z_far)//, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
+{
+	glDisable(GL_CULL_FACE);
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::THICKNESS_SHADER);
+	fbo->useFrameBuffer();
+	//glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+
+	shader->use();
+		glUniform1f(shader->operator()("z_far"), z_far);
+		glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
+		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+		mesh->render();
+	shader->unUse();
+
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+
+	//glViewport(0, 0, viewport_size.x, viewport_size.y);
+	checkCritOpenGLError();
+
 }

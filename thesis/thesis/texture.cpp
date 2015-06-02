@@ -73,6 +73,20 @@ void Texture::setTexParameter(GLenum pname, GLfloat param)
 	checkCritOpenGLError();
 }
 
+void Texture::setTexParameter(GLenum pname, const GLint *param)
+{
+	assert(isBinded());
+	glTexParameteriv(_target, pname, param);
+	checkCritOpenGLError();
+}
+
+void Texture::setTexParameter(GLenum pname, const GLfloat *param)
+{
+	assert(isBinded());
+	glTexParameterfv(_target, pname, param);
+	checkCritOpenGLError();
+}
+
 bool Texture::isBinded() const
 {
 	return _id == getBindedTextured();

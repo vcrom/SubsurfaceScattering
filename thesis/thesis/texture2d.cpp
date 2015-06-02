@@ -71,6 +71,7 @@ void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei widt
 	switch (internalformat)
 	{
 	case GL_DEPTH_COMPONENT:
+	case GL_DEPTH_COMPONENT32F:
 		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 		break;
 	default:
@@ -98,6 +99,7 @@ void Texture2D::loadBufferToTexture(GLint level, GLint internalformat, GLsizei w
 	_levels = std::max( level + 1, _levels);
 	_internal_format = internalformat;
 	_border = border;
+
 	//default params
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

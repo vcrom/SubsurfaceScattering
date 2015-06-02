@@ -1,6 +1,8 @@
 #include "core.h"
 
 #include <iostream>
+#include <chrono>
+//#include <thread>
 
 #include "utils.h"
 #include "meshimporter.h"
@@ -17,12 +19,15 @@ Core::Core()
 #include "fimage.h"
 Core::~Core()
 {
-	//fImage image;
-	//image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
-	//image.writeImage("textures/depth_map.jpg");
+	fImage image;
+	image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
+	image.writeImage("textures/depth_map.jpg");
 	_object.reset();
 }
 
+/// <summary>
+/// Initializes OpenGL Extension Wrangler Library.
+/// </summary>
 void Core::glewInitialization()
 {
 	glewExperimental = GL_TRUE;
@@ -48,6 +53,9 @@ void Core::glewInitialization()
 	checkCritOpenGLError();
 }
 
+/// <summary>
+/// Initializes the openGl enviroment.
+/// </summary>
 void Core::initializeGL()
 {
 	glewInitialization();
@@ -68,10 +76,54 @@ void Core::initializeGL()
 }
 
 
-#include <chrono>
-#include <thread>
-#include "bbox.h"
-//GlslShaderManager shader_manager = GlslShaderManager::instance();
+/// <summary>
+/// Initializes the textures.
+/// </summary>
+void Core::initializeTextures()
+{
+	//Shadow map texture
+	_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_shadow_map_texture->use();
+	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT/*GL_DEPTH_COMPONENT32F*/, 32, 32);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	GLfloat border[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	// This must be specified in order to allow usage of shadow2DProj function in the shader
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	checkCritOpenGLError();
+
+	//lineal shadow map
+	_lineal_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_lineal_shadow_map_texture->use();
+	_lineal_shadow_map_texture->loadEmptyTexture(GL_R32F, 32, 32);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
+
+	_thickness_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_thickness_texture->use();
+	_thickness_texture->loadEmptyTexture(GL_R32F, 32, 32);
+	_thickness_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	_thickness_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+	_thickness_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_thickness_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
+
+
+	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
+	_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
+	_background_texture->use();
+	checkCritOpenGLError();
+
+	std::cout << "Textures init" << std::endl;
+}
 
 /// <summary>
 /// Initializes core objects and openGL context
@@ -79,42 +131,11 @@ void Core::initializeGL()
 void Core::initialize()
 {
 	initializeGL();
-	//GlslShaderManager shader_manager = GlslShaderManager::instance();
-	//shader_manager = GlslShaderManager::instance();
+	initializeTextures();
+
 	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
 	shader_manager->initializeShaders();
 
-	//TextureManager tex_man;
-	//tex_man.loadTexture("textures/squares.jpg");
-	//tex_man.loadTexture("textures/squares.png");
-	//tex_man.loadTexture("textures/hdr_is.hdr");
-	fImage image, image2;
-	image.loadImage("textures/flower.jpg");
-
-	_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
-	_shadow_map_texture->use();
-	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT, 32, 32);
-
-	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
-	_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
-	_background_texture->use();
-
-	//tex = TextureLoader::Create2DTexture("textures/flower.jpg");
-	//tex->use(GL_TEXTURE0);
-	//checkCritOpenGLError();
-
-	//tex_col = new Texture2D(GL_TEXTURE_2D);
-	//tex_col->createTexture();
-	//tex_col->use(GL_TEXTURE1);
-	//tex_col->loadEmptyTexture(GL_RGBA32F, 32, 32);
-	//_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
-	//_buffer->createFrameBuffer();
-
-	//_buffer->useFrameBuffer();
-	//_buffer->colorBuffer(tex_col->getTextureID(), 0);
-	//if (_buffer->checkStatus()) std::cout << "Buffer init" << std::endl;
-	//else std::cout << "Buffer NO init" << std::endl;
-	//checkCritOpenGLError();
 
 	//Init default buffer
 	_default_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(RenderAlgorithms::default_buffer, 1));
@@ -123,16 +144,7 @@ void Core::initialize()
 	_generic_buffer->createFrameBuffer();
 
 	_cam.updateProjection(glm::radians(45.0f), 1.0f);
-	//loadMesh("meshes/bunny.ply");
-	//loadMesh("meshes/tests.ply");
-	//loadMesh("C:/Users/crv/Source/Repos/Master thesis/thesis/thesis/meshes/sphere.ply");
 
-	//_cam.updateProjection(glm::radians(45.0f), 1.0f);
-	//_object = std::shared_ptr<Entity> (new Entity(MeshImporter::importMeshFromFile("meshes/tests.ply")));
-	//_object->setUnitary();
-	//std::cout << "Mesh box: " << _object->getMeshBBox() << std::endl;
-	//std::cout << "Obj box: " << _object->getBBox() << std::endl;
-	//initializeCam();
 	_sphere = MeshImporter::importMeshFromFile("meshes/sphere.ply");
 	_light = std::shared_ptr<Entity>(new Entity(_sphere));
 	_light->setUnitary();
@@ -140,6 +152,12 @@ void Core::initialize()
 	loadMesh("meshes/tests.ply");
 	_light->scale(glm::vec3(0.19));
 	_light->setPosition(glm::vec3(0.5, 1, 0.5));
+}
+
+void Core::reloadShaders()
+{
+	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
+	shader_manager->reloadShaders();
 }
 
 void Core::initializeCam()
@@ -151,8 +169,16 @@ void Core::initializeCam()
 
 void Core::resizeTextures(unsigned int w, unsigned int h)
 {
-	_shadow_map_texture->use();
-	_shadow_map_texture->resize(w*2, h*2);
+	unsigned int shadow_width, shadow_height;
+	shadow_width = w; 
+	shadow_height = h;
+
+	_shadow_map_texture->use(); 
+	_shadow_map_texture->resize(shadow_width, shadow_height);
+	_lineal_shadow_map_texture->use();
+	_lineal_shadow_map_texture->resize(shadow_width, shadow_height);
+	//_thickness_texture->use();
+	//_thickness_texture->resize(w, h);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -187,6 +213,7 @@ void Core::render()
 	{
 
 		_generic_buffer->useFrameBuffer();
+		//_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 		_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -194,10 +221,9 @@ void Core::render()
 		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
 		RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
 
-
 		RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, V_L, P_L, _light->getPosition());
 		//RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
-		//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+		RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 	}
 
 	else
@@ -207,10 +233,20 @@ void Core::render()
 
 		_generic_buffer->useFrameBuffer();
 		_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
+		glClear(GL_DEPTH_BUFFER_BIT);
+
 		RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
 
 		//RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L);
 		RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _shadow_map_texture, V_L, P_L, _light->getPosition());
+		
+		_default_buffer->useFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		RenderAlgorithms::getLinealShadowMap(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar(), _window_size, _window_size);// glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+
+		//RenderAlgorithms::renderThickness(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar())//, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
+
+
 
 	}
 

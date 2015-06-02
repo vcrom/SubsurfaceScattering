@@ -41,19 +41,22 @@ public:
 
 	void toggleControlBool(unsigned int i);
 
+	void reloadShaders();
 
 private:
 	void initializeGL();
 	void glewInitialization();
 	void initializeCam();
 
-	void resizeTextures(unsigned int w, unsigned int h);
 	
-
+	//canmmera
 	TargetCamera _cam;
 
 	//Textures
-	std::shared_ptr<Texture2D> _background_texture, _shadow_map_texture;
+	std::shared_ptr<Texture2D> _background_texture, _shadow_map_texture, _thickness_texture, _lineal_shadow_map_texture;
+	void initializeTextures();
+	void resizeTextures(unsigned int w, unsigned int h);
+
 	//Buffers
 	std::shared_ptr<FrameBuffer> _default_buffer, _generic_buffer;
 

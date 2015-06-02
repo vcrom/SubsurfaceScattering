@@ -27,6 +27,8 @@ public:
 	void use(GLenum tex_unit = GL_TEXTURE0) const;
 	void setTexParameter(GLenum pname, GLint param);
 	void setTexParameter(GLenum pname, GLfloat param);
+	void setTexParameter(GLenum pname, const GLint *param);
+	void setTexParameter(GLenum pname, const GLfloat *param);
 
 protected:
 	GLenum _target, _internal_format;

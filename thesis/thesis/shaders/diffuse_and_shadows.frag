@@ -1,4 +1,5 @@
 #version 330 core
+//precision highp float;
 
 layout(location=0) out vec4 vFragColor;
 
@@ -36,7 +37,7 @@ void main() {
 
     //get diffuse component
     vec3 N = normalize(vEyeSpaceNormal);
-    float diffuse = max(0.0f, dot(N, L));
+    float diffuse = /*max(0.0f, */dot(N, L);//);
 
 //    diffuse = 1;
 
@@ -112,17 +113,13 @@ void main() {
 //        if(diffuse > shadow) diffuse = shadow;
 //        else diffuse = mix(diffuse, diffuse*shadow, 0.5);
 
-        //diffuse = mix(diffuse, diffuse*shadow, 0.5);
+        diffuse = mix(diffuse, diffuse*shadow, 0.5);
 
         //diffuse = min(diffuse, shadow);
-        diffuse = shadow;
+        //diffuse = shadow;
     }
-    //diffuse *= shadow_intensity;
-    //diffuse = 1.0f - diffuse;
-    //diffuse *= shadow_intensity;
-    //diffuse = 1 - diffuse;
+
     vFragColor = vec4(vec3(diffuse), 1.0f);
-//    vFragColor = vec4(vec3(-(1-diffuse)), 1.0f);
 
     //vFragColor = vec4(0.0f, 0.0f, 0.0f, 1-shadow_intensity);
     //vFragColor = vec4(1, 0, 0, 1);
