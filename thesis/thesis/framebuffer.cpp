@@ -60,7 +60,9 @@ void FrameBuffer::colorBuffer(GLuint tex, unsigned int attachment, GLint level)
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &max_color);
 	assert(level < max_color);
 #endif
-	_color_levels = std::max(unsigned int(_color_levels), unsigned int(attachment + 1));
+	if (tex == NULL) _color_levels = std::min(unsigned int(_color_levels), unsigned int(attachment));
+	else _color_levels = std::max(unsigned int(_color_levels), unsigned int(attachment + 1));
+
 	attachTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, tex, level);
 	checkCritOpenGLError();
 }
@@ -75,19 +77,21 @@ void FrameBuffer::attachTexture(GLenum target, GLenum attachment, GLuint texture
 {
 	debugAsserts();
 	glFramebufferTexture(target, attachment, texture, level);
-	//glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D, texture, level);
 	checkCritOpenGLError();
 }
 
 void FrameBuffer::attachRenderBuffer(GLenum attachment, GLuint renderbuffer)
 {
 	//TODO
+	assert(false);
 }
 
 void FrameBuffer::debugAsserts()
 {
+#ifdef _DEBUG
 	assert(_id != 0);
 	assert(isBinded());
+#endif
 }
 
 bool FrameBuffer::checkStatus()
@@ -101,6 +105,7 @@ void FrameBuffer::useFrameBuffer(GLuint fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glDrawBuffers(1, render_buff);
 }
+
 bool FrameBuffer::isBinded() const
 {
 	GLint idx_fbo;

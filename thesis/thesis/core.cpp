@@ -10,12 +10,16 @@
 Core::Core()
 {
 	_mouse_x = _mouse_y = 0;
-	_object = nullptr;
 	_control_boolean_params = std::vector<bool>(10, false);
+	_window_size = glm::vec2(0);
 }
 
+#include "fimage.h"
 Core::~Core()
 {
+	//fImage image;
+	//image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
+	//image.writeImage("textures/depth_map.jpg");
 	_object.reset();
 }
 
@@ -63,7 +67,7 @@ void Core::initializeGL()
 	std::cout << "OpenGL init" << std::endl;
 }
 
-#include "fimage.h"
+
 #include <chrono>
 #include <thread>
 #include "bbox.h"
@@ -91,7 +95,8 @@ void Core::initialize()
 	_shadow_map_texture->use();
 	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT, 32, 32);
 
-	_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
+	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
+	_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	_background_texture->use();
 
 	//tex = TextureLoader::Create2DTexture("textures/flower.jpg");
@@ -111,7 +116,11 @@ void Core::initialize()
 	//else std::cout << "Buffer NO init" << std::endl;
 	//checkCritOpenGLError();
 
+	//Init default buffer
 	_default_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer(RenderAlgorithms::default_buffer, 1));
+
+	_generic_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
+	_generic_buffer->createFrameBuffer();
 
 	_cam.updateProjection(glm::radians(45.0f), 1.0f);
 	//loadMesh("meshes/bunny.ply");
@@ -139,14 +148,21 @@ void Core::initializeCam()
 	_cam.update();
 }
 
+
+void Core::resizeTextures(unsigned int w, unsigned int h)
+{
+	_shadow_map_texture->use();
+	_shadow_map_texture->resize(w*2, h*2);
+}
+
 void Core::resize(unsigned int w, unsigned int h)
 {
 	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
+	_window_size = glm::vec2(w, h);
 	glViewport(0, 0, w, h);
 	_cam.updateProjection(glm::radians(45.0f), float(w) / float(h));
 	_cam.update();
-	//tex_col->use(GL_TEXTURE1);
-	//tex_col->resize(w, h);
+	resizeTextures(w, h);
 	checkCritOpenGLError();
 }
 
@@ -154,6 +170,7 @@ void Core::resize(unsigned int w, unsigned int h)
 #include <glm/gtc/matrix_transform.hpp>
 void Core::render()
 {
+	_default_buffer->useFrameBuffer();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -168,15 +185,33 @@ void Core::render()
 	//glClear(GL_DEPTH_BUFFER_BIT);
 	if (!_control_boolean_params[0])
 	{
-		RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
-		RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+
+		_generic_buffer->useFrameBuffer();
+		_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
+		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
+		RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+
+
+		RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, V_L, P_L, _light->getPosition());
+		//RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
+		//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 	}
 
 	else
 	{
 		glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
 		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
-		RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L);
+
+		_generic_buffer->useFrameBuffer();
+		_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
+		RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+
+		//RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L);
+		RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _shadow_map_texture, V_L, P_L, _light->getPosition());
+
 	}
 
 

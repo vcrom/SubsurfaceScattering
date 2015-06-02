@@ -32,6 +32,7 @@ void GlslShaderManager::initializeShaders()
 	std::cout << "Initializeing default shaders..." << std::endl;
 	initTextureToScreenShader();
 	initPassThroughShader();
+	initShadowsAndDiffuseShader();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -80,6 +81,30 @@ void GlslShaderManager::initPassThroughShader()
 	shader.unUse();
 	checkCritOpenGLError();
 
-	_shaders[Shaders::PASS_THROUGH_SHADER] = shader;
+	_shaders[Shaders::PASS_THROUGH] = shader;
 	std::cout << "\tPass Through shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initShadowsAndDiffuseShader()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/diffuse_and_shadows.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/diffuse_and_shadows.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addAttribute("vNormal");
+	shader.addUniform("MVP");
+	shader.addUniform("MV");
+	shader.addUniform("M");
+	shader.addUniform("N");
+	shader.addUniform("S");
+	shader.addUniform("eye_light_position");
+	shader.addUniform("shadow_map");
+	glUniform1i(shader("shadow_map"), 0);
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::SHADOWS_AND_DIFFUSE] = shader;
+	std::cout << "\tShadows and diffuse shader initialized" << std::endl;
 }
