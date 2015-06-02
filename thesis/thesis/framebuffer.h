@@ -17,6 +17,9 @@ public:
 	GLuint getColorLevels();
 
 
+	void clearColor();
+	void clearDepth();
+	void clearDepthAndColor();
 	void colorBuffer(GLuint tex, unsigned int attachment, GLint level = 0);
 	void depthBuffer(GLuint tex, GLint level = 0);
 

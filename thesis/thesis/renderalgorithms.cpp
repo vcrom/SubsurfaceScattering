@@ -134,21 +134,22 @@ void RenderAlgorithms::renderDiffuseAndShadows(const std::shared_ptr<FrameBuffer
 
 void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, float z_far, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
 {
-	renderMesh(fbo, mesh, M, V, P, glm::vec3(0, 1, 0));
-	return;
+	//renderMesh(fbo, mesh, M, V, P, glm::vec3(0, 1, 0));
+	//return;
 	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
 
-	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::LINEAL_DEEPTH);
 	fbo->useFrameBuffer();
 	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	checkCritOpenGLError();
 
-
+	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::LINEAL_DEEPTH);
 	shader->use();
 		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
 		glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
 		glUniform1f(shader->operator()("z_far"), z_far);
+		checkCritOpenGLError();
 		mesh->render();
 	shader->unUse();
 

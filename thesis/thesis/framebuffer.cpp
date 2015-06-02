@@ -52,6 +52,24 @@ GLuint FrameBuffer::getColorLevels()
 	return _color_levels;
 }
 
+void FrameBuffer::clearColor()
+{
+	debugAsserts();
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void FrameBuffer::clearDepth()
+{
+	debugAsserts();
+	glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void FrameBuffer::clearDepthAndColor()
+{
+	debugAsserts();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 #include <algorithm>
 void FrameBuffer::colorBuffer(GLuint tex, unsigned int attachment, GLint level)
 {
