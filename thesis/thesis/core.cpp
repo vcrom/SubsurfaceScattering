@@ -101,10 +101,11 @@ void Core::initializeTextures()
 	_lineal_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_lineal_shadow_map_texture->use();
 	_lineal_shadow_map_texture->loadEmptyTexture(GL_R32F, 32, 32);
-	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 
 	_thickness_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
@@ -233,8 +234,8 @@ void Core::render()
 
 	else
 	{
-		//glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
-		//glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
+		glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
+		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
 
 		//_generic_buffer->useFrameBuffer();
 		//_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
@@ -251,7 +252,9 @@ void Core::render()
 
 		//RenderAlgorithms::renderThickness(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar())//, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
 
-		RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+		//RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+		RenderAlgorithms::translucency(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _lineal_shadow_map_texture, _cam.getZfar(), V_L, P_L, _light->getPosition());
+
 
 	}
 

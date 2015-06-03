@@ -35,6 +35,7 @@ void GlslShaderManager::initializeShaders()
 	initShadowsAndDiffuseShader();
 	initLinealDeepthShader();
 	//initThicknessShader();
+	initTranslucecyhader();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -106,7 +107,7 @@ void GlslShaderManager::initShadowsAndDiffuseShader()
 	shader.addAttribute("vNormal");
 	shader.addUniform("MVP");
 	shader.addUniform("MV");
-	shader.addUniform("M");
+	//shader.addUniform("M");
 	shader.addUniform("N");
 	shader.addUniform("S");
 	shader.addUniform("eye_light_position");
@@ -153,4 +154,29 @@ void GlslShaderManager::initLinealDeepthShader()
 
 	_shaders[Shaders::LINEAL_DEEPTH] = shader;
 	std::cout << "\tLineal deepth shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initTranslucecyhader()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/translucency_shader.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/translucency_shader.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addAttribute("vNormal");
+	shader.addUniform("MVP");
+	shader.addUniform("MV");
+	shader.addUniform("MV_L");
+	shader.addUniform("N");
+	shader.addUniform("S");
+	shader.addUniform("eye_light_position");
+	shader.addUniform("z_far");
+	shader.addUniform("shadow_map");
+	glUniform1i(shader("shadow_map"), 0);
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::TRANSLUCENCY_SHADER] = shader;
+	std::cout << "\tTransmitance shader initialized" << std::endl;
 }

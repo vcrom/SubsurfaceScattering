@@ -7,7 +7,6 @@ layout(location=1) in vec3 vNormal;
 //uniforms
 uniform mat4 MVP;
 uniform mat4 MV;
-uniform mat4 M;
 uniform mat4 S;
 uniform mat4 N;
 

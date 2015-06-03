@@ -18,7 +18,4 @@ void main()
     linear_depth = -viewPos.z/z_far;
 
     gl_Position = MVP*vec4(vVertex.xyz,1);
-
-	float Fcoef = 2.0 / log2(z_far + 1.0).
-	gl_Position.z = log2(max(1e-6, 1.0 + gl_Position.w)) * Fcoef - 1.0;
 }

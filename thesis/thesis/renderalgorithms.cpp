@@ -120,7 +120,6 @@ void RenderAlgorithms::renderDiffuseAndShadows(const std::shared_ptr<FrameBuffer
 	shader->use();
 		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
 		glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
-		glUniformMatrix4fv(shader->operator()("M"), 1, GL_FALSE, glm::value_ptr(M));
 		glUniformMatrix4fv(shader->operator()("N"), 1, GL_FALSE, glm::value_ptr(V*M));
 		glUniformMatrix4fv(shader->operator()("S"), 1, GL_FALSE, glm::value_ptr(S));
 		glUniform3fv(shader->operator()("eye_light_position"), 1, glm::value_ptr(eye_light_pos));
@@ -157,6 +156,37 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	glViewport(0, 0, viewport_size.x, viewport_size.y);
 	checkCritOpenGLError();
 }
+
+void RenderAlgorithms::translucency(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, std::shared_ptr<Texture2D> lineal_deepth_tex, float z_far, glm::mat4 V_L, glm::mat4 P_L, glm::vec3 light_pos)
+{
+	//bias matrix
+	glm::mat4 B = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5, 0.5, 0.5)), glm::vec3(0.5, 0.5, 0.5));
+	glm::mat4 S = B * P_L * V_L * M;
+	glm::vec4 aux = V*glm::vec4(light_pos, 1);
+	glm::vec3 eye_light_pos = glm::vec3(aux.x, aux.y, aux.z) / aux.w;
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
+	lineal_deepth_tex->use(GL_TEXTURE0);
+	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::TRANSLUCENCY_SHADER);
+	fbo->useFrameBuffer();
+	shader->use();
+	glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+	glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
+	glUniformMatrix4fv(shader->operator()("MV_L"), 1, GL_FALSE, glm::value_ptr(V_L * M));
+	glUniformMatrix4fv(shader->operator()("N"), 1, GL_FALSE, glm::value_ptr(V*M));
+	glUniformMatrix4fv(shader->operator()("S"), 1, GL_FALSE, glm::value_ptr(S));
+	glUniform3fv(shader->operator()("eye_light_position"), 1, glm::value_ptr(eye_light_pos));
+	glUniform1f(shader->operator()("z_far"), z_far);
+	mesh->render();
+	shader->unUse();
+
+
+	glDisable(GL_CULL_FACE);
+	checkCritOpenGLError();
+}
+
 bool RenderAlgorithms::checkGLEnabled(GLenum param)
 {
 	return glIsEnabled(param);
@@ -164,32 +194,32 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 
 void RenderAlgorithms::renderThickness(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, float z_far)//, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
 {
-	glDisable(GL_CULL_FACE);
-	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_CULL_FACE);
+	//glDepthMask(GL_FALSE);
+	//glDisable(GL_DEPTH_TEST);
 
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_ONE, GL_ONE);
 
-	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::THICKNESS_SHADER);
-	fbo->useFrameBuffer();
-	//glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	//std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::THICKNESS_SHADER);
+	//fbo->useFrameBuffer();
+	////glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
 
-	shader->use();
-		glUniform1f(shader->operator()("z_far"), z_far);
-		glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
-		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
-		mesh->render();
-	shader->unUse();
+	//shader->use();
+	//	glUniform1f(shader->operator()("z_far"), z_far);
+	//	glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
+	//	glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+	//	mesh->render();
+	//shader->unUse();
 
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
+	//glDisable(GL_BLEND);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthMask(GL_TRUE);
 
-	//glViewport(0, 0, viewport_size.x, viewport_size.y);
-	checkCritOpenGLError();
+	////glViewport(0, 0, viewport_size.x, viewport_size.y);
+	//checkCritOpenGLError();
 
 }
