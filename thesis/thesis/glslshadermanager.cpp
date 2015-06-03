@@ -33,6 +33,8 @@ void GlslShaderManager::initializeShaders()
 	initTextureToScreenShader();
 	initPassThroughShader();
 	initShadowsAndDiffuseShader();
+	initLinealDeepthShader();
+	//initThicknessShader();
 }
 
 void GlslShaderManager::deleteShaders()

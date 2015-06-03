@@ -103,6 +103,7 @@ void GlslShader::createAndLinkProgram()
 
 void GlslShader::use()
 {
+	assert(_program != 0);
 	glUseProgram(_program);
 }
 

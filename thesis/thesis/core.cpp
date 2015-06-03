@@ -213,40 +213,45 @@ void Core::render()
 	{
 
 		_generic_buffer->useFrameBuffer();
-		//_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
+		_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 		_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
-		glClear(GL_DEPTH_BUFFER_BIT);
+		_generic_buffer->clearDepthAndColor();
 
 		glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
 		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
-		RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
-
+		//RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+		RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar(), _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
 		RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, V_L, P_L, _light->getPosition());
+		
+		
+		
+		
+		
 		//RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
 		RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 	}
 
 	else
 	{
-		glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
-		glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
+		//glm::mat4 V_L = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
+		//glm::mat4 P_L = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
 
-		_generic_buffer->useFrameBuffer();
-		_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
-		glClear(GL_DEPTH_BUFFER_BIT);
+		//_generic_buffer->useFrameBuffer();
+		//_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
+		//glClear(GL_DEPTH_BUFFER_BIT);
 
-		RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+		//RenderAlgorithms::getShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
 
-		//RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L);
-		RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _shadow_map_texture, V_L, P_L, _light->getPosition());
+		////RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L);
+		//RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _shadow_map_texture, V_L, P_L, _light->getPosition());
 		
-		_default_buffer->useFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		RenderAlgorithms::getLinealShadowMap(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar(), _window_size, _window_size);// glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+		//_default_buffer->useFrameBuffer();
+		//_default_buffer->clearDepthAndColor();
+		//RenderAlgorithms::getLinealShadowMap(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar(), _window_size, _window_size);// glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
 
 		//RenderAlgorithms::renderThickness(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), V_L, P_L, _cam.getZfar())//, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
 
-
+		RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
 
 	}
 
