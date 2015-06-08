@@ -161,9 +161,9 @@ void RenderAlgorithms::translucency(const std::shared_ptr<FrameBuffer> fbo, cons
 {
 	//bias matrix
 	glm::mat4 B = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5, 0.5, 0.5)), glm::vec3(0.5, 0.5, 0.5));
-	glm::mat4 S = B * P_L * V_L * M;
-	glm::vec4 aux = V*glm::vec4(light_pos, 1);
-	glm::vec3 eye_light_pos = glm::vec3(aux.x, aux.y, aux.z) / aux.w;
+	//glm::mat4 S = B * P_L * V_L;// *M;
+	//glm::vec4 aux = V*glm::vec4(light_pos, 1);
+	//glm::vec3 eye_light_pos = glm::vec3(aux.x, aux.y, aux.z) / aux.w;
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -174,10 +174,11 @@ void RenderAlgorithms::translucency(const std::shared_ptr<FrameBuffer> fbo, cons
 	shader->use();
 	glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
 	glUniformMatrix4fv(shader->operator()("MV"), 1, GL_FALSE, glm::value_ptr(V*M));
-	glUniformMatrix4fv(shader->operator()("MV_L"), 1, GL_FALSE, glm::value_ptr(V_L * M));
-	glUniformMatrix4fv(shader->operator()("N"), 1, GL_FALSE, glm::value_ptr(V*M));
-	glUniformMatrix4fv(shader->operator()("S"), 1, GL_FALSE, glm::value_ptr(S));
-	glUniform3fv(shader->operator()("eye_light_position"), 1, glm::value_ptr(eye_light_pos));
+	glUniformMatrix4fv(shader->operator()("M"), 1, GL_FALSE, glm::value_ptr(M));
+	glUniformMatrix4fv(shader->operator()("N"), 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(M)));
+	glUniformMatrix4fv(shader->operator()("BP_L"), 1, GL_FALSE, glm::value_ptr(B * P_L));
+	glUniformMatrix4fv(shader->operator()("V_L"), 1, GL_FALSE, glm::value_ptr(V_L));
+	glUniform3fv(shader->operator()("light_position"), 1, glm::value_ptr(light_pos));
 	glUniform1f(shader->operator()("z_far"), z_far);
 	mesh->render();
 	shader->unUse();

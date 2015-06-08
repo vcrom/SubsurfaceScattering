@@ -167,10 +167,11 @@ void GlslShaderManager::initTranslucecyhader()
 	shader.addAttribute("vNormal");
 	shader.addUniform("MVP");
 	shader.addUniform("MV");
-	shader.addUniform("MV_L");
+	shader.addUniform("M");
 	shader.addUniform("N");
-	shader.addUniform("S");
-	shader.addUniform("eye_light_position");
+	shader.addUniform("V_L");
+	shader.addUniform("BP_L");
+	shader.addUniform("light_position");
 	shader.addUniform("z_far");
 	shader.addUniform("shadow_map");
 	glUniform1i(shader("shadow_map"), 0);
