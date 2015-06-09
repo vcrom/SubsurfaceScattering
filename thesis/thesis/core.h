@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <memory>
+#include <chrono>
 //#include <vld.h>
 
 #include "targetcamera.h"
@@ -18,6 +19,7 @@
 #include "meshimporter.h"
 #include "entity.h"
 	
+
 class Core
 {
 public:
@@ -27,7 +29,7 @@ public:
 	~Core();
 
 	void initialize();
-	void render();
+	void onRender();
 	void resize(uint w, uint h);
 	void loadMesh(const std::string& path);
 	void unloadMesh();
@@ -44,16 +46,28 @@ public:
 	void reloadShaders();
 
 private:
+	//initialization
 	void initializeGL();
 	void glewInitialization();
 	void initializeCam();
 
+	//Render passes 
+	//void renderBackground();
+	void renderScene();
+	void shadowMapPass();
+	void mainRenderPass();// , float time, float elapsedTime);
+
 	
-	//canmmera
+	//cammera
 	TargetCamera _cam;
 
 	//Textures
-	std::shared_ptr<Texture2D> _background_texture, _shadow_map_texture, _thickness_texture, _lineal_shadow_map_texture;
+	std::shared_ptr<Texture2D> _background_texture, 
+		//shadow mapping(for each light)
+		_shadow_map_texture, _lineal_shadow_map_texture, 
+		//ssss
+		_mate_texture, _diffuse_color_texture, _specular_texture, _lineal_deepth_texture;
+
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);
 
@@ -72,6 +86,16 @@ private:
 	//constants
 	const float ROT_SPEED = 0.5f;
 	const float ZOOM_SPEED = 0.05f;
+
+	//timmer
+	std::chrono::high_resolution_clock _clock;
+	std::chrono::high_resolution_clock::time_point _t1, _t2;
+
+	//params
+	glm::mat4 _light_view_matrix, _light_projection_matrix;
+	void computeLightMatrices();
+		
+
 };
 
 #endif // CORE_H

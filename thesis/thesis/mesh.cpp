@@ -5,11 +5,20 @@
 //	std::vector<glm::vec3> normals = computeNormals();
 //}
 
+Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices)
+{
+	initialize(idx, vertices);
+}
+
 Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals)
 	: RenderableObject()
 {
 	initialize(idx, vertices, normals);
-	bbox_computed_ = false;
+}
+
+Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors)
+{
+	initialize(idx, vertices, normals, colors);
 }
 
 Mesh::~Mesh()
@@ -22,16 +31,35 @@ void Mesh::destroy()
 	vertices_.clear();
 	vTable_.clear();
 	normals_.clear();
+	colors_.clear();
 	glDeleteBuffers(1, &vboNormalsId_);
+	glDeleteBuffers(1, &vboColorId_);
+}
+
+void Mesh::initialize(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices)
+{
+	assert(idx.size());
+	assert(vertices.size());
+	vTable_ = idx;
+	vertices_ = vertices;
+	RenderableObject::initialize();
+	bbox_computed_ = false;
 }
 
 void Mesh::initialize(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals)
 {
-	vTable_ = idx;
-	vertices_ = vertices;
+	assert(normals.size());
+	initialize(idx, vertices);
 	normals_ = normals;
-	RenderableObject::initialize();
 	initializeNormalsBuffer();
+}
+
+void Mesh::initialize(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors)
+{
+	assert(colors.size());
+	initialize(idx, vertices, normals);
+	colors_ = colors;
+	initializeColorBuffer();
 }
 
 #define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
@@ -54,11 +82,37 @@ void Mesh::initializeNormalsBuffer()
 	GL_CHECK_ERRORS
 }
 
+void Mesh::initializeColorBuffer()
+{
+	glGenBuffers(1, &vboColorId_);
+	glBindVertexArray(vaoId_);
+	glBindBuffer(GL_ARRAY_BUFFER, vboColorId_);
+	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfColorlement(), 0, GL_STATIC_DRAW);
+
+	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+	assert(pBuffer != nullptr);
+	fillColorBuffer(pBuffer);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
+	assert(glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, colorNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindVertexArray(0);
+	GL_CHECK_ERRORS
+}
+
 void Mesh::fillVertexBuffer(GLfloat* pBuffer)
 {
 	glm::vec3* vert = (glm::vec3*)(pBuffer);
 	for (unsigned int i = 0; i < totalVertices_; ++i)
 		vert[i] = vertices_[i];
+}
+
+void Mesh::fillColorBuffer(GLfloat* pBuffer)
+{
+	glm::vec4* vert = (glm::vec4*)(pBuffer);
+	for (unsigned int i = 0; i < totalVertices_; ++i)
+		vert[i] = colors_[i];
 }
 
 void Mesh::fillIndexBuffer(GLuint* pBuffer)
@@ -98,6 +152,16 @@ unsigned int Mesh::sizeOfVertexElement()
 unsigned int Mesh::vertexNumberOfComponents()
 {
 	return 3;
+}
+
+unsigned int Mesh::sizeOfColorlement()
+{
+	return sizeof(glm::vec4);
+}
+
+unsigned int Mesh::colorNumberOfComponents()
+{
+	return 4;
 }
 
 BBox Mesh::getBBox()

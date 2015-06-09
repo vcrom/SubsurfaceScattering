@@ -59,7 +59,7 @@ void Core::glewInitialization()
 void Core::initializeGL()
 {
 	glewInitialization();
-	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_TEXTURE_2D);
@@ -108,15 +108,16 @@ void Core::initializeTextures()
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 
-	_thickness_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
-	_thickness_texture->use();
-	_thickness_texture->loadEmptyTexture(GL_R32F, 32, 32);
-	_thickness_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
-	_thickness_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
-	_thickness_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_thickness_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//_thickness_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	//_thickness_texture->use();
+	//_thickness_texture->loadEmptyTexture(GL_R32F, 32, 32);
+	//_thickness_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//_thickness_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//_thickness_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//_thickness_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 
+	//
 
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
 	_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
@@ -153,6 +154,7 @@ void Core::initialize()
 	loadMesh("meshes/tests.ply");
 	_light->scale(glm::vec3(0.19));
 	_light->setPosition(glm::vec3(0.5, 1, 0.5));
+	computeLightMatrices();
 }
 
 void Core::reloadShaders()
@@ -195,16 +197,19 @@ void Core::resize(unsigned int w, unsigned int h)
 
 //#include "screenquad.h"
 #include <glm/gtc/matrix_transform.hpp>
-void Core::render()
+void Core::onRender()
 {
+	renderScene();
+	return;
 	_default_buffer->useFrameBuffer();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	RenderAlgorithms::renderTexture(_default_buffer, _background_texture);
-	glClear(GL_DEPTH_BUFFER_BIT);
+
 
 	if (!_object) return;
+
 	//else std::cout << "Obj box: " << _object->getBBox() << std::endl;
 
 	//RenderAlgorithms::renderTexture(*buffer, *tex);
@@ -263,6 +268,55 @@ void Core::render()
 	std::cout << glm::to_string(_light->getBBox().getCenter()) << std::endl;
 }
 
+using time_unit = std::chrono::milliseconds;
+//using time_unit = std::chrono::microseconds;
+//using time_unit = std::chrono::nanoseconds;
+
+
+void Core::renderScene()
+{
+	_default_buffer->useFrameBuffer();
+	_default_buffer->clearDepthAndColor();
+	std::cout << "Rendering scene..." << std::endl;
+	_t1 = _clock.now();
+	RenderAlgorithms::renderTexture(_default_buffer, _background_texture);
+	_t2 = _clock.now();
+	std::cout << "\tRender background time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+
+	_t1 = _clock.now();
+	shadowMapPass();
+	_t2 = _clock.now();
+	std::cout << "\tShadow mapping time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+
+	_t1 = _clock.now();
+	mainRenderPass();
+	_t2 = _clock.now();
+	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+
+	//_t1 = _clock.now();
+
+	//_t2 = _clock.now();
+	//std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t1 - _t2).count() << std::endl;
+	RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+
+}
+
+void Core::shadowMapPass()
+{
+	_generic_buffer->useFrameBuffer();
+	//_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
+	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
+	_generic_buffer->clearDepthAndColor();
+	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
+}
+
+void Core::mainRenderPass()
+{
+
+	RenderAlgorithms::renderDiffuseAndShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, _light_view_matrix, _light_projection_matrix, _light->getPosition());
+	
+}
+
 /// <summary>
 /// Loads the mesh from path. In order to efectivelly load the mesh, teh openGl context must be active
 /// </summary>
@@ -270,9 +324,15 @@ void Core::render()
 void Core::loadMesh(const std::string& path)
 {
 	unloadMesh();
-	_object = std::shared_ptr<Entity>(new Entity(MeshImporter::importMeshFromFile(path)));
+	_object = std::shared_ptr<Entity>(new Entity(MeshImporter::importMeshFromFile(path, true)));
 	_object->setUnitary();
 	initializeCam();
+}
+
+void Core::computeLightMatrices()
+{
+	_light_view_matrix = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
+	_light_projection_matrix = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
 }
 
 void Core::unloadMesh()

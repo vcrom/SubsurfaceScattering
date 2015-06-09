@@ -85,7 +85,7 @@ void GLWidget::paintGL()
 	//core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 	//std::cout << "QT FBO" << this->defaultFramebufferObject() << std::endl;
 	std::cout << "QGL Paint GL" << std::endl;
-	core_engine_->render();
+	core_engine_->onRender(); 
 }
 
 #include <QFileDialog>

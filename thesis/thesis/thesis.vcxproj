@@ -146,7 +146,6 @@
   <ItemGroup>
     <ClCompile Include="abstractcamera.cpp" />
     <ClCompile Include="bbox.cpp" />
-    <ClCompile Include="colormesh.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="exceptions.cpp" />
@@ -266,7 +265,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </Command>
     </CustomBuild>
-    <ClInclude Include="colormesh.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="exceptions.h" />

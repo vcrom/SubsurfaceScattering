@@ -33,6 +33,9 @@ GLuint RenderAlgorithms::default_buffer = 0;
 void RenderAlgorithms::renderTexture(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> tex)
 {
 	fbo->useFrameBuffer();
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	//glDrawBuffers(1, render_buff);
 	
@@ -44,6 +47,9 @@ void RenderAlgorithms::renderTexture(const std::shared_ptr<FrameBuffer> fbo, std
 		quad->render();
 	shader->unUse();
 	checkCritOpenGLError();
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, RenderAlgorithms::default_buffer);
 }

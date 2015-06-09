@@ -20,17 +20,6 @@ inline std::vector<glm::vec3> getAiMeshVertices(std::unique_ptr<aiMesh>& mesh)
 	return vertices;
 }
 
-inline std::vector<glm::vec3> getAiMeshNormals(std::unique_ptr<aiMesh>& mesh)
-{
-	std::vector<glm::vec3> normals(mesh->mNumVertices);
-	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
-	{
-		aiVector3D norm = mesh->mNormals[i].Normalize();
-		normals[i] = glm::vec3(norm.x, norm.y, norm.z);
-	}
-	return normals;
-}
-
 inline std::vector<unsigned int> getAiFaces(std::unique_ptr<aiMesh>& mesh)
 {
 	std::vector<unsigned int> faces(mesh->mNumFaces*3);
@@ -44,6 +33,29 @@ inline std::vector<unsigned int> getAiFaces(std::unique_ptr<aiMesh>& mesh)
 	return faces;
 }
 
+inline std::vector<glm::vec3> getAiMeshNormals(std::unique_ptr<aiMesh>& mesh)
+{
+	std::vector<glm::vec3> normals(mesh->mNumVertices);
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	{
+		aiVector3D norm = mesh->mNormals[i].Normalize();
+		normals[i] = glm::vec3(norm.x, norm.y, norm.z);
+	}
+	return normals;
+}
+
+inline std::vector<glm::vec4> getAiMeshColors(std::unique_ptr<aiMesh>& mesh)
+{
+	std::vector<glm::vec4> colors(mesh->mNumVertices);
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	{
+		aiColor4D color = mesh->mColors[0][i];
+		colors[i] = glm::vec4(color.r, color.g, color.b, color.a);
+	}
+	return colors;
+}
+
+
 Assimp::Importer importer;
 
 std::unique_ptr<aiMesh> loadMeshFromFile(const std::string& path)
@@ -52,11 +64,11 @@ std::unique_ptr<aiMesh> loadMeshFromFile(const std::string& path)
 	const aiScene *scene = importer.ReadFile(path,
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
+		aiProcess_GenSmoothNormals |
 		aiProcess_FixInfacingNormals |
 		aiProcess_FindInvalidData |
 		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_GenSmoothNormals
+		aiProcess_ImproveCacheLocality
 		);
 
 	if (!scene)
@@ -75,16 +87,35 @@ inline void meshInfo(const std::unique_ptr<aiMesh>& mesh)
 	if (mesh->HasNormals()) std::cout << "\t Has normals" << std::endl;
 }
 
-std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path)
+#include <iostream>
+#include<chrono>
+using time_unit = std::chrono::milliseconds;
+//using time_unit = std::chrono::microseconds;
+//using time_unit = std::chrono::nanoseconds;
+
+std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, bool info)
 {
+	std::chrono::high_resolution_clock timmer;
+	std::chrono::high_resolution_clock::time_point t1, t2;
+	if(info) t1 = timmer.now();
 	std::cout << "Loading... " << path << std::endl;
 	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
 	std::cout << "mesh  " << mesh.get() << std::endl;
 	meshInfo(mesh);
-	std::vector<unsigned int> faces = getAiFaces(mesh);
 	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
-	std::vector<glm::vec3> normals = getAiMeshNormals(mesh);
-	std::cout << "...Loaded." <<std::endl;
+	std::vector<unsigned int> faces = getAiFaces(mesh);
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec4> colors;
+
+	if(mesh->HasNormals()) normals = getAiMeshNormals(mesh);
+	if (mesh->HasVertexColors(0)) colors = getAiMeshColors(mesh);
+	if (info) t2 = timmer.now();
+	if (info) std::cout << "...Loaded(" << std::chrono::duration_cast<time_unit>(t2 - t1).count() << "ms)." << std::endl;
+	else std::cout << "...Loaded." << std::endl;
 	mesh.release();
-	return  std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals));
+
+	auto ret_value;
+	if (normals.size() && colors.size()) ret_value = std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors)) //return std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors));
+	else return std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals));
+	return ret_value;
 }

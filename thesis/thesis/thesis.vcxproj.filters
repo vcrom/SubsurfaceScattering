@@ -80,9 +80,6 @@
     <ClCompile Include="glslshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="colormesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -172,9 +169,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="glslshader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="colormesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">

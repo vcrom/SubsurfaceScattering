@@ -7,9 +7,8 @@
 class MeshImporter
 {
 public:
-	static std::shared_ptr<Mesh> importMeshFromFile(const std::string& path);
+	static std::shared_ptr<Mesh> importMeshFromFile(const std::string& path, bool info = false);
 private:
-	//static void getVertices();
 };
 
 #endif // MESHIMPORTER_H
