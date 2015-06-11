@@ -11,7 +11,7 @@ public:
 	~FrameBuffer();
 	void createFrameBuffer();
 	void deleteFrameBuffer();
-	void useFrameBuffer() const;
+	void useFrameBuffer(unsigned int color_levels = 1) const;
 
 	GLuint getFrameBufferID();
 	GLuint getColorLevels();
@@ -19,9 +19,17 @@ public:
 
 	void clearColor();
 	void clearDepth();
-	void clearDepthAndColor();
+	void clearStencil();
+	void clearColorAndDepth();
+	void clearColorAndStencil();
+	void clearDepthAndStencil();
+	void clearColorDepthAndStencil();
 	void colorBuffer(GLuint tex, unsigned int attachment, GLint level = 0);
 	void depthBuffer(GLuint tex, GLint level = 0);
+	void stencilBuffer(GLuint tex, GLint level = 0);
+	void depthAndStencilBuffer(GLuint tex, GLint level = 0);
+
+
 
 
 	//raw opengl
@@ -29,7 +37,7 @@ public:
 	void attachRenderBuffer(GLenum attachment, GLuint renderbuffer);
 
 	bool checkStatus();
-	static void useFrameBuffer(GLuint fbo);
+	//static void useFrameBuffer(GLuint fbo);
 
 
 private:

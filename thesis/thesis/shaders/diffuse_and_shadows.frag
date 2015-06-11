@@ -39,7 +39,7 @@ void main() {
     vec3 N = normalize(vEyeSpaceNormal);
     float diffuse = /*max(0.0f, */dot(N, L);//);
 
-//    diffuse = 1;
+    diffuse = 1;
 
     if(vShadowCoords.w>1) {
         //In case of PCF, we take a number of shadow map samples and then
@@ -54,7 +54,7 @@ void main() {
         //using 3x3 neighborhood
         #ifdef PCF_STRATIFIED_3x3
 
-		float rad = 1.0f;
+		float rad = 2.0f;
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad,-rad));
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, 0));
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, rad));
@@ -113,10 +113,10 @@ void main() {
 //        if(diffuse > shadow) diffuse = shadow;
 //        else diffuse = mix(diffuse, diffuse*shadow, 0.5);
 
-        diffuse = mix(diffuse, diffuse*shadow, 0.5);
+        //diffuse = mix(diffuse, diffuse*shadow, 0.5);
 
         //diffuse = min(diffuse, shadow);
-        //diffuse = shadow;
+        diffuse = shadow;
     }
 
     vFragColor = vec4(vec3(diffuse), 1.0f);

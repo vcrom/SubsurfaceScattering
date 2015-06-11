@@ -8,7 +8,7 @@ const GLenum render_buff[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_CO
 FrameBuffer::FrameBuffer()
 {
 	_id = 0;
-	_color_levels = 0;
+	_color_levels = 1;
 }
 
 FrameBuffer::FrameBuffer(int id_buff, unsigned int color_levels) : _id(id_buff), _color_levels(color_levels)
@@ -33,12 +33,21 @@ void FrameBuffer::deleteFrameBuffer()
 	glDeleteBuffers(1, &_id);
 	checkCritOpenGLError();
 }
-
-void FrameBuffer::useFrameBuffer() const
+#include <iostream>
+void FrameBuffer::useFrameBuffer(unsigned int color_levels) const
 {
 	assert(_id != 0);
-	FrameBuffer::useFrameBuffer(_id);
-	glDrawBuffers(_color_levels, render_buff);
+	glBindFramebuffer(GL_FRAMEBUFFER, _id);
+
+
+	//GLenum err; 
+	//while ((err = glGetError()) != GL_NO_ERROR) 
+	//{ 
+	//	std::cerr << "OpenGL error: " << err << std::endl;
+	//}
+
+	checkCritOpenGLError();
+	glDrawBuffers(color_levels, render_buff);
 	checkCritOpenGLError();
 }
 
@@ -63,12 +72,35 @@ void FrameBuffer::clearDepth()
 	debugAsserts();
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
-
-void FrameBuffer::clearDepthAndColor()
+void FrameBuffer::clearStencil()
+{
+	debugAsserts();
+	glClear(GL_STENCIL_BUFFER_BIT);
+}
+void FrameBuffer::clearColorAndDepth()
 {
 	debugAsserts();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+void FrameBuffer::clearColorAndStencil()
+{
+	debugAsserts();
+	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void FrameBuffer::clearDepthAndStencil()
+{
+	debugAsserts();
+	glClear(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void FrameBuffer::clearColorDepthAndStencil()
+{
+	debugAsserts();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
 
 #include <algorithm>
 void FrameBuffer::colorBuffer(GLuint tex, unsigned int attachment, GLint level)
@@ -78,8 +110,8 @@ void FrameBuffer::colorBuffer(GLuint tex, unsigned int attachment, GLint level)
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &max_color);
 	assert(level < max_color);
 #endif
-	if (tex == NULL) _color_levels = std::min(unsigned int(_color_levels), unsigned int(attachment));
-	else _color_levels = std::max(unsigned int(_color_levels), unsigned int(attachment + 1));
+	//if (tex == NULL) _color_levels = std::min(unsigned int(_color_levels), unsigned int(attachment));
+	//else _color_levels = std::max(unsigned int(_color_levels), unsigned int(attachment + 1));
 
 	attachTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, tex, level);
 	checkCritOpenGLError();
@@ -88,6 +120,16 @@ void FrameBuffer::colorBuffer(GLuint tex, unsigned int attachment, GLint level)
 void FrameBuffer::depthBuffer(GLuint tex, GLint level)
 {
 	attachTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, tex, level);
+}
+
+void FrameBuffer::stencilBuffer(GLuint tex, GLint level)
+{
+	attachTexture(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, tex, level);
+}
+
+void FrameBuffer::depthAndStencilBuffer(GLuint tex, GLint level)
+{
+	attachTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, tex, level);
 }
 
 //raw opengl
@@ -118,11 +160,11 @@ bool FrameBuffer::checkStatus()
 	return status == GL_FRAMEBUFFER_COMPLETE;
 }
 
-void FrameBuffer::useFrameBuffer(GLuint fbo)
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glDrawBuffers(1, render_buff);
-}
+//void FrameBuffer::useFrameBuffer(GLuint fbo)
+//{
+//	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+//	glDrawBuffers(1, render_buff);
+//}
 
 bool FrameBuffer::isBinded() const
 {

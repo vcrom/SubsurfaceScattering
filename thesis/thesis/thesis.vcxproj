@@ -331,10 +331,14 @@
     <None Include="shaders\diffuse_and_shadows.vert" />
     <None Include="shaders\linear_depth_shader.frag" />
     <None Include="shaders\linear_depth_shader.vert" />
+    <None Include="shaders\mainRender_pass.frag" />
+    <None Include="shaders\mainRender_pass.vert" />
     <None Include="shaders\pass_through_shader.frag" />
     <None Include="shaders\pass_through_shader.vert" />
     <None Include="shaders\screen_space_quad.frag" />
     <None Include="shaders\screen_space_quad.vert" />
+    <None Include="shaders\separableSsss_blur.frag" />
+    <None Include="shaders\Ssss_blur.frag" />
     <None Include="shaders\thickness_shader.frag" />
     <None Include="shaders\thickness_shader.vert" />
     <None Include="shaders\translucency_shader.frag" />

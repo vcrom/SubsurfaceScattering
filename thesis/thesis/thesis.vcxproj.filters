@@ -257,5 +257,17 @@
     <None Include="shaders\linear_depth_shader.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\mainRender_pass.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\mainRender_pass.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\separableSsss_blur.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\Ssss_blur.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

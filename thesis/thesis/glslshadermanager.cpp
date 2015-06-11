@@ -36,6 +36,7 @@ void GlslShaderManager::initializeShaders()
 	initLinealDeepthShader();
 	//initThicknessShader();
 	initTranslucecyhader();
+	initMainRenderShader();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -120,23 +121,23 @@ void GlslShaderManager::initShadowsAndDiffuseShader()
 	std::cout << "\tShadows and diffuse shader initialized" << std::endl;
 }
 
-void GlslShaderManager::initThicknessShader()
-{
-	GlslShader shader;
-	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/thickness_shader.vert");
-	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/thickness_shader.frag");
-	shader.createAndLinkProgram();
-	shader.use();
-	shader.addAttribute("vVertex");
-	shader.addUniform("MVP");
-	shader.addUniform("MV");
-	shader.addUniform("z_far");
-	shader.unUse();
-	checkCritOpenGLError();
-
-	_shaders[Shaders::THICKNESS_SHADER] = shader;
-	std::cout << "\tthickness shader initialized" << std::endl;
-}
+//void GlslShaderManager::initThicknessShader()
+//{
+//	GlslShader shader;
+//	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/thickness_shader.vert");
+//	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/thickness_shader.frag");
+//	shader.createAndLinkProgram();
+//	shader.use();
+//	shader.addAttribute("vVertex");
+//	shader.addUniform("MVP");
+//	shader.addUniform("MV");
+//	shader.addUniform("z_far");
+//	shader.unUse();
+//	checkCritOpenGLError();
+//
+//	_shaders[Shaders::THICKNESS_SHADER] = shader;
+//	std::cout << "\tthickness shader initialized" << std::endl;
+//}
 
 void GlslShaderManager::initLinealDeepthShader()
 {
@@ -146,9 +147,11 @@ void GlslShaderManager::initLinealDeepthShader()
 	shader.createAndLinkProgram();
 	shader.use();
 	shader.addAttribute("vVertex");
-	shader.addUniform("MVP");
-	shader.addUniform("MV");
+	shader.addUniform("M");
+	shader.addUniform("V");
+	shader.addUniform("P");
 	shader.addUniform("z_far");
+	shader.addUniform("light_position");
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -180,4 +183,27 @@ void GlslShaderManager::initTranslucecyhader()
 
 	_shaders[Shaders::TRANSLUCENCY_SHADER] = shader;
 	std::cout << "\tTransmitance shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initMainRenderShader()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/mainRender_pass.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/mainRender_pass.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+
+	shader.addAttribute("vVertex");
+	shader.addAttribute("vNormal");
+	shader.addAttribute("vColor");
+
+	shader.addUniform("MVP");
+
+
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::MAIN_RENDER_SHADER] = shader;
+	std::cout << "\tMain render shader initialized" << std::endl;
+	
 }

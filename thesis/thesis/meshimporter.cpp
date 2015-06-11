@@ -100,8 +100,8 @@ std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, 
 	if(info) t1 = timmer.now();
 	std::cout << "Loading... " << path << std::endl;
 	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
-	std::cout << "mesh  " << mesh.get() << std::endl;
-	meshInfo(mesh);
+	//std::cout << "mesh  " << mesh.get() << std::endl;
+	if(info) meshInfo(mesh);
 	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
 	std::vector<unsigned int> faces = getAiFaces(mesh);
 	std::vector<glm::vec3> normals;
@@ -109,13 +109,27 @@ std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, 
 
 	if(mesh->HasNormals()) normals = getAiMeshNormals(mesh);
 	if (mesh->HasVertexColors(0)) colors = getAiMeshColors(mesh);
-	if (info) t2 = timmer.now();
-	if (info) std::cout << "...Loaded(" << std::chrono::duration_cast<time_unit>(t2 - t1).count() << "ms)." << std::endl;
+
+	if (info)
+	{
+		t2 = timmer.now();
+		std::cout << "...Loaded(" << std::chrono::duration_cast<time_unit>(t2 - t1).count() << "ms)." << std::endl;
+	}
 	else std::cout << "...Loaded." << std::endl;
+
 	mesh.release();
 
-	auto ret_value;
-	if (normals.size() && colors.size()) ret_value = std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors)) //return std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors));
-	else return std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals));
+	//if (info) t1 = timmer.now();
+
+	std::shared_ptr<Mesh> ret_value;
+	if (normals.size() && colors.size()) ret_value = std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors)); //return std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors));
+	else ret_value = std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals));
+	
+	//if (info)
+	//{
+	//	t2 = timmer.now();
+	//	std::cout << "Created in (" << std::chrono::duration_cast<time_unit>(t2 - t1).count() << "ms)." << std::endl;
+	//}
+
 	return ret_value;
 }

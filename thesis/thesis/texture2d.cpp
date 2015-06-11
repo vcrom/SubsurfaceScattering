@@ -66,13 +66,76 @@ void Texture2D::resize(GLsizei width, GLsizei height)
 	}
 }
 
+/// <summary>
+/// Loads an empty texture of size(width, height) of an internal format specified in internalformat in the texture level(level) with the specified openGl param border.
+/// </summary>
+/// <param name="level">Texture mipmap level.</param>
+/// <param name="internalformat">The internalformat.</param>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
+/// <param name="border">The border openGl flag(must be 0) deprecated param GL_TEXTURE_BORDER_COLOR GL_CLAMP_TO_BORDER can be used to archieve the texture border effect</param>
 void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border)
 {
 	switch (internalformat)
 	{
+	//Depth textures
+	case GL_DEPTH_COMPONENT16:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, NULL);
+		break;
 	case GL_DEPTH_COMPONENT:
+	case GL_DEPTH_COMPONENT24:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+		break;
 	case GL_DEPTH_COMPONENT32F:
 		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		break;
+	case GL_DEPTH_STENCIL:
+	case GL_DEPTH24_STENCIL8:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+		break;
+	case GL_DEPTH32F_STENCIL8:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, NULL);
+		break;
+
+	//RGB textures
+	case GL_RGB:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		break;
+	case GL_RGB16F:
+	case GL_RGB32F:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_FLOAT, NULL);
+		break;
+
+	//RGBA textures
+	case GL_RGBA:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		break;
+	case GL_RGBA16F:
+	case GL_RGBA32F:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_FLOAT, NULL);
+		break;
+
+	//R textures
+	case GL_R8:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RED, GL_UNSIGNED_BYTE, NULL);
+		break;
+	case GL_R8_SNORM:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RED, GL_BYTE, NULL);
+		break;
+	case GL_R16F:
+	case GL_R32F:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_RED, GL_FLOAT, NULL);
+		break;
+
+	//Unsized Internal limunance and alpha
+	case GL_LUMINANCE_ALPHA:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, NULL);
+		break;
+	case GL_LUMINANCE:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+		break;
+	case GL_ALPHA:
+		loadBufferToTexture(level, internalformat, width, height, border, GL_ALPHA, GL_UNSIGNED_BYTE, NULL);
 		break;
 	default:
 		loadBufferToTexture(level, internalformat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -85,6 +148,12 @@ void Texture2D::loadEmptyTexture(GLint level, GLint internalformat, GLsizei widt
 	loadEmptyTexture(level, internalformat, width, height, 0);
 }
 
+/// <summary>
+/// Loads an empty texture of size(width, height) of an internal format specified in internalformat.
+/// </summary>
+/// <param name="internalformat">The internalformat.</param>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
 void Texture2D::loadEmptyTexture(GLint internalformat, GLsizei width, GLsizei height)
 {
 	loadEmptyTexture(0, internalformat, width, height);

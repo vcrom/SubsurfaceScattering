@@ -44,8 +44,14 @@ public:
 	void toggleControlBool(unsigned int i);
 
 	void reloadShaders();
+	void moveLight(glm::vec3 dir);
 
 private:
+	//constants
+	const float ROT_SPEED = 0.5f;
+	const float ZOOM_SPEED = 0.05f;
+	const float LIGHT_MOV_SPEED = 0.025f;
+
 	//initialization
 	void initializeGL();
 	void glewInitialization();
@@ -66,7 +72,7 @@ private:
 		//shadow mapping(for each light)
 		_shadow_map_texture, _lineal_shadow_map_texture, 
 		//ssss
-		_mate_texture, _diffuse_color_texture, _specular_texture, _lineal_deepth_texture;
+		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture;
 
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);
@@ -82,10 +88,6 @@ private:
 	glm::vec2 _window_size;
 
 	int _mouse_x, _mouse_y;
-
-	//constants
-	const float ROT_SPEED = 0.5f;
-	const float ZOOM_SPEED = 0.05f;
 
 	//timmer
 	std::chrono::high_resolution_clock _clock;

@@ -95,7 +95,27 @@ void GLWidget::paintGL()
 /// <param name="event">QT key event.</param>
 void GLWidget::keyPressEvent(QKeyEvent* event)
 {
-	if (event->key() == Qt::Key_M)
+	if (event->key() == Qt::Key_W)
+	{
+		core_engine_->moveLight(glm::vec3(0, 0, -1));
+		update();
+	}
+	else if (event->key() == Qt::Key_S)
+	{
+		core_engine_->moveLight(glm::vec3(0, 0, 1));
+		update();
+	}
+	else if (event->key() == Qt::Key_A)
+	{
+		core_engine_->moveLight(glm::vec3(-1, 0, 0));
+		update();
+	}
+	else if (event->key() == Qt::Key_D)
+	{
+		core_engine_->moveLight(glm::vec3(1, 0, 0));
+		update();
+	}
+	else if (event->key() == Qt::Key_M)
 	{
 		QString filename = QFileDialog::getOpenFileName(this, tr("Load Mesh"), "./", tr("PLY Files (*.ply);;All files (*)"));
 		if (!filename.isNull())
