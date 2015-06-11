@@ -395,9 +395,9 @@ void Core::mainRenderPass()
 	//_generic_buffer->clearColorDepthAndStencil();
 	//_default_buffer->useFrameBuffer();
 
-	RenderAlgorithms::renderShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, _light_view_matrix, _light_projection_matrix, _light->getPosition());
+	//RenderAlgorithms::renderShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, _light_view_matrix, _light_projection_matrix, _light->getPosition());
 
-	//RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
+	RenderAlgorithms::renderDiffuseAndSpecular(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
 
 	glStencilFunc(GL_EQUAL, 0, 0xFF);
 	glStencilMask(0xFF);
