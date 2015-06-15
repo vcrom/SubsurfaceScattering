@@ -62,6 +62,8 @@ private:
 	void renderScene();
 	void shadowMapPass();
 	void mainRenderPass();// , float time, float elapsedTime);
+	void subSurfaceScatteringPass();
+	void addSpecularPass();
 
 	
 	//cammera
@@ -72,7 +74,7 @@ private:
 		//shadow mapping(for each light)
 		_shadow_map_texture, _lineal_shadow_map_texture, 
 		//ssss
-		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture;
+		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture;
 
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);
@@ -96,6 +98,10 @@ private:
 	//params
 	glm::mat4 _light_view_matrix, _light_projection_matrix;
 	void computeLightMatrices();
+
+	glm::mat4 _prev_VP;
+
+	float sss_width, translucency;
 		
 
 };

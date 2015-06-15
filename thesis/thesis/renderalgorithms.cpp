@@ -143,7 +143,7 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	//return;
 	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
 
-	fbo->useFrameBuffer();
+	fbo->useFrameBuffer(2);
 	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -201,20 +201,67 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 	return glIsEnabled(param);
 }
 
-void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P)
+void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, 
+	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
+	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, float translucency, bool ssss_enabled)
 {
 	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+
+	glm::mat4 B = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5, 0.5, 0.5)), glm::vec3(0.5, 0.5, 0.5));
+	glm::mat4 lightViewProjM = B * P_L * V_L;
+
+	shadow_tex->use(GL_TEXTURE0);
+	light_linear_shadow_tex->use(GL_TEXTURE1);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::MAIN_RENDER_SHADER);
-	fbo->useFrameBuffer();
+	fbo->useFrameBuffer(3);
 
 	shader->use();
-		glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+		//vert
+		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM;"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM;"), 1, GL_FALSE, glm::value_ptr(prev_VP*M));
+		glUniformMatrix4fv(shader->operator()("worldInverseTransposeM"), 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(M)));
+		glUniformMatrix4fv(shader->operator()("worldM"), 1, GL_FALSE, glm::value_ptr(M));
+		glUniformMatrix4fv(shader->operator()("viewM"), 1, GL_FALSE, glm::value_ptr(V));
+		glUniform3fv(shader->operator()("m_camera_pos"), 1, glm::value_ptr(camera_pos));
+		glUniform1f(shader->operator()("z_far"), z_far);
+		//frag
+		glUniform3fv(shader->operator()("light_position"), 1, glm::value_ptr(light_pos));
+		glUniform1f(shader->operator()("m_ambientcomp"), 1.0f); 
+		glUniformMatrix4fv(shader->operator()("lightViewProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L * V_L));
+
+
+		glUniformMatrix4fv(shader->operator()("lightViewM"), 1, GL_FALSE, glm::value_ptr(V_L));
+		glUniformMatrix4fv(shader->operator()("lightProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L));
+		glUniform1f(shader->operator()("light_far_plane"), light_far_plane);
+		glUniform1f(shader->operator()("sssWidth"), sss_width);
+		glUniform1f(shader->operator()("translucency"), translucency);
+		glUniform1i(shader->operator()("sssEnabled"), int(ssss_enabled));
+		checkCritOpenGLError();
+
 		mesh->render();
 	shader->unUse();
 
 	glDisable(GL_CULL_FACE);
 }
+
+//void RenderAlgorithms::mainRenderPas(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_MVP, glm::vec3 camera_pos, float z_far)
+//{
+//	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+//
+//	glEnable(GL_CULL_FACE);
+//	glCullFace(GL_BACK);
+//
+//	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::MAIN_RENDER_SHADER);
+//	fbo->useFrameBuffer();
+//
+//	shader->use();
+//	glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+//	mesh->render();
+//	shader->unUse();
+//
+//	glDisable(GL_CULL_FACE);
+//}

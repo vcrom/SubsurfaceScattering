@@ -14,6 +14,9 @@ Core::Core()
 	_mouse_x = _mouse_y = 0;
 	_control_boolean_params = std::vector<bool>(10, false);
 	_window_size = glm::vec2(0);
+	_prev_VP = glm::mat4(0);
+	sss_width = 0.012;
+	translucency = 0.95;
 }
 
 #include "fimage.h"
@@ -50,6 +53,11 @@ void Core::glewInitialization()
 	std::cout << "\tRenderer: " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "\tVersion: " << glGetString(GL_VERSION) << std::endl;
 	std::cout << "\tGLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+	int aux;
+	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &aux);
+	std::cout << "\tMax uniform comp: " << aux << std::endl;
+	glGetIntegerv(GL_MAX_VARYING_COMPONENTS, &aux);
+	std::cout << "\tMax varying comp: " << aux << std::endl;
 	checkCritOpenGLError();
 }
 
@@ -152,6 +160,16 @@ void Core::initializeTextures()
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
+	_aux_ssss_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_aux_ssss_texture->use();
+	_aux_ssss_texture->loadEmptyTexture(GL_RGBA, 32, 32);
+	_aux_ssss_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_aux_ssss_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	_aux_ssss_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_ssss_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
+	checkCritOpenGLError();
+
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
 	_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	_background_texture->use();
@@ -216,8 +234,10 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	_lineal_shadow_map_texture->use();
 	_lineal_shadow_map_texture->resize(shadow_width, shadow_height);
 	_depth_stencil_texture->use();
-	_depth_stencil_texture->resize(w, h);
+	_depth_stencil_texture->resize(shadow_width, shadow_height);
 
+	_aux_ssss_texture->use();
+	_aux_ssss_texture->resize(w, h);
 	_diffuse_color_texture->use();
 	_diffuse_color_texture->resize(w, h);
 	_specular_texture->use();
@@ -244,6 +264,7 @@ void Core::resize(unsigned int w, unsigned int h)
 #include <glm/gtc/matrix_transform.hpp>
 void Core::onRender()
 {
+	//std::cout << _cam.getZfar() << std::endl;
 	if (!_control_boolean_params[0])
 	{
 		renderScene();
@@ -347,11 +368,19 @@ void Core::renderScene()
 	_t2 = _clock.now();
 	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
-	//_t1 = _clock.now();
+	_t1 = _clock.now();
+	subSurfaceScatteringPass();
+	_t2 = _clock.now();
+	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t1 - _t2).count() << std::endl;
+	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
-	//_t2 = _clock.now();
-	//std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t1 - _t2).count() << std::endl;
-	RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+	_t1 = _clock.now();
+	addSpecularPass();
+	_t2 = _clock.now();
+	std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t1 - _t2).count() << std::endl;
+	
+	
+	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
 }
 
@@ -360,13 +389,13 @@ void Core::renderScene()
 /// </summary>
 void Core::shadowMapPass()
 {
-	_generic_buffer->useFrameBuffer();
+	_generic_buffer->useFrameBuffer(3);
 	_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 	_generic_buffer->stencilBuffer(0);
 	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
 	//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorAndDepth();
-	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()), _light->getPosition());
+	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());
 }
 
 /// <summary>
@@ -386,28 +415,64 @@ void Core::mainRenderPass()
 
 	_generic_buffer->useFrameBuffer(3);
 	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//difuse
-	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 1);//specular
-	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 2);//lin depth
+	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 1);//lin depth
+	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 2);//specular
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
-
+	_generic_buffer->clearColorDepthAndStencil();
 	checkCritOpenGLError();
 
 	//_generic_buffer->clearColorDepthAndStencil();
 	//_default_buffer->useFrameBuffer();
 
-	RenderAlgorithms::renderShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, _light_view_matrix, _light_projection_matrix, _light->getPosition());
+	//RenderAlgorithms::renderShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, _light_view_matrix, _light_projection_matrix, _light->getPosition());
 
-	//RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix());
+	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), _shadow_map_texture,
+		_light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), sss_width, translucency, true);
 
-	glStencilFunc(GL_EQUAL, 0, 0xFF);
-	glStencilMask(0xFF);
-	RenderAlgorithms::renderTexture(_default_buffer, _background_texture);
+	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
+
+	RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
+
+	//glStencilFunc(GL_EQUAL, 0, 0xFF);
+	//glStencilMask(0xFF);
+	//RenderAlgorithms::renderTexture(_default_buffer, _background_texture);
 	glDisable(GL_STENCIL_TEST);
 
 	//_default_buffer.use_count();
 	//_default_buffer->clearColorDepthAndStencil();
 	//RenderAlgorithms::getLinealShadowMap(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
 
+}
+
+void Core::subSurfaceScatteringPass()
+{
+	_generic_buffer->useFrameBuffer(1);
+	_generic_buffer->colorBuffer(_aux_ssss_texture->getTextureID(), 0);//diffuse
+	_generic_buffer->clearColor();
+	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	glStencilMask(0xFF);
+
+	RenderAlgorithms::renderTexture(_generic_buffer, _diffuse_color_texture);
+
+	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//diffuse
+	_generic_buffer->clearColor();
+
+	RenderAlgorithms::renderTexture(_generic_buffer, _aux_ssss_texture);
+
+	glDisable(GL_STENCIL_TEST);
+}
+
+void Core::addSpecularPass()
+{
+	RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	//RenderAlgorithms::renderTexture(_default_buffer, _specular_texture);
+	glDisable(GL_BLEND);
+
+	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
 }
 
 /// <summary>

@@ -45,7 +45,6 @@ vec3 transmittance(float translucency, float sss_width, vec3 world_position, vec
                     vec3(0.078, 0.0,   0.0)   * exp(dd / 7.41);
 
 	return profile * clamp(0.3 + dot(light_vector, -world_normal), 0.0, 1.0);
-
 }
 
 

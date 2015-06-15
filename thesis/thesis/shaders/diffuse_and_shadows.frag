@@ -26,6 +26,80 @@ float random(vec4 seed) {
 }
 #endif
 
+float shadowMapping(sampler2DShadow shadow_map, vec4 vShadowCoords)
+{
+    float shadow = 1;
+    if(vShadowCoords.w>1) {
+        //In case of PCF, we take a number of shadow map samples and then
+        //average their contributions. The average value is then used to
+        //darken/lighten the shading. For this case, we have a separate
+        //function textureProjOffset that accepts an offset from the given
+        //shadow coordinate and returns the shadow comparison result.
+
+        float sum = 0;
+
+        //using 3x3 neighborhood
+        #ifdef PCF_STRATIFIED_3x3
+
+		float rad = 1.0f;
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad,-rad));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, 0));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, rad));
+
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 0,-rad));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 0, 0));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 0, rad));
+
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( rad,-rad));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( rad, 0));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( rad, rad));
+
+		shadow = sum/9.0;
+
+
+        #endif
+
+        //using 4x4 neighborhood
+        #ifdef PCF_STRATIFIED_4x4
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-2,-2));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-1,-2));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 1,-2));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 2,-2));
+
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-2,-1));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-1,-1));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 1,-1));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 2,-1));
+
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-2, 1));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-1, 1));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 1, 1));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 2, 1));
+
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-2, 2));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-1, 2));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 1, 2));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2( 2, 2));
+
+        shadow = sum/16.0;
+        #endif
+
+        #ifdef PCF_RANDOM_SAMPLING
+        for(int i=0;i<16;i++) {
+            float indexA = (random(vec4(gl_FragCoord.xyx, i))*0.25);
+            float indexB = (random(vec4(gl_FragCoord.yxy, i))*0.25);
+            sum += textureProj(shadow_map, vShadowCoords+vec4(indexA, indexB, 0, 0));
+        }
+        shadow = sum/16.0;
+        #endif
+
+        #ifdef SIMPLE_SHADOW_MAP
+        shadow = textureProj(shadow_map, vShadowCoords);
+        #endif
+	}
+	return shadow;
+}
+
 void main() {
 
     //get light position in eye space
@@ -54,7 +128,7 @@ void main() {
         //using 3x3 neighborhood
         #ifdef PCF_STRATIFIED_3x3
 
-		float rad = 2.0f;
+		float rad = 1.0f;
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad,-rad));
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, 0));
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, rad));
@@ -119,7 +193,7 @@ void main() {
         diffuse = shadow;
     }
 
-    vFragColor = vec4(vec3(diffuse), 1.0f);
+    vFragColor = vec4(vec3(shadowMapping(shadow_map, vShadowCoords)), 1.0f);
 
     //vFragColor = vec4(0.0f, 0.0f, 0.0f, 1-shadow_intensity);
     //vFragColor = vec4(1, 0, 0, 1);

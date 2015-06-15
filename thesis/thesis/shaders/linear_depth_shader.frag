@@ -1,9 +1,9 @@
 #version 330
+precision highp float;
+layout(location = 0) out float fragDeepth;
 
-layout(location = 0) out vec4 vFragColor;
-
-smooth in float linear_depth;
+smooth in highp float linear_depth;
 void main()
 {
-    vFragColor = vec4(vec3(linear_depth), 1);
+    /*highp float*/ fragDeepth = linear_depth;
 }

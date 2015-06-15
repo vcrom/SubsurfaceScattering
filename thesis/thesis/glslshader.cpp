@@ -99,6 +99,8 @@ void GlslShader::createAndLinkProgram()
 	glDeleteShader(_shaders[VERTEX_SHADER]);
 	glDeleteShader(_shaders[FRAGMENT_SHADER]);
 	glDeleteShader(_shaders[GEOMETRY_SHADER]);
+
+	assert(glIsProgram(_program));
 }
 
 void GlslShader::use()
@@ -131,6 +133,7 @@ void GlslShader::addUniform(const  std::string& uniform)
 GLuint GlslShader::operator()(const  std::string& uniform)
 {
 	return _uniformLocationList[uniform];
+	//return glGetUniformLocation(_program, uniform.c_str());
 }
 
 #include <fstream>

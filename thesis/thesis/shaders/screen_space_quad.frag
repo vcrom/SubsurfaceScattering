@@ -193,7 +193,7 @@ void main(void)
 	//vFColor = vec4(pow(color,vec3(0.75)), 1.0);
 	vec3 color = texture(color_texture, vUV).rgb;
 	vFColor = vec4(color, 1.0);
-
+	//vFColor = vec4(vec3(texture(color_texture, vUV).r), 1.0);
 
 //float f = 3.67149949;
 //float n = 0.367149949;

@@ -197,8 +197,27 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addAttribute("vNormal");
 	shader.addAttribute("vColor");
 
-	shader.addUniform("MVP");
+	shader.addUniform("curr_WorldViewProjM");
+	shader.addUniform("prev_WorldViewProjM");
+	shader.addUniform("worldInverseTransposeM");
+	shader.addUniform("worldM");
+	shader.addUniform("viewM");
+	shader.addUniform("m_camera_pos");
+	shader.addUniform("z_far");
+	shader.addUniform("m_ambientcomp");
+	shader.addUniform("light_position");
+	shader.addUniform("shadow_map");
+	glUniform1i(shader("shadow_map"), 0);
+	shader.addUniform("lightViewProjBiasM");
 
+	shader.addUniform("lightViewM");
+	shader.addUniform("lightProjBiasM");
+	shader.addUniform("light_far_plane");
+	shader.addUniform("lightLinearShadowMap");
+	glUniform1i(shader("lightLinearShadowMap"), 1);
+	shader.addUniform("sssEnabled"); 
+	shader.addUniform("sssWidth");
+	shader.addUniform("translucency");
 
 	shader.unUse();
 	checkCritOpenGLError();

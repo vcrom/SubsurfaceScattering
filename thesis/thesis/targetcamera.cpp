@@ -42,7 +42,7 @@ void TargetCamera::initFromBBox(BBox bbox)
 	//rX = 0;
 	//rY = 0;
 	z_near_ = 0.5f*rad;
-	z_far_ = 5.0f * rad;
+	z_far_ = 15.0f * rad;
 	//CAbstractCamera::Rotate(0, 0, 0);
 	setupProjection(fov_, aspect_ratio_, z_near_, z_far_);
 	rotate(0, 0);

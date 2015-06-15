@@ -60,12 +60,13 @@ void RenderableObject::destroy() {
 	glDeleteVertexArrays(1, &vaoId_);
 }
 
-
+#include <iostream>
 void RenderableObject::render() const
 {
 	//Bind vao and draw it.
 	glBindVertexArray(vaoId_);
 	glDrawElements(primType_, totalIndices_, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	{ GLenum err; while ((err = glGetError()) != GL_NO_ERROR) { std::cerr << "OpenGL error: " << err << std::endl; } }
 	GL_CHECK_ERRORS
 }

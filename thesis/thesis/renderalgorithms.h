@@ -28,7 +28,12 @@ public:
 	//static void renderThickness(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, float z_far);//, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size);
 
 	static void translucency(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, std::shared_ptr<Texture2D> lineal_deepth_tex, float z_far, glm::mat4 V_L, glm::mat4 P_L, glm::vec3 light_pos);
-	static void renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P);
+	static void renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, 
+		glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, 
+		glm::vec3 camera_pos, float z_far, 
+		glm::vec3 light_pos, std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
+		std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, float translucency, bool ssss_enabled = true);
+	//static void mainRenderPas(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_MVP, glm::vec3 camera_pos, float z_far);
 	//void render(std::vector<);
 private:
 	static std::shared_ptr<GlslShaderManager> _shader_manager;
