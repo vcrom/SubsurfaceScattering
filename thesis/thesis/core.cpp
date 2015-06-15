@@ -142,7 +142,7 @@ void Core::initializeTextures()
 
 	_specular_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_specular_texture->use();
-	_specular_texture->loadEmptyTexture(GL_R8, 32, 32);
+	_specular_texture->loadEmptyTexture(GL_RGB, 32, 32);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_specular_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -446,22 +446,32 @@ void Core::mainRenderPass()
 
 void Core::subSurfaceScatteringPass()
 {
-	_generic_buffer->useFrameBuffer(1);
-	_generic_buffer->colorBuffer(_aux_ssss_texture->getTextureID(), 0);//diffuse
-	_generic_buffer->clearColor();
-	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_EQUAL, 1, 0xFF);
-	glStencilMask(0xFF);
+	if (!_control_boolean_params[1])
+	{
 
-	RenderAlgorithms::renderTexture(_generic_buffer, _diffuse_color_texture);
+	}
 
-	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//diffuse
-	_generic_buffer->clearColor();
+	else
+	{
 
-	RenderAlgorithms::renderTexture(_generic_buffer, _aux_ssss_texture);
 
-	glDisable(GL_STENCIL_TEST);
+		_generic_buffer->useFrameBuffer(1);
+		_generic_buffer->colorBuffer(_aux_ssss_texture->getTextureID(), 0);//diffuse
+		_generic_buffer->clearColor();
+		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilMask(0xFF);
+
+		RenderAlgorithms::renderTexture(_generic_buffer, _diffuse_color_texture);
+
+		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//diffuse
+		_generic_buffer->clearColor();
+
+		RenderAlgorithms::renderTexture(_generic_buffer, _aux_ssss_texture);
+
+		glDisable(GL_STENCIL_TEST);
+	}
 }
 
 void Core::addSpecularPass()
@@ -469,7 +479,7 @@ void Core::addSpecularPass()
 	RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	//RenderAlgorithms::renderTexture(_default_buffer, _specular_texture);
+	RenderAlgorithms::renderTexture(_default_buffer, _specular_texture);
 	glDisable(GL_BLEND);
 
 	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);

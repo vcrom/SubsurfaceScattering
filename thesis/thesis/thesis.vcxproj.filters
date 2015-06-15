@@ -266,7 +266,8 @@
     <None Include="shaders\separableSsss_blur.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\Ssss_blur.frag">
+    <None Include="shaders\Ssss_blur_horiz.frag" />
+    <None Include="shaders\Ssss_blur_vert.frag">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

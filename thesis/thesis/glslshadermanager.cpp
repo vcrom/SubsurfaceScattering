@@ -37,6 +37,10 @@ void GlslShaderManager::initializeShaders()
 	//initThicknessShader();
 	initTranslucecyhader();
 	initMainRenderShader();
+	initSSSSHori();
+	initSSSSVert();
+	initSeparableSSSSHori();
+	initSeparableSSSSVert();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -225,4 +229,76 @@ void GlslShaderManager::initMainRenderShader()
 	_shaders[Shaders::MAIN_RENDER_SHADER] = shader;
 	std::cout << "\tMain render shader initialized" << std::endl;
 	
+}
+
+void GlslShaderManager::initSSSSHori()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addAttribute("vNormal");
+	shader.addUniform("MVP");
+	shader.addUniform("color");
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::SSSS_HORIZONTAL_BLUR] = shader;
+	std::cout << "\tSSSS horizontal blur shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initSSSSVert()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addAttribute("vNormal");
+	shader.addUniform("MVP");
+	shader.addUniform("color");
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::SSSS_VERTICAL_BLUR] = shader;
+	std::cout << "\tSSSS vertical blur shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initSeparableSSSSHori()
+{
+	//GlslShader shader;
+	//shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
+	//shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	//shader.createAndLinkProgram();
+	//shader.use();
+	//shader.addAttribute("vVertex");
+	//shader.addAttribute("vNormal");
+	//shader.addUniform("MVP");
+	//shader.addUniform("color");
+	//shader.unUse();
+	//checkCritOpenGLError();
+
+	//_shaders[Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR] = shader;
+	std::cout << "\tseparable SSSS horizontal blur shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initSeparableSSSSVert()
+{
+	//GlslShader shader;
+	//shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
+	//shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	//shader.createAndLinkProgram();
+	//shader.use();
+	//shader.addAttribute("vVertex");
+	//shader.addAttribute("vNormal");
+	//shader.addUniform("MVP");
+	//shader.addUniform("color");
+	//shader.unUse();
+	//checkCritOpenGLError();
+
+	//_shaders[Shaders::SEPARABLE_SSSS_VERTICAL_BLUR] = shader;
+	std::cout << "\t separable SSSS vertical blur shader initialized" << std::endl;
 }

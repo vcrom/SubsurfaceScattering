@@ -2,7 +2,7 @@
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out float FragLinearDepth;
-layout(location = 2) out float FragSpecularColor;
+layout(location = 2) out vec3 FragSpecularColor;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 #define SEPARATE_SPECULARS
@@ -213,14 +213,17 @@ void main()
 	vec3 f2 = albedo.rgb * f1;
 
 	float diffuse = saturate(dot(L, N));
+
+	//specular
 	float specular = max(0, pow(dot(N, H), 17));
 	//float specular = intensity * SpecularKSK(beckmannTex, normal, light, input.view, roughness);
+
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.025*N, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);
 	// Add the diffuse and specular components:
     #ifdef SEPARATE_SPECULARS
     color.rgb += shadow * f2 * diffuse;
-    FragSpecularColor += shadow * 1 * specular;
+    FragSpecularColor += shadow * f1 * specular;
     #else
     color.rgb += shadow * (f2 * diffuse + f1 * specular);
     #endif

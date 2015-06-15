@@ -10,7 +10,12 @@ class GlslShaderManager
 {
 	using uint = unsigned int;
 public:
-	enum Shaders : uint { TEXTURE_TO_SCREEN, PASS_THROUGH, SHADOWS_AND_DIFFUSE, LINEAL_DEEPTH, TRANSLUCENCY_SHADER, THICKNESS_SHADER, MAIN_RENDER_SHADER, Count };
+	enum Shaders : uint {	
+		TEXTURE_TO_SCREEN, PASS_THROUGH, SHADOWS_AND_DIFFUSE, LINEAL_DEEPTH, TRANSLUCENCY_SHADER, THICKNESS_SHADER, MAIN_RENDER_SHADER, 
+		SSSS_HORIZONTAL_BLUR, SSSS_VERTICAL_BLUR,
+		SEPARABLE_SSSS_HORIZONTAL_BLUR, SEPARABLE_SSSS_VERTICAL_BLUR,
+		Count 
+	};
 
 	static std::shared_ptr<GlslShaderManager> instance();
 	//static GlslShaderManager& instance();
@@ -33,6 +38,10 @@ private:
 	void initLinealDeepthShader();
 	void initTranslucecyhader();
 	void initMainRenderShader(); 
+	void initSSSSHori();
+	void initSSSSVert();
+	void initSeparableSSSSHori();
+	void initSeparableSSSSVert();
 };
 
 #endif // GLSLSHADERMANAGER_H
