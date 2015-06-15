@@ -248,6 +248,65 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	glDisable(GL_CULL_FACE);
 }
 
+
+std::vector<glm::vec4> initGaussians()
+{
+	auto gaussians = std::vector<glm::vec4>(0);
+	gaussians.push_back(glm::vec4(0.0064, 1, 1, 1));
+	gaussians.push_back(glm::vec4(0.0516, 0.3251, 0.45, 0.3583));
+	gaussians.push_back(glm::vec4(0.2719, 0.34, 0.1864, 0.0));
+	gaussians.push_back(glm::vec4(2.0062, 0.46, 0.0, 0.0402));
+	for (unsigned int  i = 1; i < gaussians.size(); ++i) gaussians[i].x = gaussians[i].x - gaussians[i - 1].x;
+	return gaussians;
+}
+
+std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
+
+void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth)
+{
+	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SSSS_HORIZONTAL_BLUR);
+	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SSSS_VERTICAL_BLUR);
+
+	horizontal->use();
+	glUniform2fv(horizontal->operator()("pixel_size"), 1, glm::value_ptr(pixel_size)); 
+	glUniform1f(horizontal->operator()("correction"), correction);
+	glUniform1f(horizontal->operator()("sssStrenth"), sssStrenth);
+	vertical->use();
+	glUniform2fv(vertical->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
+	glUniform1f(vertical->operator()("correction"), correction);
+	glUniform1f(vertical->operator()("sssStrenth"), sssStrenth);
+
+	ScreenQuad* quad = ScreenQuad::getInstanceP();
+
+
+	sss_tex->use(GL_TEXTURE0);
+	lineal_depth->use(GL_TEXTURE1);
+
+	fbo->useFrameBuffer();
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	for (unsigned int  i = 0; i < _gaussians.size(); ++i)
+	{
+		fbo->colorBuffer(rt1_tex->getTextureID(), 0);
+		horizontal->use();
+		glUniform4fv(horizontal->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
+		quad->render();
+
+		rt1_tex->use(GL_TEXTURE0);
+		fbo->useFrameBuffer(2);
+		fbo->colorBuffer(rt2_tex->getTextureID(), 0);
+		fbo->colorBuffer(sss_tex->getTextureID(), 1);
+		vertical->use();
+		glUniform4fv(vertical->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
+		quad->render();
+
+		rt2_tex->use(GL_TEXTURE0);
+	}
+	checkCritOpenGLError();
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+}
+
 //void RenderAlgorithms::mainRenderPas(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_MVP, glm::vec3 camera_pos, float z_far)
 //{
 //	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));

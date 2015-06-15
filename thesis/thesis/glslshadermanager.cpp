@@ -234,16 +234,23 @@ void GlslShaderManager::initMainRenderShader()
 void GlslShaderManager::initSSSSHori()
 {
 	GlslShader shader;
-	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
-	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/Ssss_blur_horiz.frag");
 	shader.createAndLinkProgram();
 	shader.use();
 	shader.addAttribute("vVertex");
-	shader.addAttribute("vNormal");
-	shader.addUniform("MVP");
-	shader.addUniform("color");
+
+	shader.addUniform("pixel_size");
+	shader.addUniform("gaussian");
+	shader.addUniform("correction");
+	shader.addUniform("sssStrength");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	shader.addUniform("lineal_depth_texture");
+	glUniform1i(shader("lineal_depth_texture"), 1);
 	shader.unUse();
 	checkCritOpenGLError();
+
 
 	_shaders[Shaders::SSSS_HORIZONTAL_BLUR] = shader;
 	std::cout << "\tSSSS horizontal blur shader initialized" << std::endl;
@@ -252,14 +259,21 @@ void GlslShaderManager::initSSSSHori()
 void GlslShaderManager::initSSSSVert()
 {
 	GlslShader shader;
-	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/pass_through_shader.vert");
-	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/pass_through_shader.frag");
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/Ssss_blur_vert.frag");
 	shader.createAndLinkProgram();
 	shader.use();
 	shader.addAttribute("vVertex");
-	shader.addAttribute("vNormal");
-	shader.addUniform("MVP");
-	shader.addUniform("color");
+
+	shader.addUniform("pixel_size");
+	shader.addUniform("gaussian");
+	shader.addUniform("correction");
+	shader.addUniform("sssStrength");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	shader.addUniform("lineal_depth_texture");
+	glUniform1i(shader("lineal_depth_texture"), 1);
+
 	shader.unUse();
 	checkCritOpenGLError();
 

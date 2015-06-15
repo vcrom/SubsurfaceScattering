@@ -1,10 +1,12 @@
 #version 330
 
 layout(location=0) out vec4 vFColor;
+layout(location=1) out vec4 vBlur;
 
 
 uniform sampler2D color_texture;
-uniform sampler2D depth_texture;
+uniform sampler2D lineal_depth_texture;
+
 uniform float correction = 800;
 uniform float sssStrength = 15.75;
 uniform vec2 pixel_size;
@@ -40,5 +42,10 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
-        vFColor = BlurSSSSPas(sssStrength, gauss_size, pixel_size, dir, correction, vUV, color_texture, depth_texture);
+        vFColor = BlurSSSSPas(sssStrength, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture);
+		//vBlur = vec4(vFColor.r*gaussian.g, vFColor.g*gaussian.b, vFColor.b*gaussian.a, 1) ;
+		vBlur = vFColor; 
+		//vBlur = BlurSSSSPas;
+		//vBlur = vec4(1, 0, 0, 1);
+		//vBlur = vec4(vec3(texture2D(lineal_depth_texture, vUV).r), 1);
  }

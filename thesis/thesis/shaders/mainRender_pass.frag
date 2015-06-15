@@ -198,7 +198,7 @@ void main()
 	float intensity = 1.88;
 	float roughness = 0.3;
 
-	vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 	//FragSpecularColor = 0;
 	//for all lights
 	vec3 L = light_position - worldPosition;
@@ -258,6 +258,7 @@ void main()
 
 	//color.rgb = pow(f2*transmittance(translucency, sssWidth, worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane), vec3(1/2.2));
 	//color.rgb = transmittance(translucency, sssWidth, worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
+	color.a = albedo.a;
 	FragColor = color;
  //   float col = (dot(N, vec3(0,1,0)) + 1)/2;
 	//FragColor = vec4(mesh_color*col);

@@ -10,7 +10,7 @@ uniform float correction = 800;
 uniform float sssStrength = 15.75;
 uniform vec2 pixel_size;
 uniform vec4 gaussian;
-const vec2 dir = vec2(0, 1);
+const vec2 dir = vec2(1, 0);
 
 smooth in vec2 vUV;
 

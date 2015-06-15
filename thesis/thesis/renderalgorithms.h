@@ -33,7 +33,9 @@ public:
 		glm::vec3 camera_pos, float z_far, 
 		glm::vec3 light_pos, std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 		std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, float translucency, bool ssss_enabled = true);
-	//static void mainRenderPas(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_MVP, glm::vec3 camera_pos, float z_far);
+
+
+	static void SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth);
 	//void render(std::vector<);
 private:
 	static std::shared_ptr<GlslShaderManager> _shader_manager;
@@ -41,6 +43,8 @@ private:
 	//static FrameBuffer buffer;
 
 	static bool checkGLEnabled(GLenum param);
+
+	static std::vector<glm::vec4> _gaussians;
 };
 
 #endif // RENDERALGORITHMS_H
