@@ -275,11 +275,11 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	horizontal->use();
 	glUniform2fv(horizontal->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
 	glUniform1f(horizontal->operator()("correction"), correction);
-	glUniform1f(horizontal->operator()("sssStrenth"), sssStrenth);
+	glUniform1f(horizontal->operator()("sssStrength"), sssStrenth);
 	vertical->use();
 	glUniform2fv(vertical->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
 	glUniform1f(vertical->operator()("correction"), correction);
-	glUniform1f(vertical->operator()("sssStrenth"), sssStrenth);
+	glUniform1f(vertical->operator()("sssStrength"), sssStrenth);
 
 	ScreenQuad* quad = ScreenQuad::getInstanceP();
 
@@ -287,12 +287,14 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	sss_tex->use(GL_TEXTURE0);
 	lineal_depth->use(GL_TEXTURE1);
 
-	fbo->useFrameBuffer();
+	fbo->useFrameBuffer(1);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 	int idx = 0;
 	for (unsigned int i = 0; i < _gaussians.size(); ++i)
 	{
+		idx = i % 2;
+		fbo->useFrameBuffer(1);
 		fbo->colorBuffer(rt1_tex->getTextureID(), 0);
 		horizontal->use();
 		glUniform4fv(horizontal->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
@@ -301,7 +303,6 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 		rt1_tex->use(GL_TEXTURE0);
 		fbo->useFrameBuffer(2);
 		fbo->colorBuffer(rt2_tex->getTextureID(), 0);
-		idx = i % 2;
 		fbo->colorBuffer(pingpong_tex[idx]->getTextureID(), 1);
 		pingpong_tex[(i + 1) % 2]->use(GL_TEXTURE2);
 		vertical->use();

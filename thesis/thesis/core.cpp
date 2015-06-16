@@ -18,7 +18,7 @@ Core::Core()
 	_sss_width = 0.005;//0.0117500005;
 	_translucency = 0.95;
 	_correction = 1700;
-	_sssStrength =  _sss_width;// 15.75;
+	_sssStrength =  12.75;
 	_pixel_size = glm::vec2(1);
 	_exposure = 2;
 	_ambientInt = 0.66;
@@ -403,7 +403,8 @@ void Core::mainRenderPass()
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2]);
 
 	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
-
+	_generic_buffer->useFrameBuffer(3);
+	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 2);//specular
 	////render background
 	//_generic_buffer->useFrameBuffer(1);
 	//glStencilFunc(GL_EQUAL, 0, 0xFF);
@@ -425,11 +426,12 @@ void Core::subSurfaceScatteringPass()
 		glStencilMask(0x00);
 
 		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
+		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		glDisable(GL_STENCIL_TEST);
 		break;
 	case 1:
-		_generic_buffer->useFrameBuffer(1);
+		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
 		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
@@ -437,7 +439,11 @@ void Core::subSurfaceScatteringPass()
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glStencilMask(0x00);
+
 		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
+		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
+
+		//RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
 		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		glDisable(GL_STENCIL_TEST);
@@ -635,7 +641,8 @@ void Core::setTranslucency(float t)
 void Core::setSSWidth(float w)
 {
 	_sss_width = w;
-	_sssStrength = _sss_width;
+	float factor = 12.75 / 0.005;
+	_sssStrength = factor*_sss_width;
 }
 
 void Core::setExposure(float e)
