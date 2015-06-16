@@ -50,6 +50,7 @@ smooth in vec3 prev_vPosition;
 smooth in vec3 curr_vPosition;
 smooth in vec3 view_vector;
 uniform float m_ambientcomp = 1.0;
+uniform float spec_int = 0.5;
 ///////////////Main///////////////
 
 
@@ -215,7 +216,7 @@ void main()
 	float diffuse = saturate(dot(L, N));
 
 	//specular
-	float specular = max(0, pow(dot(N, H), 17));
+	float specular = max(0, pow(dot(N, H), 25)-0.3) * spec_int;//17
 	//float specular = intensity * SpecularKSK(beckmannTex, normal, light, input.view, roughness);
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.025*N, 1);

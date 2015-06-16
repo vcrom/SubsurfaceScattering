@@ -352,3 +352,26 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 }
+
+void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> tex, float exposure, float burnout)
+{
+	fbo->useFrameBuffer();
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	tex->use(GL_TEXTURE0);
+	ScreenQuad* quad = ScreenQuad::getInstanceP();
+	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::TONE_MAP);
+	glUniform1f(shader->operator()("exposure"), exposure);
+	glUniform1f(shader->operator()("burnout"), burnout);
+	shader->use();
+	quad->render();
+	shader->unUse();
+	checkCritOpenGLError();
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, RenderAlgorithms::default_buffer);
+}

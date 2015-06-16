@@ -64,6 +64,7 @@ private:
 	void mainRenderPass();// , float time, float elapsedTime);
 	void subSurfaceScatteringPass();
 	void addSpecularPass();
+	void toneMap();
 
 	
 	//cammera
@@ -101,8 +102,7 @@ private:
 
 	glm::mat4 _prev_VP;
 
-	float _sss_width, _translucency;
-	float _correction, _sssStrength;
+	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
 	glm::vec2 _pixel_size;
 		
 

@@ -41,6 +41,7 @@ void GlslShaderManager::initializeShaders()
 	initSSSSVert();
 	initSeparableSSSSHori();
 	initSeparableSSSSVert();
+	initToneMap();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -325,4 +326,24 @@ void GlslShaderManager::initSeparableSSSSVert()
 
 	_shaders[Shaders::SEPARABLE_SSSS_VERTICAL_BLUR] = shader;
 	std::cout << "\t separable SSSS vertical blur shader initialized" << std::endl;
+}
+
+
+void GlslShaderManager::initToneMap()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/tone_map.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+
+	shader.addUniform("exposure");
+	shader.addUniform("burnout");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	checkCritOpenGLError();
+
+	_shaders[Shaders::TONE_MAP] = shader;
+	std::cout << "\t Tone map shader initialized" << std::endl;
 }

@@ -341,8 +341,7 @@
     <None Include="shaders\separableSsss_blur_vert.frag" />
     <None Include="shaders\Ssss_blur_horiz.frag" />
     <None Include="shaders\Ssss_blur_vert.frag" />
-    <None Include="shaders\thickness_shader.frag" />
-    <None Include="shaders\thickness_shader.vert" />
+    <None Include="shaders\tone_map.frag" />
     <None Include="shaders\translucency_shader.frag" />
     <None Include="shaders\translucency_shader.vert" />
   </ItemGroup>

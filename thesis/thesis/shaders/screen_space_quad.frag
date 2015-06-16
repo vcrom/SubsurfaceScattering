@@ -163,36 +163,42 @@ float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
     return tmid;
 }
 
+void water()
+{
+	vFColor = mix(vec4(0,0,0,1), vec4(1,0,0,1), float(vUV.y));
+
+	vec2 uv = vUV;
+    float time = 0;
+
+    // ray
+    vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);
+    vec3 ori = vec3(0.0,3.5,time*5.0);
+    vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.15;
+    dir = normalize(dir) * fromEuler(ang);
+
+    // tracing
+    vec3 p;
+    heightMapTracing(ori,dir,p);
+    vec3 dist = p - ori;
+    vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM);
+    vec3 light = normalize(vec3(0.0,1.0,0.8));
+
+    // color
+    vec3 color = mix(
+        getSkyColor(dir),
+        getSeaColor(p,n,light,dir,dist),
+    	pow(smoothstep(0.0,-0.05,dir.y),0.3));
+
+    // post
+	vFColor = vec4(pow(color,vec3(0.75)), 1.0);
+}
+
 void main(void)
 {
-	//vFColor = mix(vec4(0,0,0,1), vec4(1,0,0,1), float(vUV.y));
 
-	//vec2 uv = vUV;
- //   float time = 0;
-
- //   // ray
- //   vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);
- //   vec3 ori = vec3(0.0,3.5,time*5.0);
- //   vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.15;
- //   dir = normalize(dir) * fromEuler(ang);
-
- //   // tracing
- //   vec3 p;
- //   heightMapTracing(ori,dir,p);
- //   vec3 dist = p - ori;
- //   vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM);
- //   vec3 light = normalize(vec3(0.0,1.0,0.8));
-
- //   // color
- //   vec3 color = mix(
- //       getSkyColor(dir),
- //       getSeaColor(p,n,light,dir,dist),
- //   	pow(smoothstep(0.0,-0.05,dir.y),0.3));
-
- //   // post
-	//vFColor = vec4(pow(color,vec3(0.75)), 1.0);
-	vec3 color = texture(color_texture, vUV).rgb;
-	vFColor = vec4(color, 1.0);
+	vec4 color = texture(color_texture, vUV).rgba;
+	//color.rgb = pow(color.rgb, vec3(2.2)) ;
+	vFColor = color;
 	//vFColor = vec4(vec3(texture(color_texture, vUV).r), 1.0);
 
 //float f = 3.67149949;
