@@ -225,7 +225,7 @@ void main()
 	float diffuse = saturate(dot(L, N)) * m_ambientcomp;
 
 	//specular
-	float specular = max(0, pow(dot(N, H), 25)-0.3) * spec_int;//17
+	float specular = max(0, pow(dot(N, H), 7)) * spec_int;//17
 	//float specular = intensity * SpecularKSK(beckmannTex, normal, light, input.view, roughness);
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.025*N, 1);
@@ -253,7 +253,7 @@ void main()
     vec2 prev = prev_vPosition.xy/prev_vPosition.z;
 
     // Calculate velocity in non-homogeneous projection space:
-    vec2 velocity = curr - prev;
+    //vec2 velocity = curr - prev;
 
     // Compress the velocity for storing it in a 8-bit render target:
     //color.a = sqrt(5.0 * length(velocity));

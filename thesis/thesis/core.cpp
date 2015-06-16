@@ -22,7 +22,7 @@ Core::Core()
 	_pixel_size = glm::vec2(1);
 	_exposure = 2;
 	_ambientInt = 0.66;
-	_specInt = 0.5;
+	_specInt = 0.2;
 	_burnout = std::numeric_limits<float>::infinity();
 
 
