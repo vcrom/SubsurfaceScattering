@@ -116,24 +116,28 @@ void GlslShader::unUse()
 
 void GlslShader::addAttribute(const  std::string& attribute)
 {
+	assert(_program != 0);
 	_attributeList[attribute] = glGetAttribLocation(_program, attribute.c_str());
 }
 
 //An indexer that returns the location of the attribute
 GLuint GlslShader::operator [](const  std::string& attribute)
 {
+	assert(_program != 0);
+	assert(_attributeList.count(attribute) > 0);
 	return _attributeList[attribute];
 }
 
 void GlslShader::addUniform(const  std::string& uniform)
 {
+	assert(_program != 0);
 	_uniformLocationList[uniform] = glGetUniformLocation(_program, uniform.c_str());
 }
 
 GLuint GlslShader::operator()(const  std::string& uniform)
 {
+	assert(_uniformLocationList.count(uniform) > 0);
 	return _uniformLocationList[uniform];
-	//return glGetUniformLocation(_program, uniform.c_str());
 }
 
 #include <fstream>

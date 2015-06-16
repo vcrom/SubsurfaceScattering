@@ -7,7 +7,7 @@
 
 GlslShaderManager::GlslShaderManager()
 {
-	_shaders = std::vector<GlslShader>(uint(Shaders::Count));
+	//_shaders = std::vector<GlslShader>(uint(Shaders::Count));
 }
 
 GlslShaderManager::~GlslShaderManager()
@@ -29,12 +29,12 @@ std::shared_ptr<GlslShaderManager> GlslShaderManager::instance()
 
 void GlslShaderManager::initializeShaders()
 {
+	_shaders = std::vector<GlslShader>(uint(Shaders::Count));
 	std::cout << "Initializeing default shaders..." << std::endl;
 	initTextureToScreenShader();
 	initPassThroughShader();
 	initShadowsAndDiffuseShader();
 	initLinealDeepthShader();
-	//initThicknessShader();
 	initTranslucecyhader();
 	initMainRenderShader();
 	initSSSSHori();
@@ -210,6 +210,7 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addUniform("m_camera_pos");
 	shader.addUniform("z_far");
 	shader.addUniform("m_ambientcomp");
+	shader.addUniform("spec_int");
 	shader.addUniform("light_position");
 	shader.addUniform("shadow_map");
 	glUniform1i(shader("shadow_map"), 0);
@@ -325,7 +326,7 @@ void GlslShaderManager::initSeparableSSSSVert()
 	checkCritOpenGLError();
 
 	_shaders[Shaders::SEPARABLE_SSSS_VERTICAL_BLUR] = shader;
-	std::cout << "\t separable SSSS vertical blur shader initialized" << std::endl;
+	std::cout << "\tseparable SSSS vertical blur shader initialized" << std::endl;
 }
 
 
@@ -337,13 +338,14 @@ void GlslShaderManager::initToneMap()
 	shader.createAndLinkProgram();
 	shader.use();
 	shader.addAttribute("vVertex");
-
+	
+	shader.addUniform("method");
 	shader.addUniform("exposure");
-	shader.addUniform("burnout");
+	shader.addUniform("m_burnout");
 	shader.addUniform("color_texture");
 	glUniform1i(shader("color_texture"), 0);
 	checkCritOpenGLError();
 
 	_shaders[Shaders::TONE_MAP] = shader;
-	std::cout << "\t Tone map shader initialized" << std::endl;
+	std::cout << "\tTone map shader initialized" << std::endl;
 }

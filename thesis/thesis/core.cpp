@@ -21,11 +21,15 @@ Core::Core()
 	_sssStrength =  _sss_width;// 15.75;
 	_pixel_size = glm::vec2(1);
 	_exposure = 2;
+	_ambientInt = 0.66;
+	_specInt = 0.5;
 	_burnout = std::numeric_limits<float>::infinity();
 
 
 	_control_boolean_params = std::vector<bool>(10, false);
 	_control_boolean_params[2] = true;
+	_control_int_params = std::vector<int>(10, 0);
+
 }
 
 #include "fimage.h"
@@ -151,7 +155,7 @@ void Core::initializeTextures()
 
 	_specular_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_specular_texture->use();
-	_specular_texture->loadEmptyTexture(GL_RGB, 32, 32);
+	_specular_texture->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_specular_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -171,7 +175,7 @@ void Core::initializeTextures()
 
 	_aux_ssss_texture1 = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_aux_ssss_texture1->use();
-	_aux_ssss_texture1->loadEmptyTexture(GL_RGBA, 32, 32);
+	_aux_ssss_texture1->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -181,7 +185,7 @@ void Core::initializeTextures()
 
 	_aux_ssss_texture2 = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_aux_ssss_texture2->use();
-	_aux_ssss_texture2->loadEmptyTexture(GL_RGBA, 32, 32);
+	_aux_ssss_texture2->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -191,7 +195,7 @@ void Core::initializeTextures()
 
 	_aux_ssss_pingpong = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_aux_ssss_pingpong->use();
-	_aux_ssss_pingpong->loadEmptyTexture(GL_RGBA, 32, 32);
+	_aux_ssss_pingpong->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -238,12 +242,6 @@ void Core::initialize()
 	moveLight(glm::vec3(0.00001, 0, 0));
 	computeLightMatrices();
 
-}
-
-void Core::reloadShaders()
-{
-	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
-	shader_manager->reloadShaders();
 }
 
 void Core::initializeCam()
@@ -317,9 +315,9 @@ void Core::onRender()
 	RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, glm::vec3(1, 0, 0));
 }
 
-using time_unit = std::chrono::milliseconds;
+//using time_unit = std::chrono::milliseconds;
 //using time_unit = std::chrono::microseconds;
-//using time_unit = std::chrono::nanoseconds;
+using time_unit = std::chrono::nanoseconds;
 
 
 void Core::renderScene()
@@ -390,7 +388,6 @@ void Core::mainRenderPass()
 	glStencilMask(0xFF);
 
 	_default_buffer->useFrameBuffer();
-	//_default_buffer->clearStencil();
 	_default_buffer->clearColorDepthAndStencil();
 
 	_generic_buffer->useFrameBuffer(3);
@@ -401,51 +398,25 @@ void Core::mainRenderPass()
 	_generic_buffer->clearColorDepthAndStencil();
 	checkCritOpenGLError();
 
-	//_generic_buffer->clearColorDepthAndStencil();
-	//_default_buffer->useFrameBuffer();
-
-	//RenderAlgorithms::renderShadows(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _shadow_map_texture, _light_view_matrix, _light_projection_matrix, _light->getPosition());
-
-	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), _shadow_map_texture,
-		_light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), _sss_width, _translucency, true);
+	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), 
+		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
+		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2]);
 
 	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
-
 
 	////render background
 	//_generic_buffer->useFrameBuffer(1);
 	//glStencilFunc(GL_EQUAL, 0, 0xFF);
 	//glStencilMask(0x00);
 	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-	//glDisable(GL_STENCIL_TEST);
-
-	//_default_buffer.use_count();
-	//_default_buffer->clearColorDepthAndStencil();
-	//RenderAlgorithms::getLinealShadowMap(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_shadow_map_texture->getWidth(), _shadow_map_texture->getHeight()));
-
+	glDisable(GL_STENCIL_TEST);
 }
 
 void Core::subSurfaceScatteringPass()
 {
-	
-	if (_control_boolean_params[1])
+	switch (_control_int_params[0])
 	{
-		_generic_buffer->useFrameBuffer(1);
-		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0); 
-		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
-		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
-		_generic_buffer->clearColor();
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_EQUAL, 1, 0xFF);
-		glStencilMask(0x00);
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
-		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-		glDisable(GL_STENCIL_TEST);
-	}
-
-	else
-	{
+	case 0:
 		_generic_buffer->useFrameBuffer(1);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);//diffuse
 		_generic_buffer->clearColor();
@@ -456,7 +427,53 @@ void Core::subSurfaceScatteringPass()
 		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
 
 		glDisable(GL_STENCIL_TEST);
+		break;
+	case 1:
+		_generic_buffer->useFrameBuffer(1);
+		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
+		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
+		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
+		_generic_buffer->clearColor();
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
+		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
+		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+		glDisable(GL_STENCIL_TEST);
+		break;
+	default:
+		break;
 	}
+	//if (_control_int_params[0])
+	//{
+	//	_generic_buffer->useFrameBuffer(1);
+	//	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0); 
+	//	_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
+	//	_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
+	//	_generic_buffer->clearColor();
+	//	glEnable(GL_STENCIL_TEST);
+	//	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	//	glStencilMask(0x00);
+	//	RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
+	//	//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
+	//	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	//	glDisable(GL_STENCIL_TEST);
+	//}
+
+	//else
+	//{
+	//	_generic_buffer->useFrameBuffer(1);
+	//	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);//diffuse
+	//	_generic_buffer->clearColor();
+	//	glEnable(GL_STENCIL_TEST);
+	//	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	//	glStencilMask(0x00);
+
+	//	RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
+
+	//	glDisable(GL_STENCIL_TEST);
+	//}
 }
 
 void Core::addSpecularPass()
@@ -475,8 +492,10 @@ void Core::toneMap()
 {
 	_generic_buffer->useFrameBuffer(1);
 	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
+	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
+	_generic_buffer->clearColor();
 
-	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout);
+	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _control_int_params[1]);
 
 	//render background
 	glEnable(GL_STENCIL_TEST);
@@ -484,6 +503,7 @@ void Core::toneMap()
 	glStencilMask(0x00);
 	RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 	glDisable(GL_STENCIL_TEST);
+
 
 	RenderAlgorithms::renderTexture(_default_buffer, _aux_ssss_texture1);
 
@@ -576,8 +596,59 @@ void Core::toggleControlBool(unsigned int i)
 	_control_boolean_params[i] = !_control_boolean_params[i];
 }
 
+void Core::setControlInt(unsigned int i, int val)
+{
+	assert(i < _control_int_params.size());
+	_control_int_params[i] = val;
+}
+
+void Core::incrControlInt(unsigned int i)
+{
+	assert(i < _control_int_params.size());
+	++_control_int_params[i];
+}
+
+void Core::decrControlInt(unsigned int i)
+{
+	assert(i < _control_int_params.size());
+	--_control_int_params[i];
+}
+
 void Core::moveLight(glm::vec3 dir)
 {
 	_light->translate(LIGHT_MOV_SPEED*glm::normalize(dir));
 	computeLightMatrices();
+}
+
+void Core::reloadShaders()
+{
+	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
+	shader_manager->reloadShaders();
+}
+
+
+void Core::setTranslucency(float t)
+{
+	_translucency = t;
+}
+
+void Core::setSSWidth(float w)
+{
+	_sss_width = w;
+	_sssStrength = _sss_width;
+}
+
+void Core::setExposure(float e)
+{
+	_exposure = e;
+}
+
+void Core::setAmbientInt(float a)
+{
+	_ambientInt = a;
+}
+
+void Core::setSpeculartInt(float s)
+{
+	_specInt = s;
 }

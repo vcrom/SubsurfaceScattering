@@ -42,9 +42,21 @@ public:
 	void mouseReleased(int x, int y, Input button);
 
 	void toggleControlBool(unsigned int i);
+	void setControlInt(unsigned int i, int val);
+	void incrControlInt(unsigned int i);
+	void decrControlInt(unsigned int i);
+
 
 	void reloadShaders();
 	void moveLight(glm::vec3 dir);
+	void setTranslucency(float t);
+	void setSSWidth(float w);
+	void setExposure(float e);
+	void setAmbientInt(float a);
+	void setSpeculartInt(float s);
+
+	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
+
 
 private:
 	//constants
@@ -88,6 +100,7 @@ private:
 
 	//control params
 	std::vector<bool> _control_boolean_params;
+	std::vector<int> _control_int_params;
 	glm::vec2 _window_size;
 
 	int _mouse_x, _mouse_y;
@@ -102,7 +115,7 @@ private:
 
 	glm::mat4 _prev_VP;
 
-	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
+	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout, _ambientInt, _specInt;
 	glm::vec2 _pixel_size;
 		
 

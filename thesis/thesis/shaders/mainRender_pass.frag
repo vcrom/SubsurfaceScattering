@@ -49,7 +49,7 @@ smooth in vec3 worldNormal;
 smooth in vec3 prev_vPosition;
 smooth in vec3 curr_vPosition;
 smooth in vec3 view_vector;
-uniform float m_ambientcomp = 1.0;
+uniform float m_ambientcomp = 0.61;
 uniform float spec_int = 0.5;
 ///////////////Main///////////////
 
@@ -213,7 +213,7 @@ void main()
 	vec3 f1 = light_color * attenuation * spot;
 	vec3 f2 = albedo.rgb * f1;
 
-	float diffuse = saturate(dot(L, N));
+	float diffuse = saturate(dot(L, N)) * m_ambientcomp;
 
 	//specular
 	float specular = max(0, pow(dot(N, H), 25)-0.3) * spec_int;//17
@@ -235,7 +235,7 @@ void main()
 
 	////end for
 	//// Add the ambient component:
-    color.rgb += color.rgb + m_ambientcomp*albedo.rgb;//cubemapAmbient;
+    color.rgb += 0.6*albedo.rgb;//cubemapAmbient;
 	//// Store the depth value:
 	FragLinearDepth = linear_depth;
 

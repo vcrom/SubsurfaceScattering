@@ -16,6 +16,17 @@ public:
 	GLWidget(QWidget *parent);
 	~GLWidget();
 
+public slots:
+	void reloadShaders();
+	void toggleSSS();
+	void setTranslucency(double t);
+	void setSSWidth(double w);
+	void setExposure(double e);
+	void setAmbientInt(double a);
+	void setSpeculartInt(double s);
+	void selectSSSMethod(int i);
+	void selectToneMappingMethod(int i);
+
 protected:
 	void paintGL();
 	void initializeGL();

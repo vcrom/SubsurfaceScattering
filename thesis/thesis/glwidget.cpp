@@ -182,3 +182,57 @@ void GLWidget::mouseReleaseEvent(QMouseEvent* event)
 	core_engine_->mouseReleased(event->x(), event->y(), in);
 	update();
 }
+
+void GLWidget::reloadShaders()
+{
+	core_engine_->reloadShaders();
+	update();
+}
+
+void GLWidget::toggleSSS()
+{
+	core_engine_->toggleControlBool(2);
+	update();
+}
+
+void GLWidget::setTranslucency(double t)
+{
+	core_engine_->setTranslucency(t);
+	update();
+}
+
+void GLWidget::setSSWidth(double w)
+{
+	core_engine_->setSSWidth(w);
+	update();
+}
+
+void GLWidget::setExposure(double e)
+{
+	core_engine_->setExposure(e);
+	update();
+}
+
+void GLWidget::setAmbientInt(double a)
+{
+	core_engine_->setAmbientInt(a);
+	update();
+}
+
+void GLWidget::setSpeculartInt(double s)
+{
+	core_engine_->setSpeculartInt(s);
+	update();
+}
+
+void GLWidget::selectSSSMethod(int i)
+{
+	core_engine_->setControlInt(0, i);
+	update();
+}
+
+void GLWidget::selectToneMappingMethod(int i)
+{
+	core_engine_->setControlInt(1, i);
+	update();
+}

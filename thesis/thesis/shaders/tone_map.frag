@@ -1,4 +1,5 @@
 #version 330
+layout(location = 0) out vec4 pixelColor;
 
 vec3 rgb2hsv(vec3 rgb) {
     float minValue = min(min(rgb.r, rgb.g), rgb.b);
@@ -94,39 +95,42 @@ vec3 FilmicTonemap(vec3 x) {
     return ((x*(A*x+C*B)+D*E) / (x*(A*x+B)+D*F))- E / F;
 }
 
-
-layout(location = 0) out vec4 pixelColor;
-
-uniform sampler2D color_texture;
-uniform float exposure;
-uniform float burnout;
-
-smooth in vec2 vUV;
-
-#ifndef TONEMAP_OPERATOR
-	#define TONEMAP_OPERATOR 5
-#endif
-
-#define TONEMAP_LINEAR 0
-#define TONEMAP_EXPONENTIAL 1
-#define TONEMAP_EXPONENTIAL_HSV 2
-#define TONEMAP_REINHARD 3
-#define TONEMAP_FILMIC 4
-#define GAMMA_CORR 5
+//#ifndef TONEMAP_OPERATOR
+//	#define TONEMAP_OPERATOR 4
+//#endif
+#define GAMMA_CORR int(0)
+#define TONEMAP_LINEAR int(1)
+#define TONEMAP_EXPONENTIAL int(2)
+#define TONEMAP_EXPONENTIAL_HSV int(3)
+#define TONEMAP_REINHARD int(4)
+#define TONEMAP_FILMIC int(5)
 
 
-vec3 doToneMap(vec3 color) {
-    #if TONEMAP_OPERATOR == TONEMAP_LINEAR
+vec3 doToneMap(vec3 color, int option, float exposure, float burnout) {
+//return color;
+	if(option == GAMMA_CORR)
+	{
+		color = pow(color, vec3(1/2.2));
+		return color;
+	}
+    else if(option == TONEMAP_LINEAR)
+	{
 		return exposure * color;
-    #elif TONEMAP_OPERATOR == TONEMAP_EXPONENTIAL
+	}
+	else if( option == TONEMAP_EXPONENTIAL)
+	{
 		color = 1.0 - exp2(-exposure * color);
 		return color;
-    #elif TONEMAP_OPERATOR == TONEMAP_EXPONENTIAL_HSV
+	}
+	else if( option == TONEMAP_EXPONENTIAL_HSV)
+	{
 		color = rgb2hsv(color);
 		color.b = 1.0 - exp2(-exposure * color.b);
 		color = hsv2rgb(color);
 		return color;
-    #elif TONEMAP_OPERATOR == TONEMAP_REINHARD
+	}
+	else if( option == TONEMAP_REINHARD)
+	{
 		color = xyz2Yxy(rgb2xyz(color));
 		float L = color.r;
 		L *= exposure;
@@ -135,20 +139,27 @@ vec3 doToneMap(vec3 color) {
 		color.r = L_d;
 		color = xyz2rgb(Yxy2xyz(color));
 		return color;
-    #elif TONEMAP_OPERATOR == TONEMAP_FILMIC
+	}
+	else if( option == TONEMAP_FILMIC)
+	{
 		color = 2.0f * FilmicTonemap(exposure * color);
-		vec3 whiteScale = 1.0f / FilmicTonemap(11.2);
+		vec3 whiteScale = vec3(1.0f) / FilmicTonemap(vec3(11.2));
 		color *= whiteScale;
 		return color;
-	#elif TONEMAP_OPERATOR == GAMMA_CORR
-		color = pow(color, vec3(1/2.2));
-		return color;
-    #endif
+	}
 }
+
+
+uniform sampler2D color_texture;
+uniform float exposure = 2;
+uniform float m_burnout;
+uniform int method;
+
+smooth in vec2 vUV;
 
 void main()
 {
 	vec4 color = texture(color_texture, vUV);
-	color.rgb = doToneMap(color.rgb);
+	color.rgb = doToneMap(color.rgb, method, exposure, m_burnout);
 	pixelColor = color;
 }

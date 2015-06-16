@@ -204,7 +204,8 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 
 void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, 
 	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
-	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, float translucency, bool ssss_enabled)
+	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, 
+	float translucency, float ambient_int, float specular_int, bool ssss_enabled)
 {
 	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
 
@@ -222,16 +223,17 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 
 	shader->use();
 		//vert
-		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM;"), 1, GL_FALSE, glm::value_ptr(P*V*M));
-		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM;"), 1, GL_FALSE, glm::value_ptr(prev_VP*M));
+		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM"), 1, GL_FALSE, glm::value_ptr(P*V*M));
+		glUniformMatrix4fv(shader->operator()("prev_WorldViewProjM"), 1, GL_FALSE, glm::value_ptr(prev_VP*M));
 		glUniformMatrix4fv(shader->operator()("worldInverseTransposeM"), 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(M)));
 		glUniformMatrix4fv(shader->operator()("worldM"), 1, GL_FALSE, glm::value_ptr(M));
 		glUniformMatrix4fv(shader->operator()("viewM"), 1, GL_FALSE, glm::value_ptr(V));
 		glUniform3fv(shader->operator()("m_camera_pos"), 1, glm::value_ptr(camera_pos));
 		glUniform1f(shader->operator()("z_far"), z_far);
 		//frag
-		glUniform3fv(shader->operator()("light_position"), 1, glm::value_ptr(light_pos));
-		glUniform1f(shader->operator()("m_ambientcomp"), 1.0f); 
+		glUniform3fv(shader->operator()("light_position"), 1, glm::value_ptr(light_pos)); 
+		glUniform1f(shader->operator()("m_ambientcomp"), ambient_int);
+		glUniform1f(shader->operator()("spec_int"), specular_int);
 		glUniformMatrix4fv(shader->operator()("lightViewProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L * V_L));
 
 
@@ -353,7 +355,7 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 	glDepthMask(GL_TRUE);
 }
 
-void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> tex, float exposure, float burnout)
+void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> tex, float exposure, float burnout, int method)
 {
 	fbo->useFrameBuffer();
 	glDisable(GL_DEPTH_TEST);
@@ -362,9 +364,12 @@ void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, st
 	tex->use(GL_TEXTURE0);
 	ScreenQuad* quad = ScreenQuad::getInstanceP();
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::TONE_MAP);
-	glUniform1f(shader->operator()("exposure"), exposure);
-	glUniform1f(shader->operator()("burnout"), burnout);
 	shader->use();
+	glUniform1f(shader->operator()("exposure"), exposure);
+	glUniform1f(shader->operator()("m_burnout"), burnout); 
+	glUniform1i(shader->operator()("method"), method);
+	std::cout << "Method " << float(method) << std::endl;
+	checkCritOpenGLError();
 	quad->render();
 	shader->unUse();
 	checkCritOpenGLError();
