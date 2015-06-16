@@ -187,6 +187,15 @@ vec3 transmittance(float translucency, float sss_width, vec3 world_position, vec
 }
 /////////////Translucency/////////////
 
+//vec3 FresnelSchlick(vec3 F0, vec3 l, vec3 h)
+//{
+//    return F0 + (1 - F0)*pow(1 - max(0, dot(l, h)),5);
+//}
+
+//float fresnelSlickSpecular(vec3 L, vec3 H)
+//{
+//	vec3 cross_fres = FresnelSchlick(vec3(0.04f, 0.04f, 0.04f), L, H);
+//}
 
 void main()
 {
