@@ -74,7 +74,7 @@ private:
 		//shadow mapping(for each light)
 		_shadow_map_texture, _lineal_shadow_map_texture, 
 		//ssss
-		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2;
+		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2, _aux_ssss_pingpong;
 
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);

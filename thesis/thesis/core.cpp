@@ -17,9 +17,9 @@ Core::Core()
 	_prev_VP = glm::mat4(0);
 	_sss_width = 0.012;
 	_translucency = 0.95;
-	_correction = 800;
-	_sssStrength = _sss_width;// 15.75;
-	_pixel_size = glm::vec2(0);
+	_correction = 1700;
+	_sssStrength =  _sss_width;// 15.75;
+	_pixel_size = glm::vec2(1);
 	_control_boolean_params[2] = true;
 }
 
@@ -184,8 +184,19 @@ void Core::initializeTextures()
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
-	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");
-	_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
+	_aux_ssss_pingpong = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_aux_ssss_pingpong->use();
+	_aux_ssss_pingpong->loadEmptyTexture(GL_RGBA, 32, 32);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
+	checkCritOpenGLError();
+
+	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
+	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
+	_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
 	_background_texture->use();
 	checkCritOpenGLError();
 
@@ -260,6 +271,9 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	_specular_texture->resize(w, h);
 	_lineal_depth_texture->use();
 	_lineal_depth_texture->resize(w, h);
+	_aux_ssss_pingpong->use();
+	_aux_ssss_pingpong->resize(w, h);
+	
 
 
 
@@ -404,13 +418,14 @@ void Core::subSurfaceScatteringPass()
 	if (!_control_boolean_params[1])
 	{
 		_generic_buffer->useFrameBuffer(1);
-		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
-		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 0);
+		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0); 
+		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
+		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glStencilMask(0x00);
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
 		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		glDisable(GL_STENCIL_TEST);

@@ -1,11 +1,11 @@
 #version 330
-
+precision highp float;
 layout(location=0) out vec4 vFColor;
 layout(location=1) out vec4 vBlur;
 
-
 uniform sampler2D color_texture;
 uniform sampler2D lineal_depth_texture;
+uniform sampler2D pinpong_texture;
 
 uniform float correction = 800;
 uniform float sssStrength = 15.75;
@@ -27,12 +27,15 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
     vec4 colorBlurred = colorM;
     colorBlurred.rgb *= 0.382;
     vec2 finalStep = colorM.a * step / depthM;
+	finalStep/= 3;
+	finalStep = step;
     for (int i = 0; i < 6; i++)
     {
         vec2 offset = vUV + o[i] * finalStep;
         vec3 color = texture2D(color_texture, offset).rgb;
         float depth = texture2D(depth_texture, offset).r;
         float s = min(0.0125 * correction * abs(depthM - depth), 1.0);
+		//s = 1;
         color = mix(color, colorM.rgb, s);
         colorBlurred.rgb += w[i] * color;
     }
@@ -43,8 +46,15 @@ void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
         vFColor = BlurSSSSPas(sssStrength, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture);
-		//vBlur = vec4(vFColor.r*gaussian.g, vFColor.g*gaussian.b, vFColor.b*gaussian.a, 1) ;
-		vBlur = vFColor; 
+
+		vec4 src_col = vFColor;
+		vec3 dest_col = texture2D(pinpong_texture, vUV).rgb;
+		vBlur = vec4(src_col.r*gaussian.g + dest_col.r*(1-gaussian.g),
+                    src_col.g*gaussian.b + dest_col.g*(1-gaussian.b),
+                    src_col.b*gaussian.a + dest_col.b*(1-gaussian.a), 1);
+
+		//vBlur = texture2D(pinpong_texture, vUV).rgba;
+		//vBlur = vFColor; 
 		//vBlur = BlurSSSSPas;
 		//vBlur = vec4(1, 0, 0, 1);
 		//vBlur = vec4(vec3(texture2D(lineal_depth_texture, vUV).r), 1);

@@ -244,10 +244,12 @@ void GlslShaderManager::initSSSSHori()
 	shader.addUniform("gaussian");
 	shader.addUniform("correction");
 	shader.addUniform("sssStrength");
-	shader.addUniform("color_texture");
+	shader.addUniform("color_texture"); 
 	glUniform1i(shader("color_texture"), 0);
 	shader.addUniform("lineal_depth_texture");
 	glUniform1i(shader("lineal_depth_texture"), 1);
+	shader.addUniform("pinpong_texture");
+	glUniform1i(shader("pinpong_texture"), 2);
 	shader.unUse();
 	checkCritOpenGLError();
 

@@ -10,6 +10,7 @@
 
 #include "screenquad.h"
 #include "utils.h"
+#include <GL/glew.h>
 
 RenderAlgorithms::RenderAlgorithms()
 {
@@ -255,20 +256,22 @@ std::vector<glm::vec4> initGaussians()
 	gaussians.push_back(glm::vec4(0.0064, 1, 1, 1));
 	gaussians.push_back(glm::vec4(0.0516, 0.3251, 0.45, 0.3583));
 	gaussians.push_back(glm::vec4(0.2719, 0.34, 0.1864, 0.0));
-	gaussians.push_back(glm::vec4(2.0062, 0.46, 0.0, 0.0402));
+	//gaussians.push_back(glm::vec4(2.0062, 0.46, 0.0, 0.0402));
 	for (unsigned int  i = 1; i < gaussians.size(); ++i) gaussians[i].x = gaussians[i].x - gaussians[i - 1].x;
 	return gaussians;
 }
 
 std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
 
-void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth)
+void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth)
 {
+	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
+
 	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SSSS_HORIZONTAL_BLUR);
 	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SSSS_VERTICAL_BLUR);
 
 	horizontal->use();
-	glUniform2fv(horizontal->operator()("pixel_size"), 1, glm::value_ptr(pixel_size)); 
+	glUniform2fv(horizontal->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
 	glUniform1f(horizontal->operator()("correction"), correction);
 	glUniform1f(horizontal->operator()("sssStrenth"), sssStrenth);
 	vertical->use();
@@ -285,7 +288,8 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	fbo->useFrameBuffer();
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-	for (unsigned int  i = 0; i < _gaussians.size(); ++i)
+	int idx = 0;
+	for (unsigned int i = 0; i < _gaussians.size(); ++i)
 	{
 		fbo->colorBuffer(rt1_tex->getTextureID(), 0);
 		horizontal->use();
@@ -295,13 +299,22 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 		rt1_tex->use(GL_TEXTURE0);
 		fbo->useFrameBuffer(2);
 		fbo->colorBuffer(rt2_tex->getTextureID(), 0);
-		fbo->colorBuffer(sss_tex->getTextureID(), 1);
+		idx = i % 2;
+		fbo->colorBuffer(pingpong_tex[idx]->getTextureID(), 1);
+		pingpong_tex[(i + 1) % 2]->use(GL_TEXTURE2);
 		vertical->use();
 		glUniform4fv(vertical->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
 		quad->render();
-
 		rt2_tex->use(GL_TEXTURE0);
 	}
+
+	if (idx != 0)
+	{
+		fbo->useFrameBuffer(1);
+		fbo->colorBuffer(sss_tex->getTextureID(), 0);
+		renderTexture(fbo, pingpong_tex[idx]);
+	}
+
 	checkCritOpenGLError();
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);

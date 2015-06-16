@@ -26,12 +26,15 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
     vec4 colorBlurred = colorM;
     colorBlurred.rgb *= 0.382;
     vec2 finalStep = colorM.a * step / depthM;
+	finalStep/= 3;
+	finalStep = step;
     for (int i = 0; i < 6; i++)
     {
         vec2 offset = vUV + o[i] * finalStep;
         vec3 color = texture2D(color_texture, offset).rgb;
         float depth = texture2D(depth_texture, offset).r;
         float s = min(0.0125 * correction * abs(depthM - depth), 1.0);
+		//s = 1;
         color = mix(color, colorM.rgb, s);
         colorBlurred.rgb += w[i] * color;
     }
