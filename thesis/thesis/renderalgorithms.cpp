@@ -320,20 +320,35 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	glDepthMask(GL_TRUE);
 }
 
-//void RenderAlgorithms::mainRenderPas(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_MVP, glm::vec3 camera_pos, float z_far)
-//{
-//	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
-//
-//	glEnable(GL_CULL_FACE);
-//	glCullFace(GL_BACK);
-//
-//	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::MAIN_RENDER_SHADER);
-//	fbo->useFrameBuffer();
-//
-//	shader->use();
-//	glUniformMatrix4fv(shader->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*V*M));
-//	mesh->render();
-//	shader->unUse();
-//
-//	glDisable(GL_CULL_FACE);
-//}
+void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth)
+{
+
+	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
+	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
+	horizontal->use();
+	glUniform1f(horizontal->operator()("cam_fovy"), cam_fovy);
+	glUniform1f(horizontal->operator()("sssWidth"), sssWidth);
+	vertical->use();
+	glUniform1f(vertical->operator()("cam_fovy"), cam_fovy);
+	glUniform1f(vertical->operator()("sssWidth"), sssWidth);
+	ScreenQuad* quad = ScreenQuad::getInstanceP();
+
+	lineal_depth->use(GL_TEXTURE1);
+	fbo->useFrameBuffer();
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	sss_tex->use(GL_TEXTURE0);
+	fbo->colorBuffer(rt1_tex->getTextureID(), 0);
+	horizontal->use();
+	quad->render();
+
+	rt1_tex->use(GL_TEXTURE0);
+	fbo->colorBuffer(sss_tex->getTextureID(), 0);
+	vertical->use();
+	quad->render();
+
+	checkCritOpenGLError();
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+}

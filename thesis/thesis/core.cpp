@@ -15,7 +15,7 @@ Core::Core()
 	_control_boolean_params = std::vector<bool>(10, false);
 	_window_size = glm::vec2(0);
 	_prev_VP = glm::mat4(0);
-	_sss_width = 0.012;
+	_sss_width = 0.005;//0.0117500005;
 	_translucency = 0.95;
 	_correction = 1700;
 	_sssStrength =  _sss_width;// 15.75;
@@ -230,7 +230,9 @@ void Core::initialize()
 	loadMesh("meshes/tests.ply");
 	_light->scale(glm::vec3(0.19));
 	_light->setPosition(glm::vec3(0.5, 1, 0.5));
+	moveLight(glm::vec3(0.00001, 0, 0));
 	computeLightMatrices();
+
 }
 
 void Core::reloadShaders()
@@ -322,27 +324,32 @@ void Core::renderScene()
 	std::cout << "Rendering scene..." << std::endl;
 	_t1 = _clock.now();
 	RenderAlgorithms::renderTexture(_default_buffer, _background_texture);
+	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tRender background time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
 	_t1 = _clock.now();
 	shadowMapPass();
+	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tShadow mapping time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
 	_t1 = _clock.now();
 	mainRenderPass();
+	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
 	_t1 = _clock.now();
 	if(_control_boolean_params[2]) subSurfaceScatteringPass();
+	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t1 - _t2).count() << std::endl;
 	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
 	_t1 = _clock.now();
 	addSpecularPass();
+	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t1 - _t2).count() << std::endl;
 	
@@ -415,7 +422,7 @@ void Core::mainRenderPass()
 void Core::subSurfaceScatteringPass()
 {
 	
-	if (!_control_boolean_params[1])
+	if (_control_boolean_params[1])
 	{
 		_generic_buffer->useFrameBuffer(1);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0); 
@@ -433,22 +440,14 @@ void Core::subSurfaceScatteringPass()
 
 	else
 	{
-
-
 		_generic_buffer->useFrameBuffer(1);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);//diffuse
 		_generic_buffer->clearColor();
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glStencilMask(0xFF);
 
-		RenderAlgorithms::renderTexture(_generic_buffer, _diffuse_color_texture);
-
-		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//diffuse
-		_generic_buffer->clearColor();
-
-		RenderAlgorithms::renderTexture(_generic_buffer, _aux_ssss_texture1);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
 
 		glDisable(GL_STENCIL_TEST);
 	}

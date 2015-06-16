@@ -130,6 +130,11 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 		core_engine_->toggleControlBool(0);
 		update();
 	}
+	else if (event->key() == Qt::Key_J)
+	{
+		core_engine_->toggleControlBool(1);
+		update();
+	}
 
 	else if (event->key() == Qt::Key_K)
 	{
