@@ -55,6 +55,10 @@ public:
 	void setAmbientInt(float a);
 	void setSpeculartInt(float s);
 
+	void setSSSRedStr(float s);
+	void setSSSGreenStr(float s);
+	void setSSSBlueStr(float s);
+
 	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
 
 
@@ -117,6 +121,9 @@ private:
 
 	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout, _ambientInt, _specInt;
 	glm::vec2 _pixel_size;
+	int _num_samples;
+	glm::vec3 _sss_strength;
+	std::vector<float> _falloff;
 		
 
 };

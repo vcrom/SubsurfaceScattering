@@ -19,14 +19,14 @@ precision highp float;
  * Quality ranges from 0 to 2, being 2 the highest quality available.
  * The quality is with respect to 1080p; for 720p Quality=0 suffices.
  */
-#define SSSS_QUALITY 1
+#define SSSS_QUALITY 2
 
 
 //const float w[6] = float[](0.006,   0.061,   0.242,  0.242,  0.061, 0.006 );
 
 #if SSSS_QUALITY == 2
-#define SSSS_N_SAMPLES 25
-const vec4 kernel[] = vec4[](
+uniform int ssss_n_samples = 25;
+uniform vec4 kernel[60];/* = vec4[](
     vec4(0.530605, 0.613514, 0.739601, 0),
     vec4(0.000973794, 1.11862e-005, 9.43437e-007, -3),
     vec4(0.00333804, 7.85443e-005, 1.2945e-005, -2.52083),
@@ -52,11 +52,11 @@ const vec4 kernel[] = vec4[](
     vec4(0.00500364, 0.00020094, 5.28848e-005, 2.08333),
     vec4(0.00333804, 7.85443e-005, 1.2945e-005, 2.52083),
     vec4(0.000973794, 1.11862e-005, 9.43437e-007, 3)
-);
+);*/
 
 #elif SSSS_QUALITY == 1
-#define SSSS_N_SAMPLES 17
-const vec4 kernel[] = vec4[](
+uniform int ssss_n_samples = 17;
+uniform vec4 kernel[] = vec4[](
     vec4(0.536343, 0.624624, 0.748867, 0),
     vec4(0.00317394, 0.000134823, 3.77269e-005, -2),
     vec4(0.0100386, 0.000914679, 0.000275702, -1.53125),
@@ -77,8 +77,8 @@ const vec4 kernel[] = vec4[](
 );
 
 #elif SSSS_QUALITY == 0
-#define SSSS_N_SAMPLES 11
-const vec4 kernel[] = vec4[](
+uniform int ssss_n_samples = 11;
+uniform vec4 kernel[] = vec4[](
     vec4(0.560479, 0.669086, 0.784728, 0),
     vec4(0.00471691, 0.000184771, 5.07566e-005, -2),
     vec4(0.0192831, 0.00282018, 0.00084214, -1.28),
@@ -129,7 +129,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
     vec4 colorBlurred = colorM;
     colorBlurred.rgb *= kernel[0].rgb;
 
-	for (int i = 1; i < SSSS_N_SAMPLES; i++) {
+	for (int i = 1; i < ssss_n_samples; i++) {
 		// Fetch color and depth for current sample:
 		vec2 offset = texcoord + kernel[i].a * finalStep;
 		vec4 color = texture(colorTex, offset);
@@ -137,9 +137,9 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		if(follow_surf)
 		{
 		// If the difference in depth is huge, we lerp color back to "colorM":
-		float depth = texture(depthTex, offset).r;
-		float s = saturate(600.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
-		color.rgb = mix(color.rgb, colorM.rgb, s);
+			float depth = texture(depthTex, offset).r;
+			float s = saturate(600.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
+			color.rgb = mix(color.rgb, colorM.rgb, s);
 		}
 
 		// Accumulate:

@@ -27,6 +27,10 @@ public slots:
 	void selectSSSMethod(int i);
 	void selectToneMappingMethod(int i);
 
+	void setSSSRedStr(double s);
+	void setSSSGreenStr(double s);
+	void setSSSBlueStr(double s);
+
 protected:
 	void paintGL();
 	void initializeGL();

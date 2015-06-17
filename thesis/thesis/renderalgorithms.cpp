@@ -381,3 +381,139 @@ void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, st
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, RenderAlgorithms::default_buffer);
 }
+
+
+glm::vec3 gaussian(float variance, float r, const std::vector<float> &falloff) {
+	/**
+	* We use a falloff to modulate the shape of the profile. Big falloffs
+	* spreads the shape making it wider, while small falloffs make it
+	* narrower.
+	*/
+	glm::vec3 g;
+	for (int i = 0; i < 3; i++) {
+		float rr = r / (0.001f + falloff[i]);
+		g[i] = exp((-(rr * rr)) / (2.0f * variance)) / (2.0f * 3.14f * variance);
+	}
+	return g;
+}
+
+
+glm::vec3 profile(float r, const std::vector<float> &falloff) {
+	/**
+	* We used the red channel of the original skin profile defined in
+	* [d'Eon07] for all three channels. We noticed it can be used for green
+	* and blue channels (scaled using the falloff parameter) without
+	* introducing noticeable differences and allowing for total control over
+	* the profile. For example, it allows to create blue SSS gradients, which
+	* could be useful in case of rendering blue creatures.
+	*/
+	return  // 0.233f * gaussian(0.0064f, r) + /* We consider this one to be directly bounced light, accounted by the strength parameter (see @STRENGTH) */
+		0.100f * gaussian(0.0484f, r, falloff) +
+		0.118f * gaussian(0.187f, r, falloff) +
+		0.113f * gaussian(0.567f, r, falloff) +
+		0.358f * gaussian(1.99f, r, falloff) +
+		0.078f * gaussian(7.41f, r, falloff);
+}
+
+void RenderAlgorithms::computeSeparableKernel(int num_samples, const glm::vec3 &sss_strength, std::vector<float> &falloff)
+{
+		//std::vector<glm::vec4> kernel(num_samples);
+
+		const float RANGE = num_samples > 20 ? 3.0f : 2.0f;
+		const float EXPONENT = 2.0f;
+
+		std::vector<float> kernel(num_samples * 4);
+
+		// Calculate the offsets:
+		float step = 2.0f * RANGE / (num_samples - 1);
+		for (int i = 0; i < num_samples; i++) {
+			float o = -RANGE + float(i) * step;
+			float sign = o < 0.0f ? -1.0f : 1.0f;
+			//kernel[i].w = RANGE * sign * abs(pow(o, EXPONENT)) / pow(RANGE, EXPONENT);
+			kernel[i * 4 + 3] = RANGE * sign * abs(pow(o, EXPONENT)) / pow(RANGE, EXPONENT);
+		}
+
+		// Calculate the weights:
+		for (int i = 0; i < num_samples; i++) {
+			//float w0 = i > 0 ? abs(kernel[i].w - kernel[i - 1].w) : 0.0f;
+			//float w1 = i < num_samples - 1 ? abs(kernel[i].w - kernel[i + 1].w) : 0.0f;
+			float w0 = i > 0 ? abs(kernel[i*4+3] - kernel[4*(i - 1) +3]) : 0.0f;
+			float w1 = i < num_samples - 1 ? abs(kernel[i * 4 + 3] - kernel[4*(i + 1)+3]) : 0.0f;
+			float area = (w0 + w1) / 2.0f;
+			//glm::vec3 t = area * profile(kernel[i].w, falloff);
+			glm::vec3 t = area * profile(kernel[i*4+3], falloff);
+			kernel[i*4] = t.x;
+			kernel[i*4 + 1] = t.y;
+			kernel[i*4 + 2] = t.z;
+		}
+
+		// We want the offset 0.0 to come first:
+		//glm::vec4 t = kernel[num_samples / 2];
+		glm::vec4 t = glm::vec4(kernel[(num_samples / 2) * 4], kernel[(num_samples / 2) * 4 + 1], kernel[(num_samples / 2) * 4 + 2], kernel[(num_samples / 2) * 4 + 3]);
+		for (int i = num_samples / 2; i > 0; i--)
+		{
+			kernel[i*4] = kernel[(i - 1)*4];
+			kernel[i * 4+1] = kernel[(i - 1) * 4+1];
+			kernel[i * 4+2] = kernel[(i - 1) * 4+2];
+			kernel[i * 4+3] = kernel[(i - 1) * 4+3];
+		}
+		//kernel[0] = t;
+		kernel[0] = t.x;
+		kernel[1] = t.y;
+		kernel[2] = t.z;
+		kernel[3] = t.w;
+
+		// Calculate the sum of the weights, we will need to normalize them below:
+		glm::vec3 sum = glm::vec3(0.0f, 0.0f, 0.0f);
+		for (int i = 0; i < num_samples; i++)
+			//sum += glm::vec3(kernel[i]);
+			sum += glm::vec3(kernel[i * 4], kernel[i * 4+1], kernel[i * 4+2]);
+
+
+		// Normalize the weights:
+		for (int i = 0; i < num_samples; i++) {
+			//kernel[i].x /= sum.x;
+			//kernel[i].y /= sum.y;
+			//kernel[i].z /= sum.z;
+			kernel[i*4] /= sum.x;
+			kernel[i*4+1] /= sum.y;
+			kernel[i*4+2] /= sum.z;
+		}
+
+		// Tweak them using the desired strength. The first one is:
+		//     lerp(1.0, kernel[0].rgb, strength)
+		//kernel[0].x = (1.0f - sss_strength.x) * 1.0f + sss_strength.x * kernel[0].x;
+		//kernel[0].y = (1.0f - sss_strength.y) * 1.0f + sss_strength.y * kernel[0].y;
+		//kernel[0].z = (1.0f - sss_strength.z) * 1.0f + sss_strength.z * kernel[0].z;
+		kernel[0] = (1.0f - sss_strength.x) * 1.0f + sss_strength.x * kernel[1];
+		kernel[1] = (1.0f - sss_strength.y) * 1.0f + sss_strength.y * kernel[2];
+		kernel[2] = (1.0f - sss_strength.z) * 1.0f + sss_strength.z * kernel[3];
+
+		// The others:
+		//     lerp(0.0, kernel[0].rgb, strength)
+		for (int i = 1; i < num_samples; i++) {
+			//kernel[i].x *= sss_strength.x;
+			//kernel[i].y *= sss_strength.y;
+			//kernel[i].z *= sss_strength.z;
+			kernel[i*4] *= sss_strength.x;
+			kernel[i*4+1] *= sss_strength.y;
+			kernel[i*4+2] *= sss_strength.z;
+		}
+
+		// Finally, set 'em!
+		//V(kernelVariable->SetFloatVectorArray((float *)&kernel.front(), 0, num_samples));
+		std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
+
+		horizontal->use();
+		glUniform1i(horizontal->operator()("ssss_n_samples"), num_samples);
+		glUniform4fv(horizontal->operator()("kernel"), num_samples, &kernel[0]);
+		horizontal->unUse();
+
+		std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
+
+		vertical->use();
+		glUniform1i(vertical->operator()("ssss_n_samples"), num_samples);
+		glUniform4fv(vertical->operator()("kernel"), num_samples, &kernel[0]);
+		vertical->unUse();
+		checkCritOpenGLError();
+}

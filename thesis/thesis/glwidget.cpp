@@ -236,3 +236,19 @@ void GLWidget::selectToneMappingMethod(int i)
 	core_engine_->setControlInt(1, i);
 	update();
 }
+
+void GLWidget::setSSSRedStr(double s)
+{
+	core_engine_->setSSSRedStr(s);
+	update();
+}
+void GLWidget::setSSSGreenStr(double s)
+{
+	core_engine_->setSSSRedStr(s);
+	update();
+}
+void GLWidget::setSSSBlueStr(double s)
+{
+	core_engine_->setSSSRedStr(s);
+	update();
+}

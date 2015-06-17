@@ -30,6 +30,10 @@ Core::Core()
 	_control_boolean_params[2] = true;
 	_control_int_params = std::vector<int>(10, 0);
 
+	_num_samples = 25;
+	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
+	_falloff = {1.0f, 0.37f, 0.3f};
+
 }
 
 #include "fimage.h"
@@ -242,6 +246,9 @@ void Core::initialize()
 	moveLight(glm::vec3(0.00001, 0, 0));
 	computeLightMatrices();
 
+	//Compute kernel
+	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+
 }
 
 void Core::initializeCam()
@@ -307,7 +314,7 @@ void Core::onRender()
 		return;
 	}
 	_default_buffer->useFrameBuffer();
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 
@@ -396,6 +403,10 @@ void Core::mainRenderPass()
 	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 2);//specular
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorDepthAndStencil();
+
+	//render background
+	RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+
 	checkCritOpenGLError();
 
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), 
@@ -415,20 +426,24 @@ void Core::mainRenderPass()
 
 void Core::subSurfaceScatteringPass()
 {
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	glStencilMask(0x00);
 	switch (_control_int_params[0])
 	{
 	case 0:
-		_generic_buffer->useFrameBuffer(1);
-		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);//diffuse
+		_generic_buffer->useFrameBuffer(3);
+		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
+		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
+		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_EQUAL, 1, 0xFF);
-		glStencilMask(0x00);
+		_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
 		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
-		glDisable(GL_STENCIL_TEST);
+		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+
 		break;
 	case 1:
 		_generic_buffer->useFrameBuffer(3);
@@ -436,21 +451,19 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
 		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_EQUAL, 1, 0xFF);
-		glStencilMask(0x00);
 
 		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
+		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		//RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
 		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-		glDisable(GL_STENCIL_TEST);
 		break;
 	default:
 		break;
 	}
+	glDisable(GL_STENCIL_TEST);
 	//if (_control_int_params[0])
 	//{
 	//	_generic_buffer->useFrameBuffer(1);
@@ -503,12 +516,12 @@ void Core::toneMap()
 
 	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _control_int_params[1]);
 
-	//render background
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_EQUAL, 0, 0xFF);
-	glStencilMask(0x00);
-	RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-	glDisable(GL_STENCIL_TEST);
+	////render background
+	//glEnable(GL_STENCIL_TEST);
+	//glStencilFunc(GL_EQUAL, 0, 0xFF);
+	//glStencilMask(0x00);
+	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	//glDisable(GL_STENCIL_TEST);
 
 
 	RenderAlgorithms::renderTexture(_default_buffer, _aux_ssss_texture1);
@@ -658,4 +671,25 @@ void Core::setAmbientInt(float a)
 void Core::setSpeculartInt(float s)
 {
 	_specInt = s;
+}
+
+void Core::setSSSRedStr(float s)
+{
+	_sss_strength.r = s;
+	//Compute kernel
+	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+}
+
+void Core::setSSSGreenStr(float s)
+{
+	_sss_strength.g = s;
+	//Compute kernel
+	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+}
+
+void Core::setSSSBlueStr(float s)
+{
+	_sss_strength.b = s;
+	//Compute kernel
+	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
 }

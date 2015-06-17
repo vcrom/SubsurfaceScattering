@@ -300,6 +300,10 @@ void GlslShaderManager::initSeparableSSSSHori()
 	glUniform1i(shader("color_texture"), 0);
 	shader.addUniform("lineal_depth_texture");
 	glUniform1i(shader("lineal_depth_texture"), 1);
+
+	shader.addUniform("ssss_n_samples");
+	shader.addUniform("kernel");
+
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -322,6 +326,10 @@ void GlslShaderManager::initSeparableSSSSVert()
 	glUniform1i(shader("color_texture"), 0);
 	shader.addUniform("lineal_depth_texture");
 	glUniform1i(shader("lineal_depth_texture"), 1);
+
+	shader.addUniform("ssss_n_samples");
+	shader.addUniform("kernel");
+
 	shader.unUse();
 	checkCritOpenGLError();
 
