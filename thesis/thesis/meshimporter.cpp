@@ -85,6 +85,9 @@ inline void meshInfo(const std::unique_ptr<aiMesh>& mesh)
 	std::cout << "\t #vertices: " << mesh->mNumVertices << std::endl;
 	if (mesh->HasVertexColors(0)) std::cout << "\t Has color per vertex" << std::endl;
 	if (mesh->HasNormals()) std::cout << "\t Has normals" << std::endl;
+	std::cout << "\t #UV Channels " << mesh->GetNumUVChannels() << std::endl;
+	if (mesh->HasTextureCoords(0)) std::cout << "\t Has texcoords" << std::endl;
+	if (mesh->HasTangentsAndBitangents()) std::cout << "\t Has Tangents and bitangents" << std::endl;
 }
 
 #include <iostream>
@@ -101,14 +104,14 @@ std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, 
 	std::cout << "Loading... " << path << std::endl;
 	std::unique_ptr<aiMesh> mesh = loadMeshFromFile(path);
 	//std::cout << "mesh  " << mesh.get() << std::endl;
-	if(info) meshInfo(mesh);
-	std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
-	std::vector<unsigned int> faces = getAiFaces(mesh);
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec4> colors;
+	/*if(info)*/ meshInfo(mesh);
+	//std::vector<glm::vec3> vertices = getAiMeshVertices(mesh);
+	//std::vector<unsigned int> faces = getAiFaces(mesh);
+	//std::vector<glm::vec3> normals;
+	//std::vector<glm::vec4> colors;
 
-	if(mesh->HasNormals()) normals = getAiMeshNormals(mesh);
-	if (mesh->HasVertexColors(0)) colors = getAiMeshColors(mesh);
+	//if(mesh->HasNormals()) normals = getAiMeshNormals(mesh);
+	//if (mesh->HasVertexColors(0)) colors = getAiMeshColors(mesh);
 
 	if (info)
 	{
@@ -117,19 +120,26 @@ std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, 
 	}
 	else std::cout << "...Loaded." << std::endl;
 
+
+	std::shared_ptr<Mesh> return_mesh = std::shared_ptr<Mesh>(new Mesh(getAiFaces(mesh), getAiMeshVertices(mesh)));
+	if (mesh->HasNormals())
+	{
+		return_mesh->addNormals(getAiMeshNormals(mesh));
+	}
+	if (mesh->HasVertexColors(0))
+	{
+		return_mesh->addColors(getAiMeshColors(mesh));
+	}
+	if (mesh->HasTextureCoords(0))
+	{
+
+	}
+	if (mesh->HasTangentsAndBitangents())
+	{
+
+	}
+
 	mesh.release();
 
-	//if (info) t1 = timmer.now();
-
-	std::shared_ptr<Mesh> ret_value;
-	if (normals.size() && colors.size()) ret_value = std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors)); //return std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals, colors));
-	else ret_value = std::shared_ptr<Mesh>(new Mesh(faces, vertices, normals));
-	
-	//if (info)
-	//{
-	//	t2 = timmer.now();
-	//	std::cout << "Created in (" << std::chrono::duration_cast<time_unit>(t2 - t1).count() << "ms)." << std::endl;
-	//}
-
-	return ret_value;
+	return return_mesh;
 }

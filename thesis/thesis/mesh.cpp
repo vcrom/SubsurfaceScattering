@@ -10,16 +10,32 @@ Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &v
 	initialize(idx, vertices);
 }
 
-Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals)
-	: RenderableObject()
-{
-	initialize(idx, vertices, normals);
-}
-
-Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors)
-{
-	initialize(idx, vertices, normals, colors);
-}
+//Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals)
+//	: RenderableObject()
+//{
+//	initialize(idx, vertices, normals);
+//}
+//
+//Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors)
+//{
+//	initialize(idx, vertices, normals, colors);
+//}
+//
+//
+//Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors, const std::vector<glm::vec2> &tex_coords)
+//{
+//
+//}
+//
+//Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors, const std::vector<glm::vec2> &tex_coords, const std::vector<glm::vec3> &tangent)
+//{
+//
+//}
+//
+//Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors, const std::vector<glm::vec2> &tex_coords, const std::vector<glm::vec3> &tangent, const std::vector<glm::vec3> &bi_tangent)
+//{
+//
+//}
 
 Mesh::~Mesh()
 {
@@ -60,6 +76,25 @@ void Mesh::initialize(const std::vector<unsigned int>& idx, const std::vector<gl
 	initialize(idx, vertices, normals);
 	colors_ = colors;
 	initializeColorBuffer();
+}
+
+void Mesh::addNormals(const std::vector<glm::vec3> &normals)
+{
+	assert(normals.size() == vertices_.size());
+	normals_ = normals;
+	initializeNormalsBuffer();
+}
+
+void Mesh::addColors(const std::vector<glm::vec4> &colors)
+{
+	assert(colors.size() == vertices_.size());
+	colors_ = colors;
+	initializeColorBuffer();
+}
+
+void Mesh::addTexCoords(const std::vector<glm::vec2> &tex_coords)
+{
+	assert(tex_coords.size() == vertices_.size());
 }
 
 #define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);

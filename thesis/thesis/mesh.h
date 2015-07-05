@@ -11,9 +11,17 @@ class Mesh : public RenderableObject
 {
 public:
 	Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices);
-	Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals);
-	Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors);
+	//Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals);
+	//Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors);
+	//Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors, const std::vector<glm::vec2> &tex_coords);
+	//Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors, const std::vector<glm::vec2> &tex_coords, const std::vector<glm::vec3> &tangent);
+	//Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec3> &normals, const std::vector<glm::vec4> &colors, const std::vector<glm::vec2> &tex_coords, const std::vector<glm::vec3> &tangent, const std::vector<glm::vec3> &bi_tangent);
+
+	void addNormals(const std::vector<glm::vec3> &normals);
+	void addColors(const std::vector<glm::vec4> &colors);
+	void addTexCoords(const std::vector<glm::vec2> &tex_coords);
 	~Mesh();
+
 	BBox getBBox();
 
 protected:
