@@ -346,7 +346,7 @@ void Core::renderScene()
 	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
 	_t1 = _clock.now();
-	if(_control_boolean_params[2]) subSurfaceScatteringPass();
+	//if(_control_boolean_params[2]) subSurfaceScatteringPass();
 	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t2 - _t1).count() << std::endl;
@@ -405,7 +405,7 @@ void Core::mainRenderPass()
 	_generic_buffer->clearColorDepthAndStencil();
 
 	//render background
-	RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 
 	checkCritOpenGLError();
 
@@ -431,7 +431,7 @@ void Core::subSurfaceScatteringPass()
 	glStencilMask(0x00);
 	switch (_control_int_params[0])
 	{
-	case 0:
+	case 0: //SSSS
 		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
@@ -445,7 +445,7 @@ void Core::subSurfaceScatteringPass()
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 
 		break;
-	case 1:
+	case 1: //Perceptual
 		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
@@ -516,12 +516,12 @@ void Core::toneMap()
 
 	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _control_int_params[1]);
 
-	////render background
-	//glEnable(GL_STENCIL_TEST);
-	//glStencilFunc(GL_EQUAL, 0, 0xFF);
-	//glStencilMask(0x00);
-	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-	//glDisable(GL_STENCIL_TEST);
+	//render background
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 0, 0xFF);
+	glStencilMask(0x00);
+	RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	glDisable(GL_STENCIL_TEST);
 
 
 	RenderAlgorithms::renderTexture(_default_buffer, _aux_ssss_texture1);
