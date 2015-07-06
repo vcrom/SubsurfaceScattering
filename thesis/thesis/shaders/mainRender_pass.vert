@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 vVertex;
 layout(location = 1) in vec3 vNormal;
 layout(location = 2) in vec4 vColor;
+layout(location = 3) in vec2 vTexCoords;
 
 
 //uniforms
@@ -23,6 +24,7 @@ smooth out vec3 worldNormal;
 smooth out vec3 prev_vPosition;
 smooth out vec3 curr_vPosition;
 smooth out vec3 view_vector;
+smooth out vec2 texture_coords;
 
 void main()
 {  
@@ -49,4 +51,7 @@ void main()
 	vec4 view_pos = viewM * world_pos;
 	//linear depth 0..1
 	linear_depth = -(view_pos.z / view_pos.w) / z_far;
+
+	//texture
+	texture_coords = vTexCoords;
 }

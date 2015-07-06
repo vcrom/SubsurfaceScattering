@@ -1,5 +1,6 @@
 #include "mesh.h"
 
+#include "utils.h"
 //Mesh::Mesh(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices)
 //{
 //	std::vector<glm::vec3> normals = computeNormals();
@@ -50,6 +51,9 @@ void Mesh::destroy()
 	colors_.clear();
 	glDeleteBuffers(1, &vboNormalsId_);
 	glDeleteBuffers(1, &vboColorId_);
+	glDeleteBuffers(1, &vboTexCoordsId_);
+	glDeleteBuffers(1, &vboTangentsId_);
+	checkCritOpenGLError();
 }
 
 void Mesh::initialize(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices)
@@ -95,9 +99,10 @@ void Mesh::addColors(const std::vector<glm::vec4> &colors)
 void Mesh::addTexCoords(const std::vector<glm::vec2> &tex_coords)
 {
 	assert(tex_coords.size() == vertices_.size());
+	tex_coords_ = tex_coords;
+	initializeTexCoordsBuffer();
 }
 
-#define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
 void Mesh::initializeNormalsBuffer()
 {
 	glGenBuffers(1, &vboNormalsId_);
@@ -114,7 +119,7 @@ void Mesh::initializeNormalsBuffer()
 	glVertexAttribPointer(1, vertexNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindVertexArray(0);
-	GL_CHECK_ERRORS
+	checkCritOpenGLError();
 }
 
 void Mesh::initializeColorBuffer()
@@ -133,7 +138,30 @@ void Mesh::initializeColorBuffer()
 	glVertexAttribPointer(2, colorNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindVertexArray(0);
-	GL_CHECK_ERRORS
+	checkCritOpenGLError();
+}
+void Mesh::initializeTexCoordsBuffer()
+{
+	glGenBuffers(1, &vboTexCoordsId_);
+	glBindVertexArray(vaoId_);
+	glBindBuffer(GL_ARRAY_BUFFER, vboTexCoordsId_);
+	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfTextureCoordslement(), 0, GL_STATIC_DRAW);
+
+	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+	assert(pBuffer != nullptr);
+	fillColorBuffer(pBuffer);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
+	assert(glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, colorNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindVertexArray(0);
+	checkCritOpenGLError();
+}
+
+void Mesh::fillTexCoordsBuffer(GLfloat* pBuffer)
+{
+
 }
 
 void Mesh::fillVertexBuffer(GLfloat* pBuffer)
@@ -197,6 +225,16 @@ unsigned int Mesh::sizeOfColorlement()
 unsigned int Mesh::colorNumberOfComponents()
 {
 	return 4;
+}
+
+unsigned int Mesh::sizeOfTextureCoordsElement()
+{
+	return sizeof(glm::vec2);
+}
+
+unsigned int textureCoordsNumberOfComponents()
+{
+	return 2;
 }
 
 BBox Mesh::getBBox()

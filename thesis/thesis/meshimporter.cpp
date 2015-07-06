@@ -55,6 +55,16 @@ inline std::vector<glm::vec4> getAiMeshColors(std::unique_ptr<aiMesh>& mesh)
 	return colors;
 }
 
+inline std::vector<glm::vec2> getAiMeshUVcoords(std::unique_ptr<aiMesh>& mesh)
+{
+	std::vector<glm::vec2> tex_cooords(mesh->mNumVertices);
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	{
+		aiVector3D uv = mesh->mTextureCoords[0][i];
+		tex_cooords[i] = glm::vec2(uv.x, uv.y);
+	}
+	return tex_cooords;
+}
 
 Assimp::Importer importer;
 
@@ -132,7 +142,7 @@ std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, 
 	}
 	if (mesh->HasTextureCoords(0))
 	{
-
+		return_mesh->addTexCoords(getAiMeshUVcoords(mesh));
 	}
 	if (mesh->HasTangentsAndBitangents())
 	{

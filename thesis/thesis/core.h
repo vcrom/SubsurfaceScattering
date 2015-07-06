@@ -87,7 +87,7 @@ private:
 	TargetCamera _cam;
 
 	//Textures
-	std::shared_ptr<Texture2D> _background_texture, 
+	std::shared_ptr<Texture2D> _background_texture, _mesh_texture,
 		//shadow mapping(for each light)
 		_shadow_map_texture, _lineal_shadow_map_texture, 
 		//ssss

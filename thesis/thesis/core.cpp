@@ -88,7 +88,7 @@ void Core::initializeGL()
 	glClearStencil(0);
 
 
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_TEXTURE_2D);
 	//GLuint textureID;
 	//glGenTextures(1, &textureID);
@@ -210,7 +210,7 @@ void Core::initializeTextures()
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
-	_background_texture->use();
+	_mesh_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	checkCritOpenGLError();
 
 	std::cout << "Textures init" << std::endl;
@@ -346,7 +346,7 @@ void Core::renderScene()
 	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
 	_t1 = _clock.now();
-	//if(_control_boolean_params[2]) subSurfaceScatteringPass();
+	if(_control_boolean_params[2]) subSurfaceScatteringPass();
 	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t2 - _t1).count() << std::endl;
@@ -374,10 +374,10 @@ void Core::renderScene()
 /// </summary>
 void Core::shadowMapPass()
 {
-	_generic_buffer->useFrameBuffer(3);
+	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
-	_generic_buffer->stencilBuffer(0);
 	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
+	_generic_buffer->stencilBuffer(0);
 	//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorAndDepth();
 	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());

@@ -51,6 +51,10 @@ smooth in vec3 curr_vPosition;
 smooth in vec3 view_vector;
 uniform float m_ambientcomp = 0.61;
 uniform float spec_int = 0.5;
+
+smooth in vec2 texture_coords;
+uniform int texture_enabled;
+uniform sampler2D diffuse_color_texture;
 ///////////////Main///////////////
 
 
@@ -204,7 +208,11 @@ void main()
     vec3 V = normalize(view_vector);
 
 	
-	vec4 albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
+	vec4 albedo;
+	if(texture_enabled != 0)
+		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
+	else
+		albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
 	float intensity = 1.88;
 	float roughness = 0.3;
 

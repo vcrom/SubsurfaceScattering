@@ -20,6 +20,7 @@ public:
 	void addNormals(const std::vector<glm::vec3> &normals);
 	void addColors(const std::vector<glm::vec4> &colors);
 	void addTexCoords(const std::vector<glm::vec2> &tex_coords);
+	//void addTangents(const std::vector<glm::vec3> &tangents);
 	~Mesh();
 
 	BBox getBBox();
@@ -34,10 +35,14 @@ protected:
 	unsigned int vertexNumberOfComponents();
 	unsigned int sizeOfColorlement();
 	unsigned int colorNumberOfComponents();
+	unsigned int sizeOfTextureCoordsElement();
+	unsigned int textureCoordsNumberOfComponents();
 	void fillVertexBuffer(GLfloat* pBuffer);
 	void fillIndexBuffer(GLuint* pBuffer);
 	void fillNormalBuffer(GLfloat* pBuffer);
 	void fillColorBuffer(GLfloat* pBuffer);
+	void fillTexCoordsBuffer(GLfloat* pBuffer);
+
 
 private:
 	void initialize(const std::vector<unsigned int>& idx, const std::vector<glm::vec3> &vertices);
@@ -47,10 +52,12 @@ private:
 
 	void initializeNormalsBuffer();
 	void initializeColorBuffer();
+	void initializeTexCoordsBuffer();
 	void computeBBox();
 
-	GLuint vboNormalsId_, vboColorId_;
+	GLuint vboNormalsId_, vboColorId_, vboTexCoordsId_, vboTangentsId_;
 	std::vector<unsigned int> vTable_;
+	std::vector<glm::vec2> tex_coords_;
 	std::vector<glm::vec3> vertices_, normals_;
 	std::vector<glm::vec4> colors_;
 	BBox bbox_;

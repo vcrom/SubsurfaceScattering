@@ -17,10 +17,8 @@ void main()
 	vec4 world_pos = M*vec4(vVertex, 1);
 	vec3 L = normalize(light_position - world_pos.xyz);
 	//world_pos.xyz -= L*0.025;
+
 	vec4 view_pos = V * world_pos;
-	//view_pos.xyz /= view_pos.w;
-
 	linear_depth = -(view_pos.z / view_pos.w) / z_far;
-
 	gl_Position = P*view_pos;
 }

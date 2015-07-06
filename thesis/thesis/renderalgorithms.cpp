@@ -86,7 +86,7 @@ void RenderAlgorithms::renderMesh(const std::shared_ptr<FrameBuffer> fbo, const 
 /// <param name="shadow_buffer_size">The shadow_buffer_size.</param>
 void RenderAlgorithms::getShadowMap(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, const glm::vec2 &viewport_size, const glm::vec2 &shadow_buffer_size)
 {
-	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+	glEnable(GL_DEPTH_TEST);
 
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::PASS_THROUGH);
 	fbo->useFrameBuffer();
@@ -109,7 +109,7 @@ void RenderAlgorithms::getShadowMap(const std::shared_ptr<FrameBuffer> fbo, cons
 
 void RenderAlgorithms::renderShadows(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, glm::vec3 light_pos)
 {
-	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+	glEnable(GL_DEPTH_TEST);
 	//RenderAlgorithms::renderMesh(fbo, mesh, M, V, P, glm::vec3(1, 0, 0));
 
 	//bias matrix
@@ -142,9 +142,9 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 {
 	//renderMesh(fbo, mesh, M, V, P, glm::vec3(0, 1, 0));
 	//return;
-	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+	glEnable(GL_DEPTH_TEST);
 
-	fbo->useFrameBuffer(2);
+	fbo->useFrameBuffer(1);
 	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -205,15 +205,19 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, 
 	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, 
-	float translucency, float ambient_int, float specular_int, bool ssss_enabled)
+	float translucency, float ambient_int, float specular_int, bool ssss_enabled, 
+	std::shared_ptr<Texture2D> diffuse_texture, bool use_texture)
 {
-	assert(RenderAlgorithms::checkGLEnabled(GL_DEPTH_TEST));
+	glEnable(GL_DEPTH_TEST);
 
 	glm::mat4 B = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5, 0.5, 0.5)), glm::vec3(0.5, 0.5, 0.5));
 	glm::mat4 lightViewProjM = B * P_L * V_L;
 
 	shadow_tex->use(GL_TEXTURE0);
 	light_linear_shadow_tex->use(GL_TEXTURE1);
+
+	if (use_texture)
+		diffuse_texture->use(GL_TEXTURE2);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -243,6 +247,8 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 		glUniform1f(shader->operator()("sssWidth"), sss_width);
 		glUniform1f(shader->operator()("translucency"), translucency);
 		glUniform1i(shader->operator()("sssEnabled"), int(ssss_enabled));
+
+		glUniform1i(shader->operator()("texture_enabled"), int(use_texture));
 		checkCritOpenGLError();
 
 		mesh->render();
