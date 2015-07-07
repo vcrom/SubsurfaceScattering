@@ -210,7 +210,8 @@ void Core::initializeTextures()
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
-	_mesh_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
+	//_mesh_diffuse_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
+	loadMeshDiffuseTexture("textures/flower.jpg");
 	checkCritOpenGLError();
 
 	std::cout << "Textures init" << std::endl;
@@ -234,7 +235,7 @@ void Core::initialize()
 	_generic_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
 	_generic_buffer->createFrameBuffer();
 
-	_cam.updateProjection(glm::radians(45.0f), 1.0f);
+	_cam.updateProjection(glm::radians(60.0f), 1.0f);
 
 	_sphere = MeshImporter::importMeshFromFile("meshes/sphere.ply");
 	_light = std::shared_ptr<Entity>(new Entity(_sphere));
@@ -242,7 +243,7 @@ void Core::initialize()
 
 	loadMesh("meshes/tests.ply");
 	_light->scale(glm::vec3(0.19));
-	_light->setPosition(glm::vec3(0.5, 1, 0.5));
+	_light->setPosition(glm::vec3(2)*glm::vec3(0.5, 1, 0.5));
 	moveLight(glm::vec3(0.00001, 0, 0));
 	computeLightMatrices();
 
@@ -297,7 +298,7 @@ void Core::resize(unsigned int w, unsigned int h)
 	_window_size = glm::vec2(w, h);
 	_pixel_size = glm::vec2(1.0 / float(w), 1.0 / float(h));
 	glViewport(0, 0, w, h);
-	_cam.updateProjection(glm::radians(45.0f), float(w) / float(h));
+	_cam.updateProjection(glm::radians(60.0f), float(w) / float(h));
 	_cam.update();
 	resizeTextures(w, h);
 	checkCritOpenGLError();
@@ -411,7 +412,8 @@ void Core::mainRenderPass()
 
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), 
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
-		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2]);
+		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
+		_mesh_diffuse_texture, true);
 
 	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
 	_generic_buffer->useFrameBuffer(3);
@@ -541,10 +543,16 @@ void Core::loadMesh(const std::string& path)
 	initializeCam();
 }
 
+void Core::loadMeshDiffuseTexture(const std::string& path)
+{
+	_mesh_diffuse_texture.reset();
+	_mesh_diffuse_texture = TextureLoader::Create2DTexture(path);
+}
+
 void Core::computeLightMatrices()
 {
 	_light_view_matrix = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
-	_light_projection_matrix = glm::perspective(glm::radians(45.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
+	_light_projection_matrix = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
 }
 
 void Core::unloadMesh()

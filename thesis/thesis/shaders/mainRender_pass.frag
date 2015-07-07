@@ -70,8 +70,8 @@ uniform float translucency;
 
 ///////////////Shadows///////////////
 //shadow mapping mode
-#define PCF_STRATIFIED_3x3
-//#define PCF_STRATIFIED_4x4
+//#define PCF_STRATIFIED_3x3
+#define PCF_STRATIFIED_4x4
 //#define PCF_RANDOM_SAMPLING
 //#define SIMPLE_SHADOW_MAP
 
@@ -85,6 +85,7 @@ float random(vec4 seed) {
 
 float shadowMapping(sampler2DShadow shadow_map, vec4 vShadowCoords)
 {
+//vShadowCoords.xy *= 2;
     float shadow = 1;
     if(vShadowCoords.w>1) {
         //In case of PCF, we take a number of shadow map samples and then
@@ -233,10 +234,10 @@ void main()
 	float diffuse = saturate(dot(L, N)) * m_ambientcomp;
 
 	//specular
-	float specular = max(0, pow(dot(N, H), 7)) * spec_int;//17
+	float specular = max(0, pow(dot(N, H), 17)) * spec_int;//17
 	//float specular = intensity * SpecularKSK(beckmannTex, normal, light, input.view, roughness);
 
-	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.025*N, 1);
+	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);
 	// Add the diffuse and specular components:
     #ifdef SEPARATE_SPECULARS

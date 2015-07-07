@@ -145,15 +145,15 @@ void Mesh::initializeTexCoordsBuffer()
 	glGenBuffers(1, &vboTexCoordsId_);
 	glBindVertexArray(vaoId_);
 	glBindBuffer(GL_ARRAY_BUFFER, vboTexCoordsId_);
-	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfTextureCoordslement(), 0, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfTextureCoordsElement(), 0, GL_STATIC_DRAW);
 
 	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
 	assert(pBuffer != nullptr);
-	fillColorBuffer(pBuffer);
+	fillTexCoordsBuffer(pBuffer);
 	//glUnmapBuffer(GL_ARRAY_BUFFER);
 	assert(glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE);
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, colorNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, textureCoordsNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindVertexArray(0);
 	checkCritOpenGLError();
@@ -161,7 +161,9 @@ void Mesh::initializeTexCoordsBuffer()
 
 void Mesh::fillTexCoordsBuffer(GLfloat* pBuffer)
 {
-
+	glm::vec2 *tex_coord = (glm::vec2*)(pBuffer);
+	for (unsigned int i = 0; i < totalVertices_; ++i)
+		tex_coord[i] = tex_coords_[i];
 }
 
 void Mesh::fillVertexBuffer(GLfloat* pBuffer)
@@ -232,7 +234,7 @@ unsigned int Mesh::sizeOfTextureCoordsElement()
 	return sizeof(glm::vec2);
 }
 
-unsigned int textureCoordsNumberOfComponents()
+unsigned int Mesh::textureCoordsNumberOfComponents()
 {
 	return 2;
 }

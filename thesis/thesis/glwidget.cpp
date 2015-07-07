@@ -125,6 +125,16 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 		}
 		update();
 	}
+	else if (event->key() == Qt::Key_N)
+	{
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load Diffuse tex"), "./", tr("Image Files (*.png *.jpg *.bmp)"));
+		if (!filename.isNull())
+		{
+			makeCurrent();
+			core_engine_->loadMeshDiffuseTexture(filename.toStdString());
+		}
+		update();
+	}
 	else if (event->key() == Qt::Key_L)
 	{
 		core_engine_->toggleControlBool(0);

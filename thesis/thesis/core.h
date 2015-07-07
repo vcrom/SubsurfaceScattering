@@ -31,9 +31,15 @@ public:
 	void initialize();
 	void onRender();
 	void resize(uint w, uint h);
+	void setDefaultFBO(GLuint fbo);
+
+	//loading unloading
 	void loadMesh(const std::string& path);
 	void unloadMesh();
-	void setDefaultFBO(GLuint fbo);
+	void loadMeshDiffuseTexture(const std::string& path);
+	void loadMeshAOTexture(const std::string& path);
+	void loadMeshNormalTexture(const std::string& path);
+
 
 	//control
 	enum Input { NOTHING, MOUSE_LEFT_BUTTON, MOUSE_RIGHT_BUTTON };
@@ -55,6 +61,7 @@ public:
 	void setAmbientInt(float a);
 	void setSpeculartInt(float s);
 
+	//s4 params
 	void setSSSRedStr(float s);
 	void setSSSGreenStr(float s);
 	void setSSSBlueStr(float s);
@@ -87,7 +94,7 @@ private:
 	TargetCamera _cam;
 
 	//Textures
-	std::shared_ptr<Texture2D> _background_texture, _mesh_texture,
+	std::shared_ptr<Texture2D> _background_texture, _mesh_diffuse_texture,
 		//shadow mapping(for each light)
 		_shadow_map_texture, _lineal_shadow_map_texture, 
 		//ssss
