@@ -48,9 +48,8 @@ public:
 	void mouseReleased(int x, int y, Input button);
 
 	void toggleControlBool(unsigned int i);
-	void setControlInt(unsigned int i, int val);
-	void incrControlInt(unsigned int i);
-	void decrControlInt(unsigned int i);
+	void setSSSMethod(int val);
+	void setToneMappingMethod(int val);
 
 
 	void reloadShaders();
@@ -111,7 +110,7 @@ private:
 
 	//control params
 	std::vector<bool> _control_boolean_params;
-	std::vector<int> _control_int_params;
+	int _sss_method, _tone_mapping_method;
 	glm::vec2 _window_size;
 
 	int _mouse_x, _mouse_y;

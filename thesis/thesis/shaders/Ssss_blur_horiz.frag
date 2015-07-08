@@ -15,20 +15,23 @@ const vec2 dir = vec2(1, 0);
 smooth in vec2 vUV;
 
 
-const float w[6] = float[](0.006,   0.061,   0.242,  0.242,  0.061, 0.006 );
-const float o[6] = float[](-1.0, -0.6667, -0.3333, 0.3333, 0.6667,   1.0 );
+const float w[7] = float[](0.006,   0.061,   0.242, 0.382, 0.242,  0.061, 0.006 );
+const float o[7] = float[](-1.0, -0.6667, -0.3333, 0, 0.3333, 0.6667,   1.0 );
 
 vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture)
 {
     vec2 step = sssStrength * gauss_size * pixel_size * dir;
     vec4 colorM = texture2D(color_texture, vUV).rgba;
     float depthM = texture2D(depth_texture, vUV).r;
-    vec4 colorBlurred = colorM;
-    colorBlurred.rgb *= 0.382;
     vec2 finalStep = colorM.a * step / depthM;
 	finalStep/= 3;
 	finalStep = step;
-    for (int i = 0; i < 6; i++)
+
+
+	vec4 colorBlurred = vec4(0);//colorM;
+    //colorBlurred.rgb *= 0.382;
+	float weigths = 0;
+    for (int i = 0; i < 7; i++)
     {
         vec2 offset = vUV + o[i] * finalStep;
         vec3 color = texture2D(color_texture, offset).rgb;
@@ -37,8 +40,9 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 		//s = 1;
         color = mix(color, colorM.rgb, s);
         colorBlurred.rgb += w[i] * color;
+		weigths += w[i];
     }
-    return colorBlurred;
+    return colorBlurred/vec4(weigths);
 }
 
 void main(void)

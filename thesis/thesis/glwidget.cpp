@@ -37,6 +37,7 @@ void GLWidget::initializeGL()
 	{
 		core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 		core_engine_->initialize();
+		selectSSSMethod(1);
 	}
 	catch(non_critical_exception e){
 		std::cout << "Error: \n" << e.what() << std::endl;
@@ -237,13 +238,13 @@ void GLWidget::setSpeculartInt(double s)
 
 void GLWidget::selectSSSMethod(int i)
 {
-	core_engine_->setControlInt(0, i);
+	core_engine_->setSSSMethod(i);
 	update();
 }
 
 void GLWidget::selectToneMappingMethod(int i)
 {
-	core_engine_->setControlInt(1, i);
+	core_engine_->setToneMappingMethod(i);
 	update();
 }
 

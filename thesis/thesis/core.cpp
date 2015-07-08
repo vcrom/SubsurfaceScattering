@@ -28,7 +28,8 @@ Core::Core()
 
 	_control_boolean_params = std::vector<bool>(10, false);
 	_control_boolean_params[2] = true;
-	_control_int_params = std::vector<int>(10, 0);
+	_sss_method = 0;
+	_tone_mapping_method = 0;
 
 	_num_samples = 25;
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
@@ -40,8 +41,8 @@ Core::Core()
 Core::~Core()
 {
 	fImage image;
-	image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
-	image.writeImage("textures/depth_map.jpg");
+	//image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
+	//image.writeImage("textures/depth_map.jpg");
 	_object.reset();
 }
 
@@ -211,7 +212,8 @@ void Core::initializeTextures()
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
 	//_mesh_diffuse_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
-	loadMeshDiffuseTexture("textures/flower.jpg");
+	//loadMeshDiffuseTexture("textures/flower.jpg"); 
+	loadMeshDiffuseTexture("textures/tests.png"); 
 	checkCritOpenGLError();
 
 	std::cout << "Textures init" << std::endl;
@@ -431,7 +433,7 @@ void Core::subSurfaceScatteringPass()
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_EQUAL, 1, 0xFF);
 	glStencilMask(0x00);
-	switch (_control_int_params[0])
+	switch (_sss_method)
 	{
 	case 0: //SSSS
 		_generic_buffer->useFrameBuffer(3);
@@ -466,7 +468,7 @@ void Core::subSurfaceScatteringPass()
 		break;
 	}
 	glDisable(GL_STENCIL_TEST);
-	//if (_control_int_params[0])
+	//if (_sss_method)
 	//{
 	//	_generic_buffer->useFrameBuffer(1);
 	//	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0); 
@@ -516,7 +518,7 @@ void Core::toneMap()
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColor();
 
-	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _control_int_params[1]);
+	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _tone_mapping_method);
 
 	//render background
 	glEnable(GL_STENCIL_TEST);
@@ -623,23 +625,33 @@ void Core::toggleControlBool(unsigned int i)
 	_control_boolean_params[i] = !_control_boolean_params[i];
 }
 
-void Core::setControlInt(unsigned int i, int val)
+void Core::setSSSMethod(int val)
 {
-	assert(i < _control_int_params.size());
-	_control_int_params[i] = val;
+	_sss_method = val;
 }
 
-void Core::incrControlInt(unsigned int i)
+void Core::setToneMappingMethod(int val)
 {
-	assert(i < _control_int_params.size());
-	++_control_int_params[i];
+	_tone_mapping_method = val;
 }
 
-void Core::decrControlInt(unsigned int i)
-{
-	assert(i < _control_int_params.size());
-	--_control_int_params[i];
-}
+//void Core::setControlInt(unsigned int i, int val)
+//{
+//	assert(i < _control_int_params.size());
+//	_control_int_params[i] = val;
+//}
+//
+//void Core::incrControlInt(unsigned int i)
+//{
+//	assert(i < _control_int_params.size());
+//	++_control_int_params[i];
+//}
+//
+//void Core::decrControlInt(unsigned int i)
+//{
+//	assert(i < _control_int_params.size());
+//	--_control_int_params[i];
+//}
 
 void Core::moveLight(glm::vec3 dir)
 {

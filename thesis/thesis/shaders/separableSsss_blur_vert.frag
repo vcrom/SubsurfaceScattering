@@ -136,10 +136,10 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 
 		if(follow_surf)
 		{
-		// If the difference in depth is huge, we lerp color back to "colorM":
-		float depth = texture(depthTex, offset).r;
-		float s = saturate(600.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
-		color.rgb = mix(color.rgb, colorM.rgb, s);
+			// If the difference in depth is huge, we lerp color back to "colorM":
+			float depth = texture(depthTex, offset).r;
+			float s = saturate(600.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
+			color.rgb = mix(color.rgb, colorM.rgb, s);
 		}
 
 		// Accumulate:
