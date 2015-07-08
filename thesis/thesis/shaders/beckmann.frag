@@ -13,3 +13,4 @@ void main(void)
 	vFColor = color;
 
 }
+http://http.developer.nvidia.com/GPUGems3/gpugems3_ch14.html
