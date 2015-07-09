@@ -26,6 +26,8 @@ std::shared_ptr<GlslShaderManager> RenderAlgorithms::_shader_manager = GlslShade
 //const GLenum render_buff[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 GLuint RenderAlgorithms::default_buffer = 0;
 
+std::vector<float> RenderAlgorithms::_ssss_kernel = std::vector<float>();
+int RenderAlgorithms::_num_sss_samples = 0;
 
 //static void initialize(unsigned int num_tex);
 //static void resizeTextures(unsigned int w, unsigned int h);
@@ -228,8 +230,9 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	shader->use();
 		//vert
 		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM"), 1, GL_FALSE, glm::value_ptr(P*V*M));
-		glUniformMatrix4fv(shader->operator()("prev_WorldViewProjM"), 1, GL_FALSE, glm::value_ptr(prev_VP*M));
+		//glUniformMatrix4fv(shader->operator()("prev_WorldViewProjM"), 1, GL_FALSE, glm::value_ptr(prev_VP*M));
 		glUniformMatrix4fv(shader->operator()("worldInverseTransposeM"), 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(M)));
+		glUniformMatrix4fv(shader->operator()("viewInverseTransposeM"), 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(V)));
 		glUniformMatrix4fv(shader->operator()("worldM"), 1, GL_FALSE, glm::value_ptr(M));
 		glUniformMatrix4fv(shader->operator()("viewM"), 1, GL_FALSE, glm::value_ptr(V));
 		glUniform3fv(shader->operator()("m_camera_pos"), 1, glm::value_ptr(camera_pos));
@@ -257,19 +260,19 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	glDisable(GL_CULL_FACE);
 }
 
-
 std::vector<glm::vec4> initGaussians()
 {
 	auto gaussians = std::vector<glm::vec4>(0);
 	gaussians.push_back(glm::vec4(0.0064, 1, 1, 1));
 	gaussians.push_back(glm::vec4(0.0516, 0.3251, 0.45, 0.3583));
 	gaussians.push_back(glm::vec4(0.2719, 0.34, 0.1864, 0.0));
-	//gaussians.push_back(glm::vec4(2.0062, 0.46, 0.0, 0.0402));
+	gaussians.push_back(glm::vec4(2.0062, 0.46, 0.0, 0.0402));
 	for (unsigned int  i = 1; i < gaussians.size(); ++i) gaussians[i].x = gaussians[i].x - gaussians[i - 1].x;
 	return gaussians;
 }
 
 std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
+
 
 void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth)
 {
@@ -428,98 +431,104 @@ void RenderAlgorithms::computeSeparableKernel(int num_samples, const glm::vec3 &
 		const float RANGE = num_samples > 20 ? 3.0f : 2.0f;
 		const float EXPONENT = 2.0f;
 
-		std::vector<float> kernel(num_samples * 4);
+		_ssss_kernel = std::vector<float> (num_samples * 4);
+		_num_sss_samples = num_samples;
 
 		// Calculate the offsets:
 		float step = 2.0f * RANGE / (num_samples - 1);
 		for (int i = 0; i < num_samples; i++) {
 			float o = -RANGE + float(i) * step;
 			float sign = o < 0.0f ? -1.0f : 1.0f;
-			//kernel[i].w = RANGE * sign * abs(pow(o, EXPONENT)) / pow(RANGE, EXPONENT);
-			kernel[i * 4 + 3] = RANGE * sign * abs(pow(o, EXPONENT)) / pow(RANGE, EXPONENT);
+			//_ssss_kernel[i].w = RANGE * sign * abs(pow(o, EXPONENT)) / pow(RANGE, EXPONENT);
+			_ssss_kernel[i * 4 + 3] = RANGE * sign * abs(pow(o, EXPONENT)) / pow(RANGE, EXPONENT);
 		}
 
 		// Calculate the weights:
 		for (int i = 0; i < num_samples; i++) {
-			//float w0 = i > 0 ? abs(kernel[i].w - kernel[i - 1].w) : 0.0f;
-			//float w1 = i < num_samples - 1 ? abs(kernel[i].w - kernel[i + 1].w) : 0.0f;
-			float w0 = i > 0 ? abs(kernel[i*4+3] - kernel[4*(i - 1) +3]) : 0.0f;
-			float w1 = i < num_samples - 1 ? abs(kernel[i * 4 + 3] - kernel[4*(i + 1)+3]) : 0.0f;
+			//float w0 = i > 0 ? abs(_ssss_kernel[i].w - _ssss_kernel[i - 1].w) : 0.0f;
+			//float w1 = i < num_samples - 1 ? abs(_ssss_kernel[i].w - _ssss_kernel[i + 1].w) : 0.0f;
+			float w0 = i > 0 ? abs(_ssss_kernel[i*4+3] - _ssss_kernel[4*(i - 1) +3]) : 0.0f;
+			float w1 = i < num_samples - 1 ? abs(_ssss_kernel[i * 4 + 3] - _ssss_kernel[4*(i + 1)+3]) : 0.0f;
 			float area = (w0 + w1) / 2.0f;
-			//glm::vec3 t = area * profile(kernel[i].w, falloff);
-			glm::vec3 t = area * profile(kernel[i*4+3], falloff);
-			kernel[i*4] = t.x;
-			kernel[i*4 + 1] = t.y;
-			kernel[i*4 + 2] = t.z;
+			//glm::vec3 t = area * profile(_ssss_kernel[i].w, falloff);
+			glm::vec3 t = area * profile(_ssss_kernel[i*4+3], falloff);
+			_ssss_kernel[i*4] = t.x;
+			_ssss_kernel[i*4 + 1] = t.y;
+			_ssss_kernel[i*4 + 2] = t.z;
 		}
 
 		// We want the offset 0.0 to come first:
-		//glm::vec4 t = kernel[num_samples / 2];
-		glm::vec4 t = glm::vec4(kernel[(num_samples / 2) * 4], kernel[(num_samples / 2) * 4 + 1], kernel[(num_samples / 2) * 4 + 2], kernel[(num_samples / 2) * 4 + 3]);
+		//glm::vec4 t = _ssss_kernel[num_samples / 2];
+		glm::vec4 t = glm::vec4(_ssss_kernel[(num_samples / 2) * 4], _ssss_kernel[(num_samples / 2) * 4 + 1], _ssss_kernel[(num_samples / 2) * 4 + 2], _ssss_kernel[(num_samples / 2) * 4 + 3]);
 		for (int i = num_samples / 2; i > 0; i--)
 		{
-			kernel[i*4] = kernel[(i - 1)*4];
-			kernel[i * 4+1] = kernel[(i - 1) * 4+1];
-			kernel[i * 4+2] = kernel[(i - 1) * 4+2];
-			kernel[i * 4+3] = kernel[(i - 1) * 4+3];
+			_ssss_kernel[i*4] = _ssss_kernel[(i - 1)*4];
+			_ssss_kernel[i * 4+1] = _ssss_kernel[(i - 1) * 4+1];
+			_ssss_kernel[i * 4+2] = _ssss_kernel[(i - 1) * 4+2];
+			_ssss_kernel[i * 4+3] = _ssss_kernel[(i - 1) * 4+3];
 		}
-		//kernel[0] = t;
-		kernel[0] = t.x;
-		kernel[1] = t.y;
-		kernel[2] = t.z;
-		kernel[3] = t.w;
+		//_ssss_kernel[0] = t;
+		_ssss_kernel[0] = t.x;
+		_ssss_kernel[1] = t.y;
+		_ssss_kernel[2] = t.z;
+		_ssss_kernel[3] = t.w;
 
 		// Calculate the sum of the weights, we will need to normalize them below:
 		glm::vec3 sum = glm::vec3(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < num_samples; i++)
-			//sum += glm::vec3(kernel[i]);
-			sum += glm::vec3(kernel[i * 4], kernel[i * 4+1], kernel[i * 4+2]);
+			//sum += glm::vec3(_ssss_kernel[i]);
+			sum += glm::vec3(_ssss_kernel[i * 4], _ssss_kernel[i * 4+1], _ssss_kernel[i * 4+2]);
 
 
 		// Normalize the weights:
 		for (int i = 0; i < num_samples; i++) {
-			//kernel[i].x /= sum.x;
-			//kernel[i].y /= sum.y;
-			//kernel[i].z /= sum.z;
-			kernel[i*4] /= sum.x;
-			kernel[i*4+1] /= sum.y;
-			kernel[i*4+2] /= sum.z;
+			//_ssss_kernel[i].x /= sum.x;
+			//_ssss_kernel[i].y /= sum.y;
+			//_ssss_kernel[i].z /= sum.z;
+			_ssss_kernel[i*4] /= sum.x;
+			_ssss_kernel[i*4+1] /= sum.y;
+			_ssss_kernel[i*4+2] /= sum.z;
 		}
 
 		// Tweak them using the desired strength. The first one is:
-		//     lerp(1.0, kernel[0].rgb, strength)
-		//kernel[0].x = (1.0f - sss_strength.x) * 1.0f + sss_strength.x * kernel[0].x;
-		//kernel[0].y = (1.0f - sss_strength.y) * 1.0f + sss_strength.y * kernel[0].y;
-		//kernel[0].z = (1.0f - sss_strength.z) * 1.0f + sss_strength.z * kernel[0].z;
-		kernel[0] = (1.0f - sss_strength.x) * 1.0f + sss_strength.x * kernel[1];
-		kernel[1] = (1.0f - sss_strength.y) * 1.0f + sss_strength.y * kernel[2];
-		kernel[2] = (1.0f - sss_strength.z) * 1.0f + sss_strength.z * kernel[3];
+		//     lerp(1.0, _ssss_kernel[0].rgb, strength)
+		//_ssss_kernel[0].x = (1.0f - sss_strength.x) * 1.0f + sss_strength.x * _ssss_kernel[0].x;
+		//_ssss_kernel[0].y = (1.0f - sss_strength.y) * 1.0f + sss_strength.y * _ssss_kernel[0].y;
+		//_ssss_kernel[0].z = (1.0f - sss_strength.z) * 1.0f + sss_strength.z * _ssss_kernel[0].z;
+		_ssss_kernel[0] = (1.0f - sss_strength.x) * 1.0f + sss_strength.x * _ssss_kernel[1];
+		_ssss_kernel[1] = (1.0f - sss_strength.y) * 1.0f + sss_strength.y * _ssss_kernel[2];
+		_ssss_kernel[2] = (1.0f - sss_strength.z) * 1.0f + sss_strength.z * _ssss_kernel[3];
 
 		// The others:
-		//     lerp(0.0, kernel[0].rgb, strength)
+		//     lerp(0.0, _ssss_kernel[0].rgb, strength)
 		for (int i = 1; i < num_samples; i++) {
-			//kernel[i].x *= sss_strength.x;
-			//kernel[i].y *= sss_strength.y;
-			//kernel[i].z *= sss_strength.z;
-			kernel[i*4] *= sss_strength.x;
-			kernel[i*4+1] *= sss_strength.y;
-			kernel[i*4+2] *= sss_strength.z;
+			//_ssss_kernel[i].x *= sss_strength.x;
+			//_ssss_kernel[i].y *= sss_strength.y;
+			//_ssss_kernel[i].z *= sss_strength.z;
+			_ssss_kernel[i*4] *= sss_strength.x;
+			_ssss_kernel[i*4+1] *= sss_strength.y;
+			_ssss_kernel[i*4+2] *= sss_strength.z;
 		}
 
 		// Finally, set 'em!
-		//V(kernelVariable->SetFloatVectorArray((float *)&kernel.front(), 0, num_samples));
-		std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
+		//V(kernelVariable->SetFloatVectorArray((float *)&_ssss_kernel.front(), 0, num_samples));
+		setSeparableKernels();
+}
 
-		horizontal->use();
-		glUniform1i(horizontal->operator()("ssss_n_samples"), num_samples);
-		glUniform4fv(horizontal->operator()("kernel"), num_samples, &kernel[0]);
-		horizontal->unUse();
+void RenderAlgorithms::setSeparableKernels()
+{
+	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
 
-		std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
+	horizontal->use();
+	glUniform1i(horizontal->operator()("ssss_n_samples"), _num_sss_samples);
+	glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples, &_ssss_kernel[0]);
+	horizontal->unUse();
 
-		vertical->use();
-		glUniform1i(vertical->operator()("ssss_n_samples"), num_samples);
-		glUniform4fv(vertical->operator()("kernel"), num_samples, &kernel[0]);
-		vertical->unUse();
-		checkCritOpenGLError();
+	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
+
+	vertical->use();
+	glUniform1i(vertical->operator()("ssss_n_samples"), _num_sss_samples);
+	glUniform4fv(vertical->operator()("kernel"), _num_sss_samples, &_ssss_kernel[0]);
+	vertical->unUse();
+	checkCritOpenGLError();
 }

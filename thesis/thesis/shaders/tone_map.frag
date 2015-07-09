@@ -84,6 +84,43 @@ vec3 Yxy2xyz(vec3 Yxy) {
     return xyz;
 }
 
+float labFordwardFunction(float t)
+{
+	const float val = (6/29)*(6/29)*(6/29);
+	if(t > val) return pow(t, 1/3);
+	return 1/3*(29/6)*(29/6)*t + 4/29;
+}
+
+vec3 xyz2lab(vec3 xyz)
+{
+	const float xn = 0.95047;
+	const float yn = 1;
+	const float zn = 1.08883;
+	vec3 lab;
+	lab.x = 116*labFordwardFunction(xyz.y/yn) - 16;
+	lab.y = 500*(labFordwardFunction(xyz.x/xn) - labFordwardFunction(xyz.y/yn));
+	lab.z = 200*(labFordwardFunction(xyz.y/yn) - labFordwardFunction(xyz.z/zn));
+	return lab;
+}
+
+float labReverseFunction(float t)
+{
+	if(t > 6/29) return t*t*t;
+	return 3*(6/29)*(6/29)*(t - 4/29);
+}
+
+vec3 lab2xyz(vec3 lab)
+{
+	const float xn = 0.95047;
+	const float yn = 1;
+	const float zn = 1.08883;
+	vec3 xyz;
+	xyz.x = xn*labReverseFunction(1/116*(lab.x + 16) + 1/500*lab.y);
+	xyz.y = yn*labReverseFunction(1/116*(lab.x + 16));
+	xyz.z = zn*labReverseFunction(1/116*(lab.x + 16) - 1/200*lab.z);
+	return xyz;
+}
+
 vec3 FilmicTonemap(vec3 x) {
     float A = 0.15;
     float B = 0.50;

@@ -549,6 +549,7 @@ void Core::loadMeshDiffuseTexture(const std::string& path)
 {
 	_mesh_diffuse_texture.reset();
 	_mesh_diffuse_texture = TextureLoader::Create2DTexture(path);
+	_mesh_diffuse_texture->use();
 }
 
 void Core::computeLightMatrices()
@@ -663,6 +664,7 @@ void Core::reloadShaders()
 {
 	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
 	shader_manager->reloadShaders();
+	RenderAlgorithms::setSeparableKernels();
 }
 
 

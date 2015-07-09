@@ -86,6 +86,7 @@ void fImage::loadFromPath(const std::string& path)
 	if (!loaded)
 	{
 		throw_non_critical("Can not load the image " + path);
+		assert(false);
 	}
 	else
 	{

@@ -110,7 +110,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 	// Fetch color of current pixel:
     vec4 colorM = texture(colorTex, texcoord).rgba;
 
-	if (SSSS_STREGTH_SOURCE == 0.0) discard;
+	//if (SSSS_STREGTH_SOURCE == 0.0) discard;
 
 	// Fetch linear depth of current pixel:
     float depthM = texture(depthTex, texcoord).r;
@@ -138,7 +138,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		{
 		// If the difference in depth is huge, we lerp color back to "colorM":
 			float depth = texture(depthTex, offset).r;
-			float s = saturate(600.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
+			float s = saturate(6000.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
 			color.rgb = mix(color.rgb, colorM.rgb, s);
 		}
 
@@ -151,5 +151,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 
 void main()
 {
-    vFragColor = SSSSBlurPS(vUV, color_texture, lineal_depth_texture,  sssWidth,  vec2(1, 0), cam_fovy, false);
+    vFragColor = SSSSBlurPS(vUV, color_texture, lineal_depth_texture,  sssWidth,  vec2(1, 0), cam_fovy, true);
+	
+	//vFragColor = vec4(texture(lineal_depth_texture, vUV).r);
 }

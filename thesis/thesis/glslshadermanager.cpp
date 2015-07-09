@@ -203,7 +203,7 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addAttribute("vColor");
 
 	shader.addUniform("curr_WorldViewProjM");
-	shader.addUniform("prev_WorldViewProjM");
+	//shader.addUniform("prev_WorldViewProjM");
 	shader.addUniform("worldInverseTransposeM");
 	shader.addUniform("worldM");
 	shader.addUniform("viewM");
@@ -229,6 +229,7 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addUniform("diffuse_color_texture");
 	glUniform1i(shader("diffuse_color_texture"), 2);
 
+	shader.addUniform("viewInverseTransposeM");
 	shader.unUse();
 	checkCritOpenGLError();
 

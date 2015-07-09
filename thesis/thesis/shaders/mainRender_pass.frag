@@ -3,6 +3,7 @@
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out float FragLinearDepth;
 layout(location = 2) out vec3 FragSpecularColor;
+layout(location = 3) out vec3 FragObjectNormals;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 #define SEPARATE_SPECULARS
@@ -46,8 +47,9 @@ smooth in vec4 mesh_color;
 smooth in float linear_depth;
 smooth in vec3 worldPosition;
 smooth in vec3 worldNormal;
-smooth in vec3 prev_vPosition;
-smooth in vec3 curr_vPosition;
+smooth in vec3 viewNormal;
+//smooth in vec3 prev_vPosition;
+//smooth in vec3 curr_vPosition;
 smooth in vec3 view_vector;
 uniform float m_ambientcomp = 0.61;
 uniform float spec_int = 0.5;
@@ -208,7 +210,9 @@ void main()
 	vec3 N = normalize(worldNormal);
     vec3 V = normalize(view_vector);
 
-	
+	//world normals
+	FragObjectNormals = (normalize(viewNormal)+1)/2;
+
 	vec4 albedo;
 	if(texture_enabled != 0)
 		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
@@ -258,8 +262,8 @@ void main()
 	FragLinearDepth = linear_depth;
 
 	//// Convert to non-homogeneous points by dividing by w:
-	vec2 curr = curr_vPosition.xy/curr_vPosition.z; // w is stored in z
-    vec2 prev = prev_vPosition.xy/prev_vPosition.z;
+	//vec2 curr = curr_vPosition.xy/curr_vPosition.z; // w is stored in z
+    //vec2 prev = prev_vPosition.xy/prev_vPosition.z;
 
     // Calculate velocity in non-homogeneous projection space:
     //vec2 velocity = curr - prev;
