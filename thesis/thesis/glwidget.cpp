@@ -263,3 +263,9 @@ void GLWidget::setSSSBlueStr(double s)
 	core_engine_->setSSSRedStr(s);
 	update();
 }
+
+void GLWidget::setSSSNumSamples(int s)
+{
+	core_engine_->setSSSNumSamples(s);
+	update();
+}

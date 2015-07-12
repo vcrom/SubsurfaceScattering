@@ -208,10 +208,20 @@ void Core::initializeTextures()
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
+	//lineal shadow map
+	_cross_bilateral_factor = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_cross_bilateral_factor->use();
+	_cross_bilateral_factor->loadEmptyTexture(GL_R32F, 32, 32);
+	_cross_bilateral_factor->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_cross_bilateral_factor->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	_cross_bilateral_factor->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_cross_bilateral_factor->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	checkCritOpenGLError();
+
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
-	//_mesh_diffuse_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
+
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
 	checkCritOpenGLError();
@@ -271,27 +281,33 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 
 	_shadow_map_texture->use(); 
 	_shadow_map_texture->resize(shadow_width, shadow_height);
+
 	_lineal_shadow_map_texture->use();
 	_lineal_shadow_map_texture->resize(shadow_width, shadow_height);
+
 	_depth_stencil_texture->use();
 	_depth_stencil_texture->resize(shadow_width, shadow_height);
 
 	_aux_ssss_texture1->use();
 	_aux_ssss_texture1->resize(w, h);
+
 	_aux_ssss_texture2->use();
 	_aux_ssss_texture2->resize(w, h);
+
 	_diffuse_color_texture->use();
 	_diffuse_color_texture->resize(w, h);
+
 	_specular_texture->use();
 	_specular_texture->resize(w, h);
+
 	_lineal_depth_texture->use();
 	_lineal_depth_texture->resize(w, h);
+
 	_aux_ssss_pingpong->use();
 	_aux_ssss_pingpong->resize(w, h);
-	
 
-
-
+	_cross_bilateral_factor->use();
+	_cross_bilateral_factor->resize(w, h);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -314,14 +330,15 @@ void Core::onRender()
 	if (!_control_boolean_params[0])
 	{
 		renderScene();
+		//_default_buffer->useFrameBuffer();
+		//_default_buffer->clearColorAndDepth();
+		//RenderAlgorithms::renderTexture(_default_buffer, _cross_bilateral_factor);
 		return;
 	}
 	_default_buffer->useFrameBuffer();
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	_default_buffer->clearColorAndDepth();
 	
-
-
 	RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, glm::vec3(1, 0, 0));
 }
 
@@ -400,10 +417,11 @@ void Core::mainRenderPass()
 	_default_buffer->useFrameBuffer();
 	_default_buffer->clearColorDepthAndStencil();
 
-	_generic_buffer->useFrameBuffer(3);
+	_generic_buffer->useFrameBuffer(4);
 	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//difuse
 	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 1);//lin depth
 	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 2);//specular
+	_generic_buffer->colorBuffer(_cross_bilateral_factor->getTextureID(), 3);//cross-bilateral
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorDepthAndStencil();
 
@@ -456,7 +474,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
 
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength, _cross_bilateral_factor);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -550,6 +568,13 @@ void Core::loadMeshDiffuseTexture(const std::string& path)
 	_mesh_diffuse_texture.reset();
 	_mesh_diffuse_texture = TextureLoader::Create2DTexture(path);
 	_mesh_diffuse_texture->use();
+}
+
+void Core::loadMeshAOTexture(const std::string& path)
+{
+	_mesh_ao_texture.reset();
+	_mesh_ao_texture = TextureLoader::Create2DTexture(path);
+	_mesh_ao_texture->use();
 }
 
 void Core::computeLightMatrices()
@@ -713,5 +738,11 @@ void Core::setSSSBlueStr(float s)
 {
 	_sss_strength.b = s;
 	//Compute kernel
+	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+}
+
+void Core::setSSSNumSamples(int s)
+{
+	_num_samples = s;
 	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
 }

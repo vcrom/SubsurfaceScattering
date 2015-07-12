@@ -257,6 +257,8 @@ void GlslShaderManager::initSSSSHori()
 	glUniform1i(shader("lineal_depth_texture"), 1);
 	shader.addUniform("pinpong_texture");
 	glUniform1i(shader("pinpong_texture"), 2);
+	shader.addUniform("cross_bilateral_factor");
+	glUniform1i(shader("cross_bilateral_factor"), 3);
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -282,6 +284,8 @@ void GlslShaderManager::initSSSSVert()
 	glUniform1i(shader("color_texture"), 0);
 	shader.addUniform("lineal_depth_texture");
 	glUniform1i(shader("lineal_depth_texture"), 1);
+	shader.addUniform("cross_bilateral_factor");
+	glUniform1i(shader("cross_bilateral_factor"), 3); 
 
 	shader.unUse();
 	checkCritOpenGLError();

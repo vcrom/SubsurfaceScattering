@@ -23,6 +23,7 @@ smooth out float linear_depth;
 smooth out vec3 worldPosition;
 smooth out vec3 worldNormal;
 smooth out vec3 viewNormal;
+smooth out vec3 viewPos;
 //smooth out vec3 prev_vPosition;
 //smooth out vec3 curr_vPosition;
 smooth out vec3 view_vector;
@@ -51,6 +52,7 @@ void main()
 
 	//lineal depth
 	vec4 view_pos = viewM * world_pos;
+	viewPos = view_pos.xyz;
 	//linear depth 0..1
 	linear_depth = -(view_pos.z / view_pos.w) / z_far;
 

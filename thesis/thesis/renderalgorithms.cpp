@@ -225,7 +225,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	glCullFace(GL_BACK);
 
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::MAIN_RENDER_SHADER);
-	fbo->useFrameBuffer(3);
+	fbo->useFrameBuffer(4);
 
 	shader->use();
 		//vert
@@ -274,7 +274,7 @@ std::vector<glm::vec4> initGaussians()
 std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
 
 
-void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth)
+void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth, std::shared_ptr<Texture2D> cross_bilateral_factor)
 {
 	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
 
@@ -295,6 +295,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 
 	sss_tex->use(GL_TEXTURE0);
 	lineal_depth->use(GL_TEXTURE1);
+	cross_bilateral_factor->use(GL_TEXTURE3);
 
 	fbo->useFrameBuffer(1);
 	glDisable(GL_DEPTH_TEST);

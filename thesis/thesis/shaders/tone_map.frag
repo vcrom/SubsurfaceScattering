@@ -49,6 +49,11 @@ vec3 rgb2xyz(vec3 rgb) {
 					0.265068,  0.67023428, 0.06409157,
 					0.0241188, 0.1228178,  0.84442666 );
     return m * rgb;
+	//vec3 xyz;
+	//float xyz.x = rgb.r * 0.412453 + rgb.g * 0.357580 + rgb.b * 0.180423;
+ //   float xyz.y = rgb.r * 0.212671 + rgb.g * 0.715160 + rgb.b * 0.072169;
+ //   float xyz.z = rgb.r * 0.019334 + rgb.g * 0.119193 + rgb.b * 0.950227;
+	//return xyz;
 }
 
 

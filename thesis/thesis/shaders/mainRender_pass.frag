@@ -3,7 +3,7 @@
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out float FragLinearDepth;
 layout(location = 2) out vec3 FragSpecularColor;
-layout(location = 3) out vec3 FragObjectNormals;
+layout(location = 3) out float FragCBFFactor;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 #define SEPARATE_SPECULARS
@@ -48,6 +48,7 @@ smooth in float linear_depth;
 smooth in vec3 worldPosition;
 smooth in vec3 worldNormal;
 smooth in vec3 viewNormal;
+smooth in vec3 viewPos;
 //smooth in vec3 prev_vPosition;
 //smooth in vec3 curr_vPosition;
 smooth in vec3 view_vector;
@@ -57,6 +58,7 @@ uniform float spec_int = 0.5;
 smooth in vec2 texture_coords;
 uniform int texture_enabled;
 uniform sampler2D diffuse_color_texture;
+uniform float z_far;
 ///////////////Main///////////////
 
 
@@ -204,15 +206,26 @@ vec3 transmittance(float translucency, float sss_width, vec3 world_position, vec
 //	vec3 cross_fres = FresnelSchlick(vec3(0.04f, 0.04f, 0.04f), L, H);
 //}
 
+//precision highp float;
+float computeCBFFactor(vec3 view_normal, vec3 view_pos)
+{
+	vec3 w = -normalize(view_pos);
+	float cos_a_i = dot(vec3(0,0,-1), -w);
+	float cos_a_j = dot(view_normal, w);
+	//view_pos.z = 5*view_pos.z/z_far;
+	float norm = length(view_pos);
+	return cos_a_i*cos_a_i*cos_a_i*norm*norm/cos_a_j;
+}
+
 void main()
 {
 
+	//CBF
+	FragCBFFactor = computeCBFFactor(normalize(viewNormal), viewPos);// (normalize(viewNormal)+1)/2;
+
+	//Main
 	vec3 N = normalize(worldNormal);
     vec3 V = normalize(view_vector);
-
-	//world normals
-	FragObjectNormals = (normalize(viewNormal)+1)/2;
-
 	vec4 albedo;
 	if(texture_enabled != 0)
 		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
