@@ -199,8 +199,8 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 
 		#ifdef SIMPLE_COL_DIST_FILTER
 			//weight = kernel[i].rgb*exp(-distance(rgb2luv(colorM), rgb2luv(colorS)));
-			//weight = kernel[i].rgb*exp(-0.25*distance(rgb2lab(colorM.rgb), rgb2lab(colorS.rgb)));
-			weight = kernel[i].rgb*exp(-distance(colorM.rgb, colorS.rgb));
+			weight = kernel[i].rgb*exp(-0.12*distance(rgb2lab(colorM.rgb), rgb2lab(colorS.rgb)));
+			//weight = kernel[i].rgb*exp(-distance(colorM.rgb, colorS.rgb));
 		#endif 
 		
 		#ifdef SIMPLE_BILATERAL_FILTER

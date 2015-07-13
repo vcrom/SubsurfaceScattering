@@ -58,6 +58,7 @@ uniform float spec_int = 0.5;
 smooth in vec2 texture_coords;
 uniform int texture_enabled;
 uniform sampler2D diffuse_color_texture;
+uniform sampler2D ao_texture;
 uniform float z_far;
 ///////////////Main///////////////
 
@@ -235,6 +236,8 @@ void main()
 	float roughness = 0.3;
 
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+	float occlusion = texture(ao_texture, texture_coords).r;
+
 	//FragSpecularColor = 0;
 	//for all lights
 	vec3 L = light_position - worldPosition;
@@ -270,8 +273,8 @@ void main()
 
 	////end for
 	//// Add the ambient component:
-    color.rgb += 0.6*albedo.rgb;//cubemapAmbient;
-	//// Store the depth value:
+    color.rgb += occlusion*albedo.rgb;//cubemapAmbient;
+	//// Store the linear depth value:
 	FragLinearDepth = linear_depth;
 
 	//// Convert to non-homogeneous points by dividing by w:
@@ -299,4 +302,5 @@ void main()
  //   float col = (dot(N, vec3(0,1,0)) + 1)/2;
 	//FragColor = vec4(mesh_color*col);
 	//FragColor = vec4(1,0, 1, 1);
+	//FragColor = vec4(texture(ao_texture, texture_coords).r);
 }

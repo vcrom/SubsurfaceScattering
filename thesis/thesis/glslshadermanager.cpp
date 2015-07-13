@@ -225,9 +225,12 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addUniform("sssWidth");
 	shader.addUniform("translucency");
 
-	shader.addUniform("texture_enabled");
+	shader.addUniform("texture_enabled"); 
 	shader.addUniform("diffuse_color_texture");
 	glUniform1i(shader("diffuse_color_texture"), 2);
+
+	shader.addUniform("ao_texture");
+	glUniform1i(shader("ao_texture"), 3);
 
 	shader.addUniform("viewInverseTransposeM");
 	shader.unUse();

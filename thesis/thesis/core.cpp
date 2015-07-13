@@ -224,6 +224,8 @@ void Core::initializeTextures()
 
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
+	//loadMeshAOTexture("textures/AO.jpg");
+	loadMeshAOTexture("textures/tests_AO.png");
 	checkCritOpenGLError();
 
 	std::cout << "Textures init" << std::endl;
@@ -433,7 +435,7 @@ void Core::mainRenderPass()
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), 
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
-		_mesh_diffuse_texture, true);
+		_mesh_diffuse_texture, _mesh_ao_texture, true);
 
 	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
 	_generic_buffer->useFrameBuffer(3);

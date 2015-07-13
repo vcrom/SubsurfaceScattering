@@ -34,7 +34,7 @@ public:
 		glm::vec3 light_pos, std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 		std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, 
 		float sss_width, float translucency, float ambient_int, float specular_int, bool ssss_enabled = true, 
-		std::shared_ptr<Texture2D> diffuse_texture = nullptr, bool use_texture = false);
+		std::shared_ptr<Texture2D> diffuse_texture = nullptr, std::shared_ptr<Texture2D> ao_texture = nullptr, bool use_texture = false);
 
 
 	static void SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth, std::shared_ptr<Texture2D> cross_bilateral_factor);
