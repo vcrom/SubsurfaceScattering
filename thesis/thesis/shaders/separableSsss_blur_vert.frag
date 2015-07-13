@@ -101,14 +101,58 @@ uniform sampler2D lineal_depth_texture;
 uniform float sssWidth;
 uniform float cam_fovy;
 
-
+uniform float correction = 300;
 smooth in vec2 vUV;
 
+
+uniform sampler2D cross_bilateral_factor;
+
+///////////////AUX COLOR TRANSFORMS///////////////
+vec3 rgb2lab(in vec3 rgb){
+    // threshold
+    float T = 0.008856;
+
+    float X = rgb.r * 0.412453 + rgb.g * 0.357580 + rgb.b * 0.180423;
+    float Y = rgb.r * 0.212671 + rgb.g * 0.715160 + rgb.b * 0.072169;
+    float Z = rgb.r * 0.019334 + rgb.g * 0.119193 + rgb.b * 0.950227;
+
+    // Normalize for white point
+    X = X / 0.950456; Y = Y; Z = Z / 1.088754;
+    bool XT, YT, ZT;
+    XT = false; YT=false; ZT=false;
+    if(X > T) XT = true; if(Y > T) YT = true; if(Z > T) ZT = true;
+
+    float Y3 = pow(Y,1.0/3.0);
+    float fX, fY, fZ;
+    if(XT){ fX = pow(X, 1.0/3.0);} else{ fX = 7.787 * X + 16.0/116.0; }
+    if(YT){ fY = Y3; } else{ fY = 7.787 * Y + 16.0/116.0 ; }
+    if(ZT){ fZ = pow(Z,1.0/3.0); } else{ fZ = 7.787 * Z + 16.0/116.0; }
+
+    float L; if(YT){ L = (116.0 * Y3) - 16.0; }else { L = 903.3 * Y; }
+    float a = 500.0 * ( fX - fY );
+    float b = 200.0 * ( fY - fZ );
+
+    return vec3(L,a,b);
+}
+
+float rgb2gray(vec3 rgb)
+{
+	return (rgb.r + rgb.g + rgb.b)/3.0;
+}
+//////////////////////////////////////////////////
+
+//#define ORIGINAL_FILTER
+#define SIMPLE_COL_DIST_FILTER
+//#define SIMPLE_BILATERAL_FILTER
+//#define CROSS_BILATERAL_FILTER
 
 vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy, bool follow_surf)
 {
 	// Fetch color of current pixel:
     vec4 colorM = texture(colorTex, texcoord).rgba;
+	#ifdef CROSS_BILATERAL_FILTER
+		float I_p = rgb2gray(colorM)*texture(cross_bilateral_factor, texcoord).r;
+	#endif
 
 	if (SSSS_STREGTH_SOURCE == 0.0) discard;
 
@@ -126,25 +170,54 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
     finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
 
 	// Accumulate the center sample:
-    vec4 colorBlurred = colorM;
-    colorBlurred.rgb *= kernel[0].rgb;
+    vec4 colorBlurred = vec4(0);//colorM;
+    //colorBlurred.rgb *= kernel[0].rgb;
+	vec3 weigths = vec3(0);//kernel[0].rgb;
 
-	for (int i = 1; i < ssss_n_samples; i++) {
+	for (int i = 0; i < ssss_n_samples; i++) {
 		// Fetch color and depth for current sample:
-		vec2 offset = texcoord + kernel[i].a * finalStep;
-		vec4 color = texture(colorTex, offset);
+		vec2 despl = kernel[i].a * finalStep;
+		vec2 offset = texcoord + despl;
+		vec4 colorS = texture2D(color_texture, offset).rgba;
+		//vec4 color = colorS;
 
 		if(follow_surf)
 		{
 			// If the difference in depth is huge, we lerp color back to "colorM":
 			float depth = texture(depthTex, offset).r;
-			float s = saturate(6000.0f * distanceToProjectionWindow * sssWidth * abs(depthM - depth)); //300
-			color.rgb = mix(color.rgb, colorM.rgb, s);
+			float s = 0;
+			#ifndef CROSS_BILATERAL_FILTER
+				s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
+			#endif
+			colorS.rgb = mix(colorS.rgb, colorM.rgb, s);
 		}
 
+		vec3 weight;
+		#ifdef ORIGINAL_FILTER
+			weight = kernel[i].rgb;
+		#endif
+
+		#ifdef SIMPLE_COL_DIST_FILTER
+			//weight = kernel[i].rgb*exp(-distance(rgb2luv(colorM), rgb2luv(colorS)));
+			//weight = kernel[i].rgb*exp(-0.25*distance(rgb2lab(colorM.rgb), rgb2lab(colorS.rgb)));
+			weight = kernel[i].rgb*exp(-distance(colorM.rgb, colorS.rgb));
+		#endif 
+		
+		#ifdef SIMPLE_BILATERAL_FILTER
+			weight = kernel[i].rgb*exp(-distance(rgb2lab(colorM.rgb), rgb2lab(colorS.rgb)))*exp(-abs(length(despl)));
+			//weight = kernel[i].rgb*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
+		#endif
+
+		#ifdef CROSS_BILATERAL_FILTER
+			weight = kernel[i].rgb*exp(-10*distance(I_p, rgb2gray(colorS.rgb)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
+			//weight = kernel[i].rgb*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
+		#endif
+
 		// Accumulate:
-		colorBlurred.rgb += kernel[i].rgb * color.rgb;
+		colorBlurred.rgb += weight * colorS.rgb;
+		weigths += weight;
 	}
+	colorBlurred.rgb /= weigths;
 	return colorBlurred;
 
 }

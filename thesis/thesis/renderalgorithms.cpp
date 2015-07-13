@@ -333,7 +333,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	glDepthMask(GL_TRUE);
 }
 
-void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth)
+void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor)
 {
 
 	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
@@ -347,6 +347,7 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 	ScreenQuad* quad = ScreenQuad::getInstanceP();
 
 	lineal_depth->use(GL_TEXTURE1);
+	cross_bilateral_factor->use(GL_TEXTURE2);
 	fbo->useFrameBuffer();
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);

@@ -461,7 +461,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width, _cross_bilateral_factor);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);

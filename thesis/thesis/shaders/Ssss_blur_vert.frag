@@ -116,9 +116,9 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 		
 		#ifndef CROSS_BILATERAL_FILTER
 			s = min(correction * abs(depthM - depth), 1.0);
+			colorS = mix(colorS, colorM, s);
 		#endif
 
-        vec3 color = mix(colorS, colorM, s);
 
 		float weight;
 		#ifdef ORIGINAL_FILTER
@@ -142,7 +142,7 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 		#endif
 
 
-        colorBlurred += weight * color;
+        colorBlurred += weight * colorS;
 		weigths += weight;
     }
     return vec4(colorBlurred/vec3(weigths), 1);

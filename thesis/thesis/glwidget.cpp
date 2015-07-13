@@ -37,7 +37,7 @@ void GLWidget::initializeGL()
 	{
 		core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 		core_engine_->initialize();
-		selectSSSMethod(1);
+		//selectSSSMethod(1);
 	}
 	catch(non_critical_exception e){
 		std::cout << "Error: \n" << e.what() << std::endl;
