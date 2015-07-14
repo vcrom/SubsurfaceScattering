@@ -208,7 +208,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, 
 	float translucency, float ambient_int, float specular_int, bool ssss_enabled, 
-	std::shared_ptr<Texture2D> diffuse_texture, std::shared_ptr<Texture2D> ao_texture, bool use_texture)
+	std::shared_ptr<Texture2D> diffuse_texture, std::shared_ptr<Texture2D> ao_texture, std::shared_ptr<Texture2D> normals_texture, bool use_texture)
 {
 	glEnable(GL_DEPTH_TEST);
 
@@ -222,6 +222,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	{
 		diffuse_texture->use(GL_TEXTURE2);
 		ao_texture->use(GL_TEXTURE3);
+		normals_texture->use(GL_TEXTURE4);
 	}
 
 	glEnable(GL_CULL_FACE);

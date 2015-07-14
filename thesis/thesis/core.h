@@ -38,7 +38,7 @@ public:
 	void unloadMesh();
 	void loadMeshDiffuseTexture(const std::string& path);
 	void loadMeshAOTexture(const std::string& path);
-	void loadMeshNormalTexture(const std::string& path);
+	void loadMeshNormalsTexture(const std::string& path);
 
 
 	//control
@@ -94,7 +94,7 @@ private:
 	TargetCamera _cam;
 
 	//Textures
-	std::shared_ptr<Texture2D> _background_texture, _mesh_diffuse_texture, _mesh_ao_texture,
+	std::shared_ptr<Texture2D> _background_texture, _mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture,
 		//shadow mapping(for each light)
 		_shadow_map_texture, _lineal_shadow_map_texture, 
 

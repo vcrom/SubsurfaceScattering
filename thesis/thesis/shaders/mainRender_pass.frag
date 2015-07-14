@@ -59,6 +59,7 @@ smooth in vec2 texture_coords;
 uniform int texture_enabled;
 uniform sampler2D diffuse_color_texture;
 uniform sampler2D ao_texture;
+uniform sampler2D normal_texture;
 uniform float z_far;
 ///////////////Main///////////////
 
