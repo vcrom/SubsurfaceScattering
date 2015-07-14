@@ -20,7 +20,7 @@ public:
 	void addNormals(const std::vector<glm::vec3> &normals);
 	void addColors(const std::vector<glm::vec4> &colors);
 	void addTexCoords(const std::vector<glm::vec2> &tex_coords);
-	//void addTangents(const std::vector<glm::vec3> &tangents);
+	void addTangents(const std::vector<glm::vec3> &tangents);
 	~Mesh();
 
 	BBox getBBox();
@@ -42,6 +42,7 @@ protected:
 	void fillNormalBuffer(GLfloat* pBuffer);
 	void fillColorBuffer(GLfloat* pBuffer);
 	void fillTexCoordsBuffer(GLfloat* pBuffer);
+	void fillTangentBuffer(GLfloat* pBuffer);
 
 
 private:
@@ -53,12 +54,13 @@ private:
 	void initializeNormalsBuffer();
 	void initializeColorBuffer();
 	void initializeTexCoordsBuffer();
+	void initializeTangentsBuffer();
 	void computeBBox();
 
 	GLuint vboNormalsId_, vboColorId_, vboTexCoordsId_, vboTangentsId_;
 	std::vector<unsigned int> vTable_;
 	std::vector<glm::vec2> tex_coords_;
-	std::vector<glm::vec3> vertices_, normals_;
+	std::vector<glm::vec3> vertices_, normals_, tangents_;
 	std::vector<glm::vec4> colors_;
 	BBox bbox_;
 	bool bbox_computed_;

@@ -124,7 +124,7 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 
 		#ifdef SIMPLE_COL_DIST_FILTER
 			//weight = w[i]*exp(-distance(rgb2luv(colorM), rgb2luv(colorS)));
-			weight = w[i]*exp(-distance(rgb2lab(colorM), rgb2lab(colorS)));
+			weight = w[i]*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)));
 			//weight = w[i]*exp(-distance(colorM, colorS));
 		#endif 
 		

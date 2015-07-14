@@ -47,6 +47,7 @@ smooth in vec4 mesh_color;
 smooth in float linear_depth;
 smooth in vec3 worldPosition;
 smooth in vec3 worldNormal;
+smooth in vec3 worldTangent;
 smooth in vec3 viewNormal;
 smooth in vec3 viewPos;
 //smooth in vec3 prev_vPosition;
@@ -192,8 +193,6 @@ vec3 transmittance(float translucency, float sss_width, vec3 world_position, vec
                     vec3(0.358, 0.004, 0.0)   * exp(dd / 1.99)   +
                     vec3(0.078, 0.0,   0.0)   * exp(dd / 7.41);
 
-	//return profile * max(0.3 + dot(-world_normal, light_vector), 0.0);
-
 	return profile * clamp(0.3 + dot(normalize(light_vector), -normalize(world_normal)), 0.0, 1.0);
 }
 /////////////Translucency/////////////
@@ -219,25 +218,47 @@ float computeCBFFactor(vec3 view_normal, vec3 view_pos)
 	return cos_a_i*cos_a_i*cos_a_i*norm*norm/cos_a_j;
 }
 
+vec3 bumpMap(sampler2D normalTex, vec2 texcoord) {
+    vec3 bump = vec3(-1.0) + vec3(2.0) * texture(normalTex, texcoord).rgb;
+    return normalize(bump);
+}
+
 void main()
 {
 
 	//CBF
 	FragCBFFactor = computeCBFFactor(normalize(viewNormal), viewPos);// (normalize(viewNormal)+1)/2;
 
-	//Main
+	//use normal map
 	vec3 N = normalize(worldNormal);
+	if(texture_enabled != 0)
+	{
+		vec3 tg = normalize(worldTangent);
+		vec3 bitg = normalize(cross(N, tg));
+		mat3 tbn = transpose(mat3(tg, bitg, N));
+		tbn = mat3(tg, bitg, N);
+
+		float bumpiness = 0.5;
+		vec3 tangent_normal = mix(vec3(0.0, 0.0, 1.0), bumpMap(normal_texture, texture_coords), bumpiness);
+		N = tbn*tangent_normal;
+	}
+
+	//Main
+	//vec3 N = normalize(worldNormal);
     vec3 V = normalize(view_vector);
 	vec4 albedo;
 	if(texture_enabled != 0)
 		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
 	else
 		albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
-	float intensity = 1.88;
-	float roughness = 0.3;
+
+	//float intensity = 1.88;
+	//float roughness = 0.3;
 
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	float occlusion = texture(ao_texture, texture_coords).r;
+
+	float occlusion = 1;
+	if(texture_enabled != 0) occlusion = texture(ao_texture, texture_coords).r;
 
 	//FragSpecularColor = 0;
 	//for all lights
@@ -304,4 +325,6 @@ void main()
 	//FragColor = vec4(mesh_color*col);
 	//FragColor = vec4(1,0, 1, 1);
 	//FragColor = vec4(texture(ao_texture, texture_coords).r);
+	//FragColor = vec4(bumpMap(normal_texture, texture_coords), 1);
+	//FragColor = vec4((N+1)/2, 1);
 }

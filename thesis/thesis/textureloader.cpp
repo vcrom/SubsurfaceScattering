@@ -32,5 +32,7 @@ std::shared_ptr<Texture2D> TextureLoader::Create2DTexture(const std::string& pat
 	tex->use();
 	//TODO: adapt the parameters for each image automatically
 	tex->loadBufferToTexture(0, internalformat, image.getWidth(), image.getHeight(), GL_BGR, GL_UNSIGNED_BYTE, image.getImageData());
+	tex->generateMipMaps();// glGenerateMipmap(GL_TEXTURE_2D);
+	tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	return tex;
 }

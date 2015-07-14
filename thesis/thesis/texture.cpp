@@ -99,3 +99,9 @@ GLint Texture::getBindedTextured()
 	checkCritOpenGLError();
 	return texture_binded;
 }
+
+void Texture::generateMipMaps()
+{
+	assert(isBinded());
+	glGenerateMipmap(_target);
+}

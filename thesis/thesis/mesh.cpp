@@ -103,6 +103,13 @@ void Mesh::addTexCoords(const std::vector<glm::vec2> &tex_coords)
 	initializeTexCoordsBuffer();
 }
 
+void Mesh::addTangents(const std::vector<glm::vec3> &tangents)
+{
+	assert(tangents.size() == tangents.size());
+	tangents_ = tangents;
+	initializeTangentsBuffer();
+}
+
 void Mesh::initializeNormalsBuffer()
 {
 	glGenBuffers(1, &vboNormalsId_);
@@ -159,6 +166,25 @@ void Mesh::initializeTexCoordsBuffer()
 	checkCritOpenGLError();
 }
 
+void Mesh::initializeTangentsBuffer()
+{
+	glGenBuffers(1, &vboTangentsId_);
+	glBindVertexArray(vaoId_);
+	glBindBuffer(GL_ARRAY_BUFFER, vboTangentsId_);
+	glBufferData(GL_ARRAY_BUFFER, totalVertices_ * sizeOfVertexElement(), 0, GL_STATIC_DRAW);
+
+	GLfloat* pBuffer = static_cast<GLfloat*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+	assert(pBuffer != nullptr);
+	fillTangentBuffer(pBuffer);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
+	assert(glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, vertexNumberOfComponents(), GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindVertexArray(0);
+	checkCritOpenGLError();
+}
+
 void Mesh::fillTexCoordsBuffer(GLfloat* pBuffer)
 {
 	glm::vec2 *tex_coord = (glm::vec2*)(pBuffer);
@@ -194,6 +220,12 @@ void Mesh::fillNormalBuffer(GLfloat* pBuffer)
 		norm[i] = normals_[i];
 }
 
+void Mesh::fillTangentBuffer(GLfloat* pBuffer)
+{
+	glm::vec3* tg = (glm::vec3*)(pBuffer);
+	for (glm::uint i = 0; i < totalVertices_; ++i)
+		tg[i] = tangents_[i];
+}
 unsigned int Mesh::getTotalVertices()
 {
 	return vertices_.size();

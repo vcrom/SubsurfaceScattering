@@ -44,6 +44,17 @@ inline std::vector<glm::vec3> getAiMeshNormals(std::unique_ptr<aiMesh>& mesh)
 	return normals;
 }
 
+inline std::vector<glm::vec3> getAiMeshTangents(std::unique_ptr<aiMesh>& mesh)
+{
+	std::vector<glm::vec3> tangents(mesh->mNumVertices);
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	{
+		aiVector3D tg = mesh->mTangents[i].Normalize();
+		tangents[i] = glm::vec3(tg.x, tg.y, tg.z);
+	}
+	return tangents;
+}
+
 inline std::vector<glm::vec4> getAiMeshColors(std::unique_ptr<aiMesh>& mesh)
 {
 	std::vector<glm::vec4> colors(mesh->mNumVertices);
@@ -78,7 +89,8 @@ std::unique_ptr<aiMesh> loadMeshFromFile(const std::string& path)
 		aiProcess_FixInfacingNormals |
 		aiProcess_FindInvalidData |
 		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality
+		aiProcess_ImproveCacheLocality |
+		aiProcess_CalcTangentSpace
 		);
 
 	if (!scene)
@@ -98,6 +110,7 @@ inline void meshInfo(const std::unique_ptr<aiMesh>& mesh)
 	std::cout << "\t #UV Channels " << mesh->GetNumUVChannels() << std::endl;
 	if (mesh->HasTextureCoords(0)) std::cout << "\t Has texcoords" << std::endl;
 	if (mesh->HasTangentsAndBitangents()) std::cout << "\t Has Tangents and bitangents" << std::endl;
+	else std::cout << "\t No has Tangents and bitangents" << std::endl;
 }
 
 #include <iostream>
@@ -146,7 +159,7 @@ std::shared_ptr<Mesh> MeshImporter::importMeshFromFile(const std::string& path, 
 	}
 	if (mesh->HasTangentsAndBitangents())
 	{
-
+		return_mesh->addTangents(getAiMeshTangents(mesh));
 	}
 
 	mesh.release();

@@ -4,6 +4,7 @@ layout(location = 0) in vec3 vVertex;
 layout(location = 1) in vec3 vNormal;
 layout(location = 2) in vec4 vColor;
 layout(location = 3) in vec2 vTexCoords;
+layout(location = 4) in vec3 vTangent;
 
 
 //uniforms
@@ -22,6 +23,7 @@ smooth out vec4 mesh_color;
 smooth out float linear_depth;
 smooth out vec3 worldPosition;
 smooth out vec3 worldNormal;
+smooth out vec3 worldTangent;
 smooth out vec3 viewNormal;
 smooth out vec3 viewPos;
 //smooth out vec3 prev_vPosition;
@@ -46,6 +48,7 @@ void main()
 	worldPosition = world_pos.xyz;
 	view_vector = m_camera_pos - worldPosition;
 	worldNormal = vec4(worldInverseTransposeM*vec4(vNormal, 1)).xyz;
+	worldTangent = vec4(worldInverseTransposeM*vec4(vTangent, 1)).xyz;
 	viewNormal = vec4(viewInverseTransposeM*vec4(worldNormal, 1)).xyz;
 	//color
 	mesh_color = vColor;

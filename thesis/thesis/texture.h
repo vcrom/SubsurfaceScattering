@@ -29,6 +29,7 @@ public:
 	void setTexParameter(GLenum pname, GLfloat param);
 	void setTexParameter(GLenum pname, const GLint *param);
 	void setTexParameter(GLenum pname, const GLfloat *param);
+	void generateMipMaps();
 
 protected:
 	GLenum _target, _internal_format;
