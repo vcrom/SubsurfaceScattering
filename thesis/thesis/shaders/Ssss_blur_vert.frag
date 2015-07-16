@@ -132,7 +132,7 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 		#endif 
 		
 		#ifdef SIMPLE_BILATERAL_FILTER
-			weight = w[i]*exp(-distance(rgb2lab(colorM), rgb2lab(colorS)))*exp(-abs(length(despl)));
+			weight = w[i]*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)))*exp(-abs(length(despl)));
 			//weight = w[i]*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
@@ -163,5 +163,5 @@ void main(void)
 		//vBlur = vFColor; 
 		//vBlur = BlurSSSSPas;
 		//vBlur = vec4(1, 0, 0, 1);
-		//vBlur = vec4(vec3(texture2D(lineal_depth_texture, vUV).r), 1);
+		//vBlur = vec4(vec3(texture2D(cross_bilateral_factor, vUV).r), 1);
  }

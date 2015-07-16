@@ -4,6 +4,7 @@ layout(location = 0) out vec4 FragColor;
 layout(location = 1) out float FragLinearDepth;
 layout(location = 2) out vec3 FragSpecularColor;
 layout(location = 3) out float FragCBFFactor;
+layout(location = 4) out float FragCurvature;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 #define SEPARATE_SPECULARS
@@ -43,12 +44,13 @@ uniform sampler2D lightLinearShadowMap;
 ////////////////////////////////////////
 
 ///////////////Main///////////////
+uniform mat4 viewInverseTransposeM; 
 smooth in vec4 mesh_color;
 smooth in float linear_depth;
 smooth in vec3 worldPosition;
 smooth in vec3 worldNormal;
 smooth in vec3 worldTangent;
-smooth in vec3 viewNormal;
+//smooth in vec3 viewNormal;
 smooth in vec3 viewPos;
 //smooth in vec3 prev_vPosition;
 //smooth in vec3 curr_vPosition;
@@ -223,12 +225,26 @@ vec3 bumpMap(sampler2D normalTex, vec2 texcoord) {
     return normalize(bump);
 }
 
+#extension GL_OES_standard_derivatives : enable
+//http://madebyevan.com/shaders/curvature/
+float curvature(vec3 N, vec3 normal, vec3 screen_pos)
+{
+	//normal = N;
+	vec3 dx = dFdx(normal);
+	vec3 dy = dFdy(normal);
+	vec3 xneg = normal - dx;
+	vec3 xpos = normal + dx;
+	vec3 yneg = normal - dy;
+	vec3 ypos = normal + dy;
+	float depth = length(screen_pos);
+	float curvature = (cross(xneg, xpos).y - cross(yneg, ypos).x) * 4 / depth;
+	return curvature;
+}
+
+
 void main()
 {
-
-	//CBF
-	FragCBFFactor = computeCBFFactor(normalize(viewNormal), viewPos);// (normalize(viewNormal)+1)/2;
-
+	//Main
 	//use normal map
 	vec3 N = normalize(worldNormal);
 	if(texture_enabled != 0)
@@ -240,25 +256,36 @@ void main()
 
 		float bumpiness = 0.5;
 		vec3 tangent_normal = mix(vec3(0.0, 0.0, 1.0), bumpMap(normal_texture, texture_coords), bumpiness);
-		N = tbn*tangent_normal;
+		N = normalize(tbn*tangent_normal);
 	}
 
-	//Main
+	vec3 view_normal = normalize(vec4(viewInverseTransposeM*vec4(normalize(worldNormal), 1)).xyz);
+	vec3 aux_N = normalize(vec4(viewInverseTransposeM*vec4(N, 1)).xyz);
+	float curvature = curvature(aux_N, view_normal, viewPos);
+	//FragCurvature = curvature(N, viewPos);
+
+	//CBF
+	FragCBFFactor = computeCBFFactor(aux_N, viewPos);// (normalize(viewNormal)+1)/2;
+
 	//vec3 N = normalize(worldNormal);
     vec3 V = normalize(view_vector);
-	vec4 albedo;
+	vec4 albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);;
+	float occlusion = 1;
 	if(texture_enabled != 0)
+	{
 		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
-	else
-		albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
+		occlusion = texture(ao_texture, texture_coords).r;
+	}
+	//else
+	//	albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
 
 	//float intensity = 1.88;
 	//float roughness = 0.3;
 
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	float occlusion = 1;
-	if(texture_enabled != 0) occlusion = texture(ao_texture, texture_coords).r;
+	//float occlusion = 1;
+	//if(texture_enabled != 0) occlusion = texture(ao_texture, texture_coords).r;
 
 	//FragSpecularColor = 0;
 	//for all lights
@@ -325,6 +352,11 @@ void main()
 	//FragColor = vec4(mesh_color*col);
 	//FragColor = vec4(1,0, 1, 1);
 	//FragColor = vec4(texture(ao_texture, texture_coords).r);
-	//FragColor = vec4(bumpMap(normal_texture, texture_coords), 1);
+	//FragColor = vec4(bumpMap(normal_texture, texture_coords), 1);view_normal
 	//FragColor = vec4((N+1)/2, 1);
+	//FragColor = vec4((aux_N+1)/2, 1);
+	//FragColor = vec4((view_normal+1)/2, 1);
+	//FragColor = vec4(vec3(curvature*2-1), 1);
+	//FragColor = vec4(vec3(dFdx(worldNormal)), 1);
+
 }

@@ -85,8 +85,8 @@ float rgb2gray(vec3 rgb)
 //////////////////////////////////////////////////
 
 //#define ORIGINAL_FILTER
-#define SIMPLE_COL_DIST_FILTER
-//#define SIMPLE_BILATERAL_FILTER
+//#define SIMPLE_COL_DIST_FILTER
+#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
 vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture)
 {
@@ -129,7 +129,7 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 		#endif 
 		
 		#ifdef SIMPLE_BILATERAL_FILTER
-			weight = w[i]*exp(-distance(rgb2lab(colorM), rgb2lab(colorS)))*exp(-abs(length(despl)));
+			weight = w[i]*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)))*exp(-abs(length(despl)));
 			//weight = w[i]*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
@@ -149,4 +149,5 @@ void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
         vFColor = BlurSSSSPas(sssStrength, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture);
+
  }

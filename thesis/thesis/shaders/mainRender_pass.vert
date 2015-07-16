@@ -24,7 +24,7 @@ smooth out float linear_depth;
 smooth out vec3 worldPosition;
 smooth out vec3 worldNormal;
 smooth out vec3 worldTangent;
-smooth out vec3 viewNormal;
+//smooth out vec3 viewNormal;
 smooth out vec3 viewPos;
 //smooth out vec3 prev_vPosition;
 //smooth out vec3 curr_vPosition;
@@ -49,13 +49,13 @@ void main()
 	view_vector = m_camera_pos - worldPosition;
 	worldNormal = vec4(worldInverseTransposeM*vec4(vNormal, 1)).xyz;
 	worldTangent = vec4(worldInverseTransposeM*vec4(vTangent, 1)).xyz;
-	viewNormal = vec4(viewInverseTransposeM*vec4(worldNormal, 1)).xyz;
+	//viewNormal = vec4(viewInverseTransposeM*vec4(worldNormal, 1)).xyz;
 	//color
 	mesh_color = vColor;
 
 	//lineal depth
 	vec4 view_pos = viewM * world_pos;
-	viewPos = view_pos.xyz;
+	viewPos = view_pos.xyz;///view_pos.w;
 	//linear depth 0..1
 	linear_depth = -(view_pos.z / view_pos.w) / z_far;
 
