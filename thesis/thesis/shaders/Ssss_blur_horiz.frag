@@ -1,18 +1,19 @@
 #version 330
-precision highp float;
+//precision highp float;
 layout(location=0) out vec4 vFColor;
-
 
 uniform sampler2D color_texture;
 uniform sampler2D lineal_depth_texture;
+uniform sampler2D pinpong_texture;
 
-uniform float correction = 10;//0.0125*800
+uniform float correction = 800;
 uniform float sssStrength = 15.75;
 uniform vec2 pixel_size;
 uniform vec4 gaussian;
 const vec2 dir = vec2(1, 0);
 
 smooth in vec2 vUV;
+
 
 const float w[7] = float[](0.006,   0.061,   0.242, 0.382, 0.242,  0.061, 0.006 );
 const float o[7] = float[](-1.0, -0.6667, -0.3333, 0, 0.3333, 0.6667,   1.0 );
@@ -84,9 +85,9 @@ float rgb2gray(vec3 rgb)
 }
 //////////////////////////////////////////////////
 
-//#define ORIGINAL_FILTER
+#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-#define SIMPLE_BILATERAL_FILTER
+//#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
 vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture)
 {
@@ -94,8 +95,8 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
     vec3 colorM = texture2D(color_texture, vUV).rgb;
     float depthM = texture2D(depth_texture, vUV).r;
     vec2 finalStep = /*colorM.a */ step / depthM;
-	finalStep/= 3;
-	finalStep = step;
+	//finalStep/= 3;
+	//finalStep = step;
 
 	#ifdef CROSS_BILATERAL_FILTER
 		float I_p = rgb2gray(colorM)*texture(cross_bilateral_factor, vUV).r;
@@ -116,6 +117,7 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 			s = min(correction * abs(depthM - depth), 1.0);
 			colorS = mix(colorS, colorM, s);
 		#endif
+
 
 		float weight;
 		#ifdef ORIGINAL_FILTER

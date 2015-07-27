@@ -309,28 +309,28 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	{
 		idx = i % 2;
 		fbo->useFrameBuffer(1);
-		fbo->colorBuffer(rt1_tex->getTextureID(), 0);
+		fbo->colorBuffer(rt2_tex->getTextureID(), 0);
 		horizontal->use();
 		glUniform4fv(horizontal->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
 		quad->render();
 
-		rt1_tex->use(GL_TEXTURE0);
+		rt2_tex->use(GL_TEXTURE0);
 		fbo->useFrameBuffer(2);
-		fbo->colorBuffer(rt2_tex->getTextureID(), 0);
+		fbo->colorBuffer(rt1_tex->getTextureID(), 0);
 		fbo->colorBuffer(pingpong_tex[idx]->getTextureID(), 1);
 		pingpong_tex[(i + 1) % 2]->use(GL_TEXTURE2);
 		vertical->use();
 		glUniform4fv(vertical->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
 		quad->render();
-		rt2_tex->use(GL_TEXTURE0);
+		rt1_tex->use(GL_TEXTURE0);
 	}
 
-	if (idx != 0)
-	{
+	//if (idx != 0)
+	//{
 		fbo->useFrameBuffer(1);
 		fbo->colorBuffer(sss_tex->getTextureID(), 0);
 		renderTexture(fbo, pingpong_tex[idx]);
-	}
+	//}
 
 	checkCritOpenGLError();
 	glEnable(GL_DEPTH_TEST);

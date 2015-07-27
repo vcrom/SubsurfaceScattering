@@ -1,5 +1,5 @@
 #version 330
-precision highp float;
+//precision highp float;
 layout(location=0) out vec4 vFColor;
 layout(location=1) out vec4 vBlur;
 
@@ -86,8 +86,8 @@ float rgb2gray(vec3 rgb)
 }
 //////////////////////////////////////////////////
 
-//#define ORIGINAL_FILTER
-#define SIMPLE_COL_DIST_FILTER
+#define ORIGINAL_FILTER
+//#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
 vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture)
@@ -96,8 +96,8 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
     vec3 colorM = texture2D(color_texture, vUV).rgb;
     float depthM = texture2D(depth_texture, vUV).r;
     vec2 finalStep = /*colorM.a */ step / depthM;
-	finalStep/= 3;
-	finalStep = step;
+	//finalStep/= 3;
+	//finalStep = step;
 
 	#ifdef CROSS_BILATERAL_FILTER
 		float I_p = rgb2gray(colorM)*texture(cross_bilateral_factor, vUV).r;
