@@ -227,9 +227,8 @@ vec3 bumpMap(sampler2D normalTex, vec2 texcoord) {
 
 #extension GL_OES_standard_derivatives : enable
 //http://madebyevan.com/shaders/curvature/
-float curvature(vec3 N, vec3 normal, vec3 screen_pos)
+float screenSpaceCurvature(vec3 normal, vec3 screen_pos)
 {
-	//normal = N;
 	vec3 dx = dFdx(normal);
 	vec3 dy = dFdy(normal);
 	vec3 xneg = normal - dx;
@@ -261,8 +260,9 @@ void main()
 
 	vec3 view_normal = normalize(vec4(viewInverseTransposeM*vec4(normalize(worldNormal), 1)).xyz);
 	vec3 aux_N = normalize(vec4(viewInverseTransposeM*vec4(N, 1)).xyz);
-	float curvature = curvature(aux_N, view_normal, viewPos);
-	//FragCurvature = curvature(N, viewPos);
+	float curvature = screenSpaceCurvature(aux_N, viewPos);
+	//curvature = screenSpaceCurvature(view_normal, viewPos);
+	FragCurvature = curvature;
 
 	//CBF
 	FragCBFFactor = computeCBFFactor(aux_N, viewPos);// (normalize(viewNormal)+1)/2;
@@ -356,7 +356,8 @@ void main()
 	//FragColor = vec4((N+1)/2, 1);
 	//FragColor = vec4((aux_N+1)/2, 1);
 	//FragColor = vec4((view_normal+1)/2, 1);
-	//FragColor = vec4(vec3(curvature*2-1), 1);
+	//FragColor = vec4(vec3(abs(curvature)), 1);
 	//FragColor = vec4(vec3(dFdx(worldNormal)), 1);
+	//FragColor = vec4(vec3(dFdy(worldNormal)), 1);
 
 }

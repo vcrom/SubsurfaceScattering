@@ -224,8 +224,8 @@ void Core::initializeTextures()
 
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
-	//loadMeshAOTexture("textures/AO.jpg");
-	loadMeshAOTexture("textures/tests_AO.png");
+	loadMeshAOTexture("textures/AO.jpg");
+	//loadMeshAOTexture("textures/tests_AO.png");
 	loadMeshNormalsTexture("textures/normals.jpg");
 	checkCritOpenGLError();
 
