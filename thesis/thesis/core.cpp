@@ -220,7 +220,10 @@ void Core::initializeTextures()
 
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
-	_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
+	//_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
+	//_background_texture = TextureLoader::Create2DTexture("textures/grass.jpg");
+	_background_texture = TextureLoader::Create2DTexture("textures/forest.jpg");
+	//_background_texture = TextureLoader::Create2DTexture("textures/tris.jpg");
 
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
@@ -406,6 +409,12 @@ void Core::shadowMapPass()
 	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());
 }
 
+void getMinViewZPoint()
+{
+
+}
+
+#include<algorithm>
 /// <summary>
 /// Mains the render pass, which renders the scene(head)
 /// </summary>
@@ -433,7 +442,19 @@ void Core::mainRenderPass()
 
 	checkCritOpenGLError();
 
-	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), 
+	BBox bbox = _object->getBBox();
+	std::vector<glm::vec3> box_points = bbox.getAllBoxPoints();
+	glm::mat4 modelView = _cam.getViewMatrix()*_object->getTransformations();
+	float min_z = -100000000000;
+	for (auto point : box_points)
+	{
+		glm::vec4 view_pt = modelView*glm::vec4(point.x, point.y, point.z, 1);
+		min_z = max(view_pt.z, min_z);
+	}
+	min_z = max(-_cam.getZfar(), min_z);
+	std::cout << "max view Z: " << min_z << std::endl;
+
+	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), min_z,
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
 		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, true);
@@ -477,7 +498,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
 
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength, _cross_bilateral_factor);
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);

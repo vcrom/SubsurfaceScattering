@@ -30,15 +30,15 @@ public:
 	static void translucency(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, std::shared_ptr<Texture2D> lineal_deepth_tex, float z_far, glm::mat4 V_L, glm::mat4 P_L, glm::vec3 light_pos);
 	static void renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, 
 		glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, 
-		glm::vec3 camera_pos, float z_far, 
-		glm::vec3 light_pos, std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
+		glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float min_view_z,
+		std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 		std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, 
 		float sss_width, float translucency, float ambient_int, float specular_int, bool ssss_enabled = true, 
 		std::shared_ptr<Texture2D> diffuse_texture = nullptr, std::shared_ptr<Texture2D> ao_texture = nullptr, std::shared_ptr<Texture2D> normals_texture = nullptr, 
 		bool use_texture = false);
 
 
-	static void SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth, std::shared_ptr<Texture2D> cross_bilateral_factor);
+	static void SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor);
 	static void separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor);
 	static void computeSeparableKernel(int num_samples, const glm::vec3 &sss_strength, std::vector<float> &falloff);
 	static void setSeparableKernels();

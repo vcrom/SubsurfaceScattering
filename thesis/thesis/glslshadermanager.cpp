@@ -236,6 +236,7 @@ void GlslShaderManager::initMainRenderShader()
 	glUniform1i(shader("normal_texture"), 4);
 
 	shader.addUniform("viewInverseTransposeM");
+	shader.addUniform("min_z");
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -256,7 +257,8 @@ void GlslShaderManager::initSSSSHori()
 	shader.addUniform("pixel_size");
 	shader.addUniform("gaussian");
 	shader.addUniform("correction");
-	shader.addUniform("sssStrength");
+	shader.addUniform("sssWidth");
+	shader.addUniform("cam_fovy");
 	shader.addUniform("color_texture"); 
 	glUniform1i(shader("color_texture"), 0);
 	shader.addUniform("lineal_depth_texture");
@@ -285,7 +287,8 @@ void GlslShaderManager::initSSSSVert()
 	shader.addUniform("pixel_size");
 	shader.addUniform("gaussian");
 	shader.addUniform("correction");
-	shader.addUniform("sssStrength");
+	shader.addUniform("sssWidth");
+	shader.addUniform("cam_fovy");
 	shader.addUniform("color_texture");
 	glUniform1i(shader("color_texture"), 0);
 	shader.addUniform("lineal_depth_texture");

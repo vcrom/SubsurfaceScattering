@@ -165,10 +165,10 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 	float distanceToProjectionWindow = 1.0 / tan(0.5 * fovy);//fovy in rads
     float scale = distanceToProjectionWindow / depthM;
 
-	// Calculate the final step to fetch the surrounding pixels:
+    // Calculate the final step to fetch the surrounding pixels:
     vec2 finalStep = sssWidth * scale * dir;
     finalStep *= SSSS_STREGTH_SOURCE; // Modulate it using the alpha channel.
-    finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
+    finalStep *= 1.0 / 3.0;//(3.0*sssWidth);//3.0; // Divide by 3 as the kernels range from -3 to 3.
 
 	// Accumulate the center sample:
     vec4 colorBlurred = vec4(0);//colorM;
@@ -224,7 +224,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 
 void main()
 {
-    vFragColor = SSSSBlurPS(vUV, color_texture, lineal_depth_texture,  sssWidth,  vec2(1, 0), cam_fovy, true);
+    vFragColor = SSSSBlurPS(vUV, color_texture, lineal_depth_texture, sssWidth,  vec2(1, 0), cam_fovy, true);
 	
 	//vFragColor = vec4(texture(lineal_depth_texture, vUV).r);
 }

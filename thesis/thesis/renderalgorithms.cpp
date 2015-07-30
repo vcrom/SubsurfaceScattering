@@ -204,7 +204,7 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 	return glIsEnabled(param);
 }
 
-void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, 
+void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float min_view_z,
 	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, 
 	float translucency, float ambient_int, float specular_int, bool ssss_enabled, 
@@ -231,6 +231,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::MAIN_RENDER_SHADER);
 	fbo->useFrameBuffer(4);
 
+	//shader.addUniform("min_z");
 	shader->use();
 		//vert
 		glUniformMatrix4fv(shader->operator()("curr_WorldViewProjM"), 1, GL_FALSE, glm::value_ptr(P*V*M));
@@ -245,9 +246,8 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 		glUniform3fv(shader->operator()("light_position"), 1, glm::value_ptr(light_pos)); 
 		glUniform1f(shader->operator()("m_ambientcomp"), ambient_int);
 		glUniform1f(shader->operator()("spec_int"), specular_int);
+		
 		glUniformMatrix4fv(shader->operator()("lightViewProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L * V_L));
-
-
 		glUniformMatrix4fv(shader->operator()("lightViewM"), 1, GL_FALSE, glm::value_ptr(V_L));
 		glUniformMatrix4fv(shader->operator()("lightProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L));
 		glUniform1f(shader->operator()("light_far_plane"), light_far_plane);
@@ -256,6 +256,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 		glUniform1i(shader->operator()("sssEnabled"), int(ssss_enabled));
 
 		glUniform1i(shader->operator()("texture_enabled"), int(use_texture));
+		glUniform1f(shader->operator()("min_z"), min_view_z);
 		checkCritOpenGLError();
 
 		mesh->render();
@@ -278,7 +279,7 @@ std::vector<glm::vec4> initGaussians()
 std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
 
 
-void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssStrenth, std::shared_ptr<Texture2D> cross_bilateral_factor)
+void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor)
 {
 	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
 
@@ -286,13 +287,15 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SSSS_VERTICAL_BLUR);
 
 	horizontal->use();
+	glUniform1f(horizontal->operator()("cam_fovy"), cam_fovy);
 	glUniform2fv(horizontal->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
 	glUniform1f(horizontal->operator()("correction"), correction);
-	glUniform1f(horizontal->operator()("sssStrength"), sssStrenth);
+	glUniform1f(horizontal->operator()("sssWidth"), sssWidth);
 	vertical->use();
+	glUniform1f(vertical->operator()("cam_fovy"), cam_fovy);
 	glUniform2fv(vertical->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
 	glUniform1f(vertical->operator()("correction"), correction);
-	glUniform1f(vertical->operator()("sssStrength"), sssStrenth);
+	glUniform1f(vertical->operator()("sssWidth"), sssWidth);
 
 	ScreenQuad* quad = ScreenQuad::getInstanceP();
 

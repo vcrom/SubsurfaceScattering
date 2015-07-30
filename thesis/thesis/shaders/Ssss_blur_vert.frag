@@ -7,8 +7,9 @@ uniform sampler2D color_texture;
 uniform sampler2D lineal_depth_texture;
 uniform sampler2D pinpong_texture;
 
+uniform float cam_fovy;
 uniform float correction = 800;
-uniform float sssStrength = 15.75;
+uniform float sssWidth = 15.75;
 uniform vec2 pixel_size;
 uniform vec4 gaussian;
 const vec2 dir = vec2(0, 1);
@@ -21,6 +22,7 @@ const float o[7] = float[](-1.0, -0.6667, -0.3333, 0, 0.3333, 0.6667,   1.0 );
 
 uniform sampler2D cross_bilateral_factor;
 
+#define saturate(a) clamp(a, 0.0, 1.0)
 ///////////////AUX COLOR TRANSFORMS///////////////
 vec3 rgb2lab(in vec3 rgb){
     // threshold
@@ -90,15 +92,30 @@ float rgb2gray(vec3 rgb)
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
-vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture)
+vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture, float fovy)
 {
-    vec2 step = sssStrength * gauss_size * pixel_size * dir;
-    vec3 colorM = texture2D(color_texture, vUV).rgb;
-    float depthM = texture2D(depth_texture, vUV).r;
-    vec2 finalStep = /*colorM.a */ step / depthM;
+    //vec2 step = sssWidth * gauss_size * pixel_size * dir;
+    //vec3 colorM = texture2D(color_texture, vUV).rgb;
+    //float depthM = texture2D(depth_texture, vUV).r;
+    //vec2 finalStep = /*colorM.a */ step / depthM;
 	//finalStep/= 3;
 	//finalStep = step;
 
+	// Fetch linear depth of current pixel:
+    float depthM = texture(depth_texture, vUV).r;
+
+	// Calculate the sssWidth scale (1.0 for a unit plane sitting on the
+    // projection window):
+	float distanceToProjectionWindow = 1.0 / tan(0.5 * fovy);//fovy in rads
+    float scale = distanceToProjectionWindow / depthM;
+
+	// Calculate the final step to fetch the surrounding pixels:
+	sssWidth *= 0.1;
+    vec2 finalStep = gauss_size*sssWidth * scale * dir;
+    //finalStep *= SSSS_STREGTH_SOURCE; // Modulate it using the alpha channel.
+    finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
+
+    vec3 colorM = texture2D(color_texture, vUV).rgb;
 	#ifdef CROSS_BILATERAL_FILTER
 		float I_p = rgb2gray(colorM)*texture(cross_bilateral_factor, vUV).r;
 	#endif
@@ -114,8 +131,10 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
         float depth = texture2D(depth_texture, offset).r;
         float s = 0;
 		
+
 		#ifndef CROSS_BILATERAL_FILTER
 			s = min(correction * abs(depthM - depth), 1.0);
+			//s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
 			colorS = mix(colorS, colorM, s);
 		#endif
 
@@ -151,7 +170,7 @@ vec4 BlurSSSSPas(float sssStrength, float gauss_size, vec2 pixel_size, vec2 dir,
 void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
-        vFColor = BlurSSSSPas(sssStrength, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture);
+        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
 
 		vec4 src_col = vFColor;
 		vec3 dest_col = texture2D(pinpong_texture, vUV).rgb;
