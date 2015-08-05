@@ -442,19 +442,23 @@ void Core::mainRenderPass()
 
 	checkCritOpenGLError();
 
-	BBox bbox = _object->getBBox();
-	std::vector<glm::vec3> box_points = bbox.getAllBoxPoints();
-	glm::mat4 modelView = _cam.getViewMatrix()*_object->getTransformations();
-	float min_z = -100000000000;
-	for (auto point : box_points)
-	{
-		glm::vec4 view_pt = modelView*glm::vec4(point.x, point.y, point.z, 1);
-		min_z = max(view_pt.z, min_z);
-	}
-	min_z = max(-_cam.getZfar(), min_z);
-	std::cout << "max view Z: " << min_z << std::endl;
+	//BBox bbox = _object->getBBox();
+	//std::vector<glm::vec3> box_points = bbox.getAllBoxPoints();
+	//glm::mat4 modelView = _cam.getViewMatrix()*_object->getTransformations();
+	//float min_z = 100000000000;
+	//float max_z = -100000000000;
+	//for (auto point : box_points)
+	//{
+	//	glm::vec4 view_pt = modelView*glm::vec4(point.x, point.y, point.z, 1);
+	//	min_z = min(view_pt.z, min_z);
+	//	max_z = max(view_pt.z, max_z);
+	//}
+	//min_z = min(-_cam.getZfar(), min_z);
+	//max_z = max(-_cam.getZnear(), max_z);
+	//std::cout << "max view Z: " << min_z << std::endl;
 
-	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, _cam.getPosition(), _cam.getZfar(), _light->getPosition(), min_z,
+	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, 
+		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(),
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
 		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, true);
@@ -485,7 +489,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width, _cross_bilateral_factor);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*0.9, _cross_bilateral_factor);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -732,7 +736,7 @@ void Core::setTranslucency(float t)
 void Core::setSSWidth(float w)
 {
 	_sss_width = w;
-	float factor = 12.75 / 0.005;
+	float factor = 0.9;
 	_sssStrength = factor*_sss_width;
 }
 

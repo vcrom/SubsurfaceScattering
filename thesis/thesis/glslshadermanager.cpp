@@ -235,8 +235,8 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addUniform("normal_texture"); 
 	glUniform1i(shader("normal_texture"), 4);
 
-	shader.addUniform("viewInverseTransposeM");
-	shader.addUniform("min_z");
+	shader.addUniform("viewInverseTransposeM"); 
+	shader.addUniform("z_near");
 	shader.unUse();
 	checkCritOpenGLError();
 

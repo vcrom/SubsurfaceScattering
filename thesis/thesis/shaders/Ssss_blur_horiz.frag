@@ -11,7 +11,6 @@ uniform float correction = 800;
 uniform float sssWidth = 15.75;
 uniform vec2 pixel_size;
 uniform vec4 gaussian;
-const vec2 dir = vec2(1, 0);
 
 smooth in vec2 vUV;
 
@@ -170,6 +169,6 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
-        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
+        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, vec2(1, 0), correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
 
  }

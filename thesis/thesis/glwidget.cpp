@@ -18,6 +18,7 @@ GLWidget::GLWidget(QWidget *parent)
 	////newFormat.setSampleBuffers(true);
 	//newFormat.setSamples(16);
 	//this->setFormat(newFormat);
+	_previous_path = "./";
 
 }
 
@@ -118,41 +119,45 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 	}
 	else if (event->key() == Qt::Key_M)
 	{
-		QString filename = QFileDialog::getOpenFileName(this, tr("Load Mesh"), "./", tr("PLY Files (*.ply);;All files (*)"));
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load Mesh"), _previous_path, tr("PLY Files (*.ply);;All files (*)"));
 		if (!filename.isNull())
 		{
 			makeCurrent();
 			core_engine_->loadMesh(filename.toStdString());
+			_previous_path = filename.left(filename.lastIndexOf("/"));
 		}
 		update();
 	}
 	else if (event->key() == Qt::Key_N)
 	{
-		QString filename = QFileDialog::getOpenFileName(this, tr("Load Diffuse tex"), "./", tr("Image Files (*.png *.jpg *.bmp)"));
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load Diffuse tex"), _previous_path, tr("Image Files (*.png *.jpg *.bmp)"));
 		if (!filename.isNull())
 		{
 			makeCurrent();
 			core_engine_->loadMeshDiffuseTexture(filename.toStdString());
+			_previous_path = filename.left(filename.lastIndexOf("/"));
 		}
 		update();
 	}
 	else if (event->key() == Qt::Key_B)
 	{
-		QString filename = QFileDialog::getOpenFileName(this, tr("Load AO tex"), "./", tr("Image Files (*.png *.jpg *.bmp)"));
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load AO tex"), _previous_path, tr("Image Files (*.png *.jpg *.bmp)"));
 		if (!filename.isNull())
 		{
 			makeCurrent();
 			core_engine_->loadMeshAOTexture(filename.toStdString());
+			_previous_path = filename.left(filename.lastIndexOf("/"));
 		}
 		update();
 	}
 	else if (event->key() == Qt::Key_V)
 	{
-		QString filename = QFileDialog::getOpenFileName(this, tr("Load Normals tex"), "./", tr("Image Files (*.png *.jpg *.bmp)"));
+		QString filename = QFileDialog::getOpenFileName(this, tr("Load Normals tex"), _previous_path, tr("Image Files (*.png *.jpg *.bmp)"));
 		if (!filename.isNull())
 		{
 			makeCurrent();
 			core_engine_->loadMeshNormalsTexture(filename.toStdString());
+			_previous_path = filename.left(filename.lastIndexOf("/"));
 		}
 		update();
 	}

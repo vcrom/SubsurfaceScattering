@@ -45,6 +45,7 @@ protected:
 
 private:
 	Core *core_engine_;
+	QString _previous_path;
 };
 
 #endif // GLWIDGET_H

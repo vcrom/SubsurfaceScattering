@@ -12,7 +12,6 @@ uniform float correction = 800;
 uniform float sssWidth = 15.75;
 uniform vec2 pixel_size;
 uniform vec4 gaussian;
-const vec2 dir = vec2(0, 1);
 
 smooth in vec2 vUV;
 
@@ -170,13 +169,14 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
-        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, dir, correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
+        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, vec2(0, 1), correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
 
 		vec4 src_col = vFColor;
 		vec3 dest_col = texture2D(pinpong_texture, vUV).rgb;
-		vBlur = vec4(src_col.r*gaussian.g + dest_col.r*(1-gaussian.g),
-                    src_col.g*gaussian.b + dest_col.g*(1-gaussian.b),
-                    src_col.b*gaussian.a + dest_col.b*(1-gaussian.a), 1);
+		vBlur = vec4(vFColor.r*gaussian.g + dest_col.r*(1.0-gaussian.g),
+                    vFColor.g*gaussian.b + dest_col.g*(1.0-gaussian.b),
+                    vFColor.b*gaussian.a + dest_col.b*(1.0-gaussian.a), 1);
+		//vBlur = vFColor;
 
 		//vBlur = texture2D(pinpong_texture, vUV).rgba;
 		//vBlur = vFColor; 

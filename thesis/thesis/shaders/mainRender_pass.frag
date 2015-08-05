@@ -57,7 +57,7 @@ smooth in vec3 viewPos;
 smooth in vec3 view_vector;
 uniform float m_ambientcomp = 0.61;
 uniform float spec_int = 0.5;
-uniform float min_z;
+uniform float z_near = 0;
 
 smooth in vec2 texture_coords;
 uniform int texture_enabled;
@@ -211,13 +211,13 @@ vec3 transmittance(float translucency, float sss_width, vec3 world_position, vec
 //}
 
 //precision highp float;
-float computeCBFFactor(vec3 view_normal, vec3 view_pos)
+float computeCBFFactor(vec3 view_normal, vec3 view_pos, float z_near)
 {
 	vec3 w = -normalize(view_pos);
-	float cos_a_i = dot(vec3(0,0,-1), -w);
-	float cos_a_j = dot(view_normal, w);
+	float cos_a_i = abs(dot(vec3(0,0,-1), -w));
+	float cos_a_j = abs(dot(view_normal, w));
 	//view_pos.z = 5*view_pos.z/z_far;
-	float norm = length(view_pos);
+	float norm = length(vec3(view_pos.xy, -z_near));
 	return cos_a_i*cos_a_i*cos_a_i*norm*norm/cos_a_j;
 }
 
@@ -266,7 +266,8 @@ void main()
 	FragCurvature = curvature;
 
 	//CBF
-	FragCBFFactor = computeCBFFactor(view_normal/*aux_N*/, vec3(viewPos.xy, viewPos.z/*-min_z*/));// (normalize(viewNormal)+1)/2;
+	FragCBFFactor = computeCBFFactor(/*view_normal*/aux_N, vec3(viewPos.xy, viewPos.z), z_near);// (normalize(viewNormal)+1)/2;
+	//FragCBFFactor /= max_cbf_factor;
 
 	//vec3 N = normalize(worldNormal);
     vec3 V = normalize(view_vector);
@@ -357,9 +358,10 @@ void main()
 	//FragColor = vec4((N+1)/2, 1);
 	//FragColor = vec4((aux_N+1)/2, 1);
 	//FragColor = vec4((view_normal+1)/2, 1);
-	FragColor = vec4(vec3(abs(curvature)), 1);
+	//FragColor = vec4(vec3(abs(curvature)), 1);
 	//FragColor = vec4(vec3(dFdx(worldNormal)), 1);
 	//FragColor = vec4(vec3(dFdy(worldNormal)), 1);
-	FragColor = vec4(FragCBFFactor);
+	//FragColor = vec4(FragCBFFactor);
+	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
 
 }

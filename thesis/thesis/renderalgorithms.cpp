@@ -204,7 +204,8 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 	return glIsEnabled(param);
 }
 
-void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float min_view_z,
+void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, 
+	glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float z_near,
 	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, 
 	float translucency, float ambient_int, float specular_int, bool ssss_enabled, 
@@ -255,8 +256,8 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 		glUniform1f(shader->operator()("translucency"), translucency);
 		glUniform1i(shader->operator()("sssEnabled"), int(ssss_enabled));
 
-		glUniform1i(shader->operator()("texture_enabled"), int(use_texture));
-		glUniform1f(shader->operator()("min_z"), min_view_z);
+		glUniform1i(shader->operator()("texture_enabled"), int(use_texture)); 
+		glUniform1f(shader->operator()("z_near"), z_near);
 		checkCritOpenGLError();
 
 		mesh->render();
@@ -362,11 +363,13 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 	sss_tex->use(GL_TEXTURE0);
 	fbo->colorBuffer(rt1_tex->getTextureID(), 0);
 	horizontal->use();
+	//vertical->use();
 	quad->render();
 
 	rt1_tex->use(GL_TEXTURE0);
 	fbo->colorBuffer(sss_tex->getTextureID(), 0);
 	vertical->use();
+	//horizontal->use();
 	quad->render();
 
 	checkCritOpenGLError();
