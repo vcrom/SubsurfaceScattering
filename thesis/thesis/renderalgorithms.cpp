@@ -27,6 +27,8 @@ std::shared_ptr<GlslShaderManager> RenderAlgorithms::_shader_manager = GlslShade
 GLuint RenderAlgorithms::default_buffer = 0;
 
 std::vector<float> RenderAlgorithms::_ssss_kernel = std::vector<float>();
+std::vector<float> RenderAlgorithms::_gaussian_weights = std::vector<float>();
+
 int RenderAlgorithms::_num_sss_samples = 0;
 
 //static void initialize(unsigned int num_tex);
@@ -205,7 +207,7 @@ bool RenderAlgorithms::checkGLEnabled(GLenum param)
 }
 
 void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, 
-	glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float z_near,
+	glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float z_near, float roughness,
 	std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 	std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, float sss_width, 
 	float translucency, float ambient_int, float specular_int, bool ssss_enabled, 
@@ -255,6 +257,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 		glUniform1f(shader->operator()("sssWidth"), sss_width);
 		glUniform1f(shader->operator()("translucency"), translucency);
 		glUniform1i(shader->operator()("sssEnabled"), int(ssss_enabled));
+		glUniform1f(shader->operator()("roughness"), roughness);
 
 		glUniform1i(shader->operator()("texture_enabled"), int(use_texture)); 
 		glUniform1f(shader->operator()("z_near"), z_near);
@@ -280,7 +283,7 @@ std::vector<glm::vec4> initGaussians()
 std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
 
 
-void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor)
+void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
 {
 	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
 
@@ -304,6 +307,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	sss_tex->use(GL_TEXTURE0);
 	lineal_depth->use(GL_TEXTURE1);
 	cross_bilateral_factor->use(GL_TEXTURE3);
+	curvature_tex->use(GL_TEXTURE4);
 
 	fbo->useFrameBuffer(1);
 	glDisable(GL_DEPTH_TEST);
@@ -341,7 +345,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	glDepthMask(GL_TRUE);
 }
 
-void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor)
+void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
 {
 
 	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
@@ -356,6 +360,8 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 
 	lineal_depth->use(GL_TEXTURE1);
 	cross_bilateral_factor->use(GL_TEXTURE2);
+	curvature_tex->use(GL_TEXTURE4);
+
 	fbo->useFrameBuffer();
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
@@ -371,6 +377,70 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 	vertical->use();
 	//horizontal->use();
 	quad->render();
+
+	checkCritOpenGLError();
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+}
+
+
+void RenderAlgorithms::GaussianSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
+{
+	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
+
+	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::GAUSSIAN_SSSS_HORIZONTAL_BLUR);
+	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::GAUSSIAN_SSSS_VERTICAL_BLUR);
+
+	horizontal->use();
+	glUniform1f(horizontal->operator()("cam_fovy"), cam_fovy);
+	glUniform2fv(horizontal->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
+	glUniform1f(horizontal->operator()("correction"), correction);
+	glUniform1f(horizontal->operator()("sssWidth"), sssWidth);
+	vertical->use();
+	glUniform1f(vertical->operator()("cam_fovy"), cam_fovy);
+	glUniform2fv(vertical->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
+	glUniform1f(vertical->operator()("correction"), correction);
+	glUniform1f(vertical->operator()("sssWidth"), sssWidth);
+
+	ScreenQuad* quad = ScreenQuad::getInstanceP();
+
+
+	sss_tex->use(GL_TEXTURE0);
+	lineal_depth->use(GL_TEXTURE1);
+	cross_bilateral_factor->use(GL_TEXTURE3);
+	curvature_tex->use(GL_TEXTURE4);
+
+
+	fbo->useFrameBuffer(1);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	int idx = 0;
+	for (unsigned int i = 0; i < _gaussians.size(); ++i)
+	{
+		idx = i % 2;
+		fbo->useFrameBuffer(1);
+		fbo->colorBuffer(rt2_tex->getTextureID(), 0);
+		horizontal->use();
+		glUniform4fv(horizontal->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
+		quad->render();
+
+		rt2_tex->use(GL_TEXTURE0);
+		fbo->useFrameBuffer(2);
+		fbo->colorBuffer(rt1_tex->getTextureID(), 0);
+		fbo->colorBuffer(pingpong_tex[idx]->getTextureID(), 1);
+		pingpong_tex[(i + 1) % 2]->use(GL_TEXTURE2);
+		vertical->use();
+		glUniform4fv(vertical->operator()("gaussian"), 1, glm::value_ptr(_gaussians[i]));
+		quad->render();
+		rt1_tex->use(GL_TEXTURE0);
+	}
+
+	//if (idx != 0)
+	//{
+	fbo->useFrameBuffer(1);
+	fbo->colorBuffer(sss_tex->getTextureID(), 0);
+	renderTexture(fbo, pingpong_tex[idx]);
+	//}
 
 	checkCritOpenGLError();
 	glEnable(GL_DEPTH_TEST);
@@ -403,6 +473,8 @@ void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, st
 	//glBindFramebuffer(GL_FRAMEBUFFER, RenderAlgorithms::default_buffer);
 }
 
+#define M_PIl          3.141592653589793238462643383279502884L
+#define M_PI           3.14159265358979323846
 
 glm::vec3 gaussian(float variance, float r, const std::vector<float> &falloff) {
 	/**
@@ -413,7 +485,7 @@ glm::vec3 gaussian(float variance, float r, const std::vector<float> &falloff) {
 	glm::vec3 g;
 	for (int i = 0; i < 3; i++) {
 		float rr = r / (0.001f + falloff[i]);
-		g[i] = exp((-(rr * rr)) / (2.0f * variance)) / (2.0f * 3.14f * variance);
+		g[i] = exp((-(rr * rr)) / (2.0f * variance)) / (2.0f * M_PI * variance);
 	}
 	return g;
 }
@@ -436,18 +508,22 @@ glm::vec3 profile(float r, const std::vector<float> &falloff) {
 		0.078f * gaussian(7.41f, r, falloff);
 }
 
+#include <chrono>
+std::chrono::high_resolution_clock hi_clock;
+using time_unit = std::chrono::nanoseconds;
 void RenderAlgorithms::computeSeparableKernel(int num_samples, const glm::vec3 &sss_strength, std::vector<float> &falloff)
 {
 		//std::vector<glm::vec4> kernel(num_samples);
 
-		const float RANGE = num_samples > 20 ? 3.0f : 2.0f;
+		std::chrono::high_resolution_clock::time_point t1 = hi_clock.now();
+		const float RANGE = 3.0f;
 		const float EXPONENT = 2.0f;
 
 		_ssss_kernel = std::vector<float> (num_samples * 4);
-		_num_sss_samples = num_samples;
 
 		// Calculate the offsets:
-		float step = 2.0f * RANGE / (num_samples - 1);
+		//float step = 2.0f * RANGE / (num_samples - 1);
+		float step = RANGE / (num_samples / 2);
 		for (int i = 0; i < num_samples; i++) {
 			float o = -RANGE + float(i) * step;
 			float sign = o < 0.0f ? -1.0f : 1.0f;
@@ -522,9 +598,51 @@ void RenderAlgorithms::computeSeparableKernel(int num_samples, const glm::vec3 &
 			_ssss_kernel[i*4+2] *= sss_strength.z;
 		}
 
-		// Finally, set 'em!
-		//V(kernelVariable->SetFloatVectorArray((float *)&_ssss_kernel.front(), 0, num_samples));
+		std::chrono::high_resolution_clock::time_point t2 = hi_clock.now();
+		std::cout << "\tSeparableKernelComputation time: " << std::chrono::duration_cast<time_unit>(t2 - t1).count() << std::endl;
 		setSeparableKernels();
+}
+
+void RenderAlgorithms::computeGaussianKernel(int num_samples)
+{
+	std::cout << "Num samples: " << num_samples << std::endl;
+	_gaussian_weights = std::vector<float>(num_samples*2);
+
+	//get gaussian weights
+	const float RANGE = 3.0f;
+	float incr = RANGE / float(num_samples / RANGE);
+	float dist = -RANGE;
+	float sum = 0;
+	const float dev = 1.04037900598585464717179319651756539235055628923279085812682966;
+	
+	//compute gaussian taps
+	for (int i = 0; i < num_samples*2; i+=2)
+	{
+		//std::cout << dist << " ";
+		_gaussian_weights[i] = exp(-(dist*dist) / (2.0f * dev*dev)) / (sqrt(2.0f * M_PI) * dev);
+		_gaussian_weights[i + 1] = dist/3;
+		dist += incr;
+		sum += _gaussian_weights[i];
+	}
+	//std::cout << std::endl;
+
+	//for (float b : weights)
+	//{
+	//	std::cout << b << " ";
+	//}
+	//std::cout << std::endl;
+
+	//normalize weights
+	for (int i = 0; i < num_samples * 2; i += 2)
+		_gaussian_weights[i] /= sum;
+
+	for (int i = 0; i < num_samples * 2; i += 2)
+		std::cout << _gaussian_weights[i] << " ";
+	std::cout << std::endl;
+	for (int i = 0; i < num_samples * 2; i += 2)
+		std::cout << _gaussian_weights[i+1] << " ";
+	std::cout << std::endl;
+	setGaussianKernels();
 }
 
 void RenderAlgorithms::setSeparableKernels()
@@ -533,14 +651,45 @@ void RenderAlgorithms::setSeparableKernels()
 
 	horizontal->use();
 	glUniform1i(horizontal->operator()("ssss_n_samples"), _num_sss_samples);
-	glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples, &_ssss_kernel[0]);
+	glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples*4, &_ssss_kernel[0]);
 	horizontal->unUse();
 
 	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
 
 	vertical->use();
 	glUniform1i(vertical->operator()("ssss_n_samples"), _num_sss_samples);
-	glUniform4fv(vertical->operator()("kernel"), _num_sss_samples, &_ssss_kernel[0]);
+	glUniform4fv(vertical->operator()("kernel"), _num_sss_samples*4, &_ssss_kernel[0]);
 	vertical->unUse();
 	checkCritOpenGLError();
+}
+
+void RenderAlgorithms::setGaussianKernels()
+{
+	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::GAUSSIAN_SSSS_HORIZONTAL_BLUR);
+	horizontal->use();
+	glUniform1i(horizontal->operator()("ssss_n_samples"), _num_sss_samples);
+	glUniform2fv(horizontal->operator()("kernel"), _num_sss_samples * 2, &_gaussian_weights[0]);
+	horizontal->unUse();
+	checkCritOpenGLError();
+
+	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::GAUSSIAN_SSSS_VERTICAL_BLUR);
+	vertical->use();
+	glUniform1i(vertical->operator()("ssss_n_samples"), _num_sss_samples);
+	glUniform2fv(vertical->operator()("kernel"), _num_sss_samples * 2, &_gaussian_weights[0]);
+	vertical->unUse();
+	checkCritOpenGLError();
+}
+
+void RenderAlgorithms::computeKernels(int num_samples, const glm::vec3 &sss_strength, std::vector<float> &falloff)
+{
+	_num_sss_samples = num_samples;
+	computeSeparableKernel(num_samples, sss_strength, falloff);
+	computeGaussianKernel(num_samples);
+	//computeGaussianKernel(7);
+}
+
+void RenderAlgorithms::setSSSSKernels()
+{
+	setSeparableKernels();
+	setGaussianKernels();
 }

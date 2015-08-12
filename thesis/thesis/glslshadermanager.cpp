@@ -42,6 +42,8 @@ void GlslShaderManager::initializeShaders()
 	initSeparableSSSSHori();
 	initSeparableSSSSVert();
 	initToneMap();
+	initSSSSGaussianHori();
+	initSSSSGaussianVert();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -237,6 +239,7 @@ void GlslShaderManager::initMainRenderShader()
 
 	shader.addUniform("viewInverseTransposeM"); 
 	shader.addUniform("z_near");
+	shader.addUniform("roughness");
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -264,9 +267,11 @@ void GlslShaderManager::initSSSSHori()
 	shader.addUniform("lineal_depth_texture");
 	glUniform1i(shader("lineal_depth_texture"), 1);
 	shader.addUniform("pinpong_texture");
-	glUniform1i(shader("pinpong_texture"), 2);
+	glUniform1i(shader("pinpong_texture"), 2); 
 	shader.addUniform("cross_bilateral_factor");
 	glUniform1i(shader("cross_bilateral_factor"), 3);
+	shader.addUniform("curvature_texture");
+	glUniform1i(shader("curvature_texture"), 4);
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -295,6 +300,8 @@ void GlslShaderManager::initSSSSVert()
 	glUniform1i(shader("lineal_depth_texture"), 1);
 	shader.addUniform("cross_bilateral_factor");
 	glUniform1i(shader("cross_bilateral_factor"), 3); 
+	shader.addUniform("curvature_texture");
+	glUniform1i(shader("curvature_texture"), 4);
 
 	shader.unUse();
 	checkCritOpenGLError();
@@ -320,6 +327,8 @@ void GlslShaderManager::initSeparableSSSSHori()
 	glUniform1i(shader("lineal_depth_texture"), 1);
 	shader.addUniform("cross_bilateral_factor");
 	glUniform1i(shader("cross_bilateral_factor"), 2);
+	shader.addUniform("curvature_texture");
+	glUniform1i(shader("curvature_texture"), 3);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");
@@ -348,6 +357,8 @@ void GlslShaderManager::initSeparableSSSSVert()
 	glUniform1i(shader("lineal_depth_texture"), 1);
 	shader.addUniform("cross_bilateral_factor");
 	glUniform1i(shader("cross_bilateral_factor"), 2);
+	shader.addUniform("curvature_texture");
+	glUniform1i(shader("curvature_texture"), 3);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");
@@ -378,4 +389,73 @@ void GlslShaderManager::initToneMap()
 
 	_shaders[Shaders::TONE_MAP] = shader;
 	std::cout << "\tTone map shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initSSSSGaussianHori()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/Ssss_gauss_horiz.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+
+	shader.addUniform("pixel_size");
+	shader.addUniform("gaussian");
+	shader.addUniform("correction");
+	shader.addUniform("sssWidth");
+	shader.addUniform("cam_fovy");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	shader.addUniform("lineal_depth_texture");
+	glUniform1i(shader("lineal_depth_texture"), 1);
+	shader.addUniform("pinpong_texture");
+	glUniform1i(shader("pinpong_texture"), 2);
+	shader.addUniform("cross_bilateral_factor");
+	glUniform1i(shader("cross_bilateral_factor"), 3);
+	shader.addUniform("curvature_texture");
+	glUniform1i(shader("curvature_texture"), 4);
+
+	shader.addUniform("ssss_n_samples");
+	shader.addUniform("kernel");
+
+	shader.unUse();
+	checkCritOpenGLError();
+
+
+	_shaders[Shaders::GAUSSIAN_SSSS_HORIZONTAL_BLUR] = shader;
+	std::cout << "\tGaussian SSSS horizontal blur shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initSSSSGaussianVert()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/Ssss_gauss_vert.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+
+	shader.addUniform("pixel_size");
+	shader.addUniform("gaussian");
+	shader.addUniform("correction");
+	shader.addUniform("sssWidth");
+	shader.addUniform("cam_fovy");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	shader.addUniform("lineal_depth_texture");
+	glUniform1i(shader("lineal_depth_texture"), 1);
+	shader.addUniform("cross_bilateral_factor");
+	glUniform1i(shader("cross_bilateral_factor"), 3);
+	shader.addUniform("curvature_texture");
+	glUniform1i(shader("curvature_texture"), 4);
+
+	shader.addUniform("ssss_n_samples");
+	shader.addUniform("kernel");
+
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::GAUSSIAN_SSSS_VERTICAL_BLUR] = shader;
+	std::cout << "\tGaussian SSSS vertical blur shader initialized" << std::endl;
 }

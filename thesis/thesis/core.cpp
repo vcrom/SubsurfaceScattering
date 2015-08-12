@@ -31,7 +31,7 @@ Core::Core()
 	_sss_method = 0;
 	_tone_mapping_method = 0;
 
-	_num_samples = 25;
+	_num_samples = 20;
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
 	_falloff = {1.0f, 0.37f, 0.3f};
 
@@ -208,7 +208,7 @@ void Core::initializeTextures()
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
-	//lineal shadow map
+	//CBF factor
 	_cross_bilateral_factor = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_cross_bilateral_factor->use();
 	_cross_bilateral_factor->loadEmptyTexture(GL_R32F, 32, 32);
@@ -218,6 +218,16 @@ void Core::initializeTextures()
 	_cross_bilateral_factor->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	checkCritOpenGLError();
 
+	//Curvature texture
+	_curvature_tex = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_curvature_tex->use();
+	_curvature_tex->loadEmptyTexture(GL_R32F, 32, 32);
+	_curvature_tex->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_curvature_tex->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	_curvature_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_curvature_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	checkCritOpenGLError();
+	
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
 	//_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
@@ -266,7 +276,7 @@ void Core::initialize()
 	computeLightMatrices();
 
 	//Compute kernel
-	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 
 }
 
@@ -314,6 +324,9 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 
 	_cross_bilateral_factor->use();
 	_cross_bilateral_factor->resize(w, h);
+
+	_curvature_tex->use();
+	_curvature_tex->resize(w, h);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -375,14 +388,14 @@ void Core::renderScene()
 	if(_control_boolean_params[2]) subSurfaceScatteringPass();
 	glFinish();
 	_t2 = _clock.now();
-	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t2 - _t1).count() << std::endl;
+	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
 	_t1 = _clock.now();
 	addSpecularPass();
 	glFinish();
 	_t2 = _clock.now();
-	std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t2 - _t1).count() << std::endl;
+	std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
 	_t1 = _clock.now();
 	toneMap();
@@ -434,6 +447,7 @@ void Core::mainRenderPass()
 	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 1);//lin depth
 	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 2);//specular
 	_generic_buffer->colorBuffer(_cross_bilateral_factor->getTextureID(), 3);//cross-bilateral
+	_generic_buffer->colorBuffer(_curvature_tex->getTextureID(), 4);//curvature
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorDepthAndStencil();
 
@@ -458,7 +472,7 @@ void Core::mainRenderPass()
 	//std::cout << "max view Z: " << min_z << std::endl;
 
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, 
-		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(),
+		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness,
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
 		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, true);
@@ -479,17 +493,19 @@ void Core::subSurfaceScatteringPass()
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_EQUAL, 1, 0xFF);
 	glStencilMask(0x00);
+	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	switch (_sss_method)
 	{
 	case 0: //SSSS
+		//glDisable(GL_STENCIL_TEST);
 		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
 		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
-		_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
+		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*0.9, _cross_bilateral_factor);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*0.5, _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -501,8 +517,25 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
 		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
 		_generic_buffer->clearColor();
+		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor);
+		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
+		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
+
+		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+		//RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
+		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
+		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+		break;
+	case 2: //Perceptual
+		_generic_buffer->useFrameBuffer(3);
+		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
+		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
+		_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
+		_generic_buffer->clearColor();
+		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
+
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -724,7 +757,7 @@ void Core::reloadShaders()
 {
 	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
 	shader_manager->reloadShaders();
-	RenderAlgorithms::setSeparableKernels();
+	RenderAlgorithms::setSSSSKernels();
 }
 
 
@@ -759,25 +792,31 @@ void Core::setSSSRedStr(float s)
 {
 	_sss_strength.r = s;
 	//Compute kernel
-	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 }
 
 void Core::setSSSGreenStr(float s)
 {
 	_sss_strength.g = s;
 	//Compute kernel
-	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 }
 
 void Core::setSSSBlueStr(float s)
 {
 	_sss_strength.b = s;
 	//Compute kernel
-	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 }
 
 void Core::setSSSNumSamples(int s)
 {
 	_num_samples = s;
-	RenderAlgorithms::computeSeparableKernel(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+}
+
+void Core::setGlossines(float g)
+{
+	_glossines = g;
+	_roughness = std::pow(ALPHA_MAX, g);
 }

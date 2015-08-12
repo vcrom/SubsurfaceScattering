@@ -1,7 +1,6 @@
 #version 330
 //precision highp float;
 layout(location=0) out vec4 vFColor;
-layout(location=1) out vec4 vBlur;
 
 uniform sampler2D color_texture;
 uniform sampler2D lineal_depth_texture;
@@ -16,8 +15,8 @@ uniform vec4 gaussian;
 smooth in vec2 vUV;
 
 
-const float w[7] = float[](0.006,   0.061,   0.242, 0.382, 0.242,  0.061, 0.006 );
-const float o[7] = float[](-1.0, -0.6667, -0.3333, 0, 0.3333, 0.6667,   1.0 );
+uniform int ssss_n_samples = 25;
+uniform vec2 kernel[100];
 
 uniform sampler2D cross_bilateral_factor;
 uniform sampler2D curvature_texture;
@@ -88,10 +87,12 @@ float rgb2gray(vec3 rgb)
 }
 //////////////////////////////////////////////////
 
+#define SSSS_STREGTH_SOURCE 1
 #define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
+//vec4 BlurSSSSPas(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy
 vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture, float fovy)
 {
     //vec2 step = sssWidth * gauss_size * pixel_size * dir;
@@ -112,8 +113,8 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 	// Calculate the final step to fetch the surrounding pixels:
 	sssWidth *= 0.1;
     vec2 finalStep = gauss_size*sssWidth * scale * dir;
-    //finalStep *= SSSS_STREGTH_SOURCE; // Modulate it using the alpha channel.
-    finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
+    finalStep *= SSSS_STREGTH_SOURCE;
+    finalStep *= 1.0 / 3.0;
 
     vec3 colorM = texture2D(color_texture, vUV).rgb;
 	#ifdef CROSS_BILATERAL_FILTER
@@ -123,9 +124,9 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 	vec3 colorBlurred = vec3(0);//colorM;
     //colorBlurred.rgb *= 0.382;
 	float weigths = 0;
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < ssss_n_samples; i++)
     {
-		vec2 despl = o[i] * finalStep;
+		vec2 despl = kernel[i].g * finalStep;
         vec2 offset = vUV + despl;
         vec3 colorS = texture2D(color_texture, offset).rgb;
         float depth = texture2D(depth_texture, offset).r;
@@ -141,22 +142,22 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 
 		float weight;
 		#ifdef ORIGINAL_FILTER
-			weight = w[i];
+			weight = kernel[i].r;
 		#endif
 
 		#ifdef SIMPLE_COL_DIST_FILTER
 			//weight = w[i]*exp(-distance(rgb2luv(colorM), rgb2luv(colorS)));
-			weight = w[i]*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)));
+			weight = kernel[i].r*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)));
 			//weight = w[i]*exp(-distance(colorM, colorS));
 		#endif 
 		
 		#ifdef SIMPLE_BILATERAL_FILTER
-			weight = w[i]*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)))*exp(-abs(length(despl)));
+			weight = kernel[i].r*exp(-0.5*distance(rgb2lab(colorM), rgb2lab(colorS)))*exp(-abs(length(despl)));
 			//weight = w[i]*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
 		#ifdef CROSS_BILATERAL_FILTER
-			weight = w[i]*exp(-10*distance(I_p, rgb2gray(colorS)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
+			weight = kernel[i].r*exp(-10*distance(I_p, rgb2gray(colorS)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
 			//weight = w[i]*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
@@ -170,18 +171,7 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
-        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, vec2(0, 1), correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
+        vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, vec2(1, 0), correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
+        //vFColor = vec4(1, 0, 0, 1);
 
-		vec4 src_col = vFColor;
-		vec3 dest_col = texture2D(pinpong_texture, vUV).rgb;
-		vBlur = vec4(vFColor.r*gaussian.g + dest_col.r*(1.0-gaussian.g),
-                    vFColor.g*gaussian.b + dest_col.g*(1.0-gaussian.b),
-                    vFColor.b*gaussian.a + dest_col.b*(1.0-gaussian.a), 1);
-		//vBlur = vFColor;
-
-		//vBlur = texture2D(pinpong_texture, vUV).rgba;
-		//vBlur = vFColor; 
-		//vBlur = BlurSSSSPas;
-		//vBlur = vec4(1, 0, 0, 1);
-		//vBlur = vec4(vec3(texture2D(cross_bilateral_factor, vUV).r), 1);
  }

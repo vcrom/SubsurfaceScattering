@@ -65,6 +65,7 @@ public:
 	void setSSSGreenStr(float s);
 	void setSSSBlueStr(float s);
 	void setSSSNumSamples(int s);
+	void setGlossines(float g);
 
 	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
 
@@ -102,7 +103,7 @@ private:
 		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2, _aux_ssss_pingpong, 
 
 		//Filter aux
-		_cross_bilateral_factor;
+		_cross_bilateral_factor, _curvature_tex;
 
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);
@@ -130,7 +131,8 @@ private:
 
 	glm::mat4 _prev_VP;
 
-	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout, _ambientInt, _specInt;
+	const float ALPHA_MAX = 8192.0f;
+	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout, _ambientInt, _specInt, _glossines, _roughness;
 	glm::vec2 _pixel_size;
 	int _num_samples;
 	glm::vec3 _sss_strength;

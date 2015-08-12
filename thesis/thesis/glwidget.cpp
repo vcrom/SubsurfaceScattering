@@ -38,6 +38,10 @@ void GLWidget::initializeGL()
 	{
 		core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 		core_engine_->initialize();
+		core_engine_->setGlossines(0.2);
+		core_engine_->setSpeculartInt(0.2);
+		core_engine_->setAmbientInt(1);
+
 		//selectSSSMethod(1);
 	}
 	catch(non_critical_exception e){
@@ -292,5 +296,11 @@ void GLWidget::setSSSBlueStr(double s)
 void GLWidget::setSSSNumSamples(int s)
 {
 	core_engine_->setSSSNumSamples(s);
+	update();
+}
+
+void GLWidget::setGlossines(double g)
+{
+	core_engine_->setGlossines(g);
 	update();
 }

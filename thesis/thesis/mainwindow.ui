@@ -97,9 +97,35 @@
           </item>
           <item>
            <property name="text">
+            <string>Samples Gaussian</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>Perceptual</string>
            </property>
           </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>#Samples</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBox">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>20</number>
+          </property>
          </widget>
         </item>
        </layout>
@@ -321,7 +347,7 @@
            <double>0.010000000000000</double>
           </property>
           <property name="value">
-           <double>0.660000000000000</double>
+           <double>1.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -340,6 +366,30 @@
          <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
           <property name="maximum">
            <double>4.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.200000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>glossiness</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_7">
+          <property name="maximum">
+           <double>1.000000000000000</double>
           </property>
           <property name="singleStep">
            <double>0.010000000000000</double>
@@ -426,6 +476,8 @@
     <slot>setSSSRedStr(double)</slot>
     <slot>setSSSGreenStr(double)</slot>
     <slot>setSSSBlueStr(double)</slot>
+    <slot>setSSSNumSamples(int)</slot>
+    <slot>setGlossines(double)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -472,8 +524,8 @@
    <slot>setTranslucency(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>850</x>
-     <y>177</y>
+     <x>898</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>615</x>
@@ -488,8 +540,8 @@
    <slot>setSSWidth(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>208</y>
+     <x>898</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>699</x>
@@ -505,7 +557,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>898</x>
-     <y>363</y>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
      <x>680</x>
@@ -521,7 +573,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>898</x>
-     <y>391</y>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>651</x>
@@ -537,7 +589,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>898</x>
-     <y>419</y>
+     <y>447</y>
     </hint>
     <hint type="destinationlabel">
      <x>646</x>
@@ -569,7 +621,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>898</x>
-     <y>335</y>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
      <x>642</x>
@@ -584,8 +636,8 @@
    <slot>setSSSRedStr(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>827</x>
-     <y>235</y>
+     <x>898</x>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -600,8 +652,8 @@
    <slot>setSSSGreenStr(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>850</x>
-     <y>264</y>
+     <x>898</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
      <x>574</x>
@@ -616,12 +668,44 @@
    <slot>setSSSBlueStr(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>852</x>
-     <y>291</y>
+     <x>898</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>626</x>
      <y>288</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widget</receiver>
+   <slot>setSSSNumSamples(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>841</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>529</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBox_7</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>widget</receiver>
+   <slot>setGlossines(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>834</x>
+     <y>474</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>454</y>
     </hint>
    </hints>
   </connection>

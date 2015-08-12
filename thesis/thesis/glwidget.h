@@ -31,6 +31,7 @@ public slots:
 	void setSSSGreenStr(double s);
 	void setSSSBlueStr(double s);
 	void setSSSNumSamples(int s);
+	void setGlossines(double g);
 
 protected:
 	void paintGL();

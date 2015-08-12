@@ -19,6 +19,7 @@ const float w[7] = float[](0.006,   0.061,   0.242, 0.382, 0.242,  0.061, 0.006 
 const float o[7] = float[](-1.0, -0.6667, -0.3333, 0, 0.3333, 0.6667,   1.0 );
 
 uniform sampler2D cross_bilateral_factor;
+uniform sampler2D curvature_texture;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 ///////////////AUX COLOR TRANSFORMS///////////////

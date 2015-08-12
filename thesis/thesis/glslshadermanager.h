@@ -15,6 +15,7 @@ public:
 		SSSS_HORIZONTAL_BLUR, SSSS_VERTICAL_BLUR,
 		SEPARABLE_SSSS_HORIZONTAL_BLUR, SEPARABLE_SSSS_VERTICAL_BLUR,
 		TONE_MAP,
+		GAUSSIAN_SSSS_HORIZONTAL_BLUR, GAUSSIAN_SSSS_VERTICAL_BLUR,
 		Count 
 	};
 
@@ -44,6 +45,8 @@ private:
 	void initSeparableSSSSHori();
 	void initSeparableSSSSVert();
 	void initToneMap();
+	void initSSSSGaussianHori();
+	void initSSSSGaussianVert();
 };
 
 #endif // GLSLSHADERMANAGER_H

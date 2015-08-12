@@ -65,6 +65,7 @@ uniform sampler2D diffuse_color_texture;
 uniform sampler2D ao_texture;
 uniform sampler2D normal_texture;
 uniform float z_far;
+uniform float roughness = 	pow(8192.0f, 0.5f);
 ///////////////Main///////////////
 
 
@@ -241,6 +242,10 @@ float screenSpaceCurvature(vec3 normal, vec3 screen_pos)
 	return curvature;
 }
 
+vec3 FresnelSchlick(vec3 F0, vec3 l, vec3 h)
+{
+    return F0 + (1 - F0)*pow(1 - max(0, dot(l, h)),5);
+}
 
 void main()
 {
@@ -302,10 +307,11 @@ void main()
 	vec3 f1 = light_color * attenuation * spot;
 	vec3 f2 = albedo.rgb * f1;
 
-	float diffuse = saturate(dot(L, N)) * m_ambientcomp;
+	float diffuse = saturate(dot(L, aux_N/*N*/)) * m_ambientcomp;
 
 	//specular
-	float specular = max(0, pow(dot(N, H), 17)) * spec_int;//17
+	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
+	//float specular = max(0, pow(dot(N, H), 17)) * spec_int;//17
 	//float specular = intensity * SpecularKSK(beckmannTex, normal, light, input.view, roughness);
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
@@ -363,5 +369,6 @@ void main()
 	//FragColor = vec4(vec3(dFdy(worldNormal)), 1);
 	//FragColor = vec4(FragCBFFactor);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
+	//FragColor = vec4(FragSpecularColor, 1);
 
 }

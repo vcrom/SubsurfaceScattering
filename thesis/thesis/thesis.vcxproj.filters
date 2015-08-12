@@ -275,5 +275,11 @@
     <None Include="shaders\beckmann.frag">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\Ssss_gauss_horiz.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\Ssss_gauss_vert.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -26,7 +26,7 @@ precision highp float;
 
 #if SSSS_QUALITY == 2
 uniform int ssss_n_samples = 25;
-uniform vec4 kernel[60];/* = vec4[](
+uniform vec4 kernel[100];/* = vec4[](
 						vec4(0.530605, 0.613514, 0.739601, 0),
 						vec4(0.000973794, 1.11862e-005, 9.43437e-007, -3),
 						vec4(0.00333804, 7.85443e-005, 1.2945e-005, -2.52083),
@@ -106,6 +106,7 @@ smooth in vec2 vUV;
 
 
 uniform sampler2D cross_bilateral_factor;
+uniform sampler2D curvature_texture;
 
 ///////////////AUX COLOR TRANSFORMS///////////////
 vec3 rgb2lab(in vec3 rgb){

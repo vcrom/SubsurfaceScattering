@@ -342,6 +342,8 @@
     <None Include="shaders\separableSsss_blur_vert.frag" />
     <None Include="shaders\Ssss_blur_horiz.frag" />
     <None Include="shaders\Ssss_blur_vert.frag" />
+    <None Include="shaders\Ssss_gauss_horiz.frag" />
+    <None Include="shaders\Ssss_gauss_vert.frag" />
     <None Include="shaders\tone_map.frag" />
     <None Include="shaders\translucency_shader.frag" />
     <None Include="shaders\translucency_shader.vert" />
@@ -351,7 +353,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2013_64_opengl" Qt5Version_x0020_x64="msvc2013_64_opengl" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2013_64_opengl" Qt5Version_x0020_x64="msvc2013_64" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

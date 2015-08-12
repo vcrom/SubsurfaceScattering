@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.1
+** Created by: Qt User Interface Compiler version 5.5.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -25,6 +25,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
@@ -50,6 +51,9 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_2;
     QComboBox *comboBox;
+    QHBoxLayout *horizontalLayout_10;
+    QLabel *label_10;
+    QSpinBox *spinBox;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_3;
     QDoubleSpinBox *doubleSpinBox;
@@ -78,6 +82,9 @@ public:
     QHBoxLayout *horizontalLayout_7;
     QLabel *label_7;
     QDoubleSpinBox *doubleSpinBox_5;
+    QHBoxLayout *horizontalLayout_11;
+    QLabel *label_11;
+    QDoubleSpinBox *doubleSpinBox_7;
     QSpacerItem *verticalSpacer;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -165,6 +172,24 @@ public:
 
 
         verticalLayout->addLayout(horizontalLayout_2);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setSpacing(6);
+        horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
+        label_10 = new QLabel(centralWidget);
+        label_10->setObjectName(QStringLiteral("label_10"));
+
+        horizontalLayout_10->addWidget(label_10);
+
+        spinBox = new QSpinBox(centralWidget);
+        spinBox->setObjectName(QStringLiteral("spinBox"));
+        spinBox->setMaximum(100);
+        spinBox->setValue(20);
+
+        horizontalLayout_10->addWidget(spinBox);
+
+
+        verticalLayout->addLayout(horizontalLayout_10);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setSpacing(6);
@@ -316,7 +341,7 @@ public:
         doubleSpinBox_4->setObjectName(QStringLiteral("doubleSpinBox_4"));
         doubleSpinBox_4->setMaximum(1);
         doubleSpinBox_4->setSingleStep(0.01);
-        doubleSpinBox_4->setValue(0.66);
+        doubleSpinBox_4->setValue(1);
 
         horizontalLayout_6->addWidget(doubleSpinBox_4);
 
@@ -341,6 +366,25 @@ public:
 
 
         verticalLayout->addLayout(horizontalLayout_7);
+
+        horizontalLayout_11 = new QHBoxLayout();
+        horizontalLayout_11->setSpacing(6);
+        horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
+        label_11 = new QLabel(centralWidget);
+        label_11->setObjectName(QStringLiteral("label_11"));
+
+        horizontalLayout_11->addWidget(label_11);
+
+        doubleSpinBox_7 = new QDoubleSpinBox(centralWidget);
+        doubleSpinBox_7->setObjectName(QStringLiteral("doubleSpinBox_7"));
+        doubleSpinBox_7->setMaximum(1);
+        doubleSpinBox_7->setSingleStep(0.01);
+        doubleSpinBox_7->setValue(0.2);
+
+        horizontalLayout_11->addWidget(doubleSpinBox_7);
+
+
+        verticalLayout->addLayout(horizontalLayout_11);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -380,6 +424,8 @@ public:
         QObject::connect(doubleSpinBox_6, SIGNAL(valueChanged(double)), widget, SLOT(setSSSRedStr(double)));
         QObject::connect(doubleSpinBox_9, SIGNAL(valueChanged(double)), widget, SLOT(setSSSGreenStr(double)));
         QObject::connect(doubleSpinBox_10, SIGNAL(valueChanged(double)), widget, SLOT(setSSSBlueStr(double)));
+        QObject::connect(spinBox, SIGNAL(valueChanged(int)), widget, SLOT(setSSSNumSamples(int)));
+        QObject::connect(doubleSpinBox_7, SIGNAL(valueChanged(double)), widget, SLOT(setGlossines(double)));
 
         QMetaObject::connectSlotsByName(mainwindowClass);
     } // setupUi
@@ -396,8 +442,10 @@ public:
         comboBox->clear();
         comboBox->insertItems(0, QStringList()
          << QApplication::translate("mainwindowClass", "Separable", 0)
+         << QApplication::translate("mainwindowClass", "Samples Gaussian", 0)
          << QApplication::translate("mainwindowClass", "Perceptual", 0)
         );
+        label_10->setText(QApplication::translate("mainwindowClass", "#Samples", 0));
         label_3->setText(QApplication::translate("mainwindowClass", "translucency", 0));
         label_4->setText(QApplication::translate("mainwindowClass", "sssWidth", 0));
         label_9->setText(QApplication::translate("mainwindowClass", "R sr", 0));
@@ -416,6 +464,7 @@ public:
         label_5->setText(QApplication::translate("mainwindowClass", "exposure", 0));
         label_6->setText(QApplication::translate("mainwindowClass", "diffuseInt", 0));
         label_7->setText(QApplication::translate("mainwindowClass", "specularInt", 0));
+        label_11->setText(QApplication::translate("mainwindowClass", "glossiness", 0));
         menuFile->setTitle(QApplication::translate("mainwindowClass", "File", 0));
     } // retranslateUi
 
