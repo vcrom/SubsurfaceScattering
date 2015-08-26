@@ -33,8 +33,9 @@ void FrameBuffer::deleteFrameBuffer()
 	glDeleteBuffers(1, &_id);
 	checkCritOpenGLError();
 }
+
 #include <iostream>
-void FrameBuffer::useFrameBuffer(unsigned int color_levels) const
+void FrameBuffer::useFrameBuffer(unsigned int color_levels)
 {
 	assert(_id != 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, _id);
@@ -45,7 +46,7 @@ void FrameBuffer::useFrameBuffer(unsigned int color_levels) const
 	//{ 
 	//	std::cerr << "OpenGL error: " << err << std::endl;
 	//}
-
+	_color_levels = color_levels;
 	checkCritOpenGLError();
 	glDrawBuffers(color_levels, render_buff);
 	checkCritOpenGLError();

@@ -87,10 +87,23 @@ float rgb2gray(vec3 rgb)
 }
 //////////////////////////////////////////////////
 
+//Filtering
 #define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
+//#define BILATERAL_ON_CURV
+
+///Strengh factor
+#define STREGTH_CURVATURE
+
+#ifdef STREGTH_CURVATURE
+	#define SSSS_STREGTH_SOURCE 1.0+texture(curvature_texture, vUV).r
+#else
+	#define SSSS_STREGTH_SOURCE 1.0 
+	//#define SSSS_STREGTH_SOURCE (colorM.a)
+#endif
+
 //vec4 BlurSSSSPas(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy
 vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture, float fovy)
 {
@@ -112,7 +125,7 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 	// Calculate the final step to fetch the surrounding pixels:
 	sssWidth *= 0.1;
     vec2 finalStep = gauss_size*sssWidth * scale * dir;
-    //finalStep *= SSSS_STREGTH_SOURCE; // Modulate it using the alpha channel.
+    finalStep *= SSSS_STREGTH_SOURCE; // Modulate it using the alpha channel.
     finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
 
     vec3 colorM = texture2D(color_texture, vUV).rgb;
@@ -160,6 +173,9 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 			//weight = w[i]*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
+		#ifdef BILATERAL_ON_CURV
+			weight = w[i]*exp(-10*distance(texture(curvature_texture, vUV).r, texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
+		#endif
 
         colorBlurred += weight * colorS;
 		weigths += weight;
@@ -171,5 +187,4 @@ void main(void)
 {
         float gauss_size = sqrt(gaussian.x);
         vFColor = BlurSSSSPas(sssWidth, gauss_size, pixel_size, vec2(1, 0), correction, vUV, color_texture, lineal_depth_texture, cam_fovy);
-
  }

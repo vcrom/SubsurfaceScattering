@@ -1,11 +1,6 @@
 #version 330
 precision highp float;
 
-#ifndef SSSS_STREGTH_SOURCE
-	#define SSSS_STREGTH_SOURCE 1.0 
-	//#define SSSS_STREGTH_SOURCE (colorM.a)
-#endif
-
 /**
  * Here you have ready-to-use kernels for quickstarters. Three kernels are 
  * readily available, with varying quality.
@@ -142,11 +137,22 @@ float rgb2gray(vec3 rgb)
 }
 //////////////////////////////////////////////////
 
-#define ORIGINAL_FILTER
+//Filtering
+//#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
+#define BILATERAL_ON_CURV
 
+///Strengh factor
+//#define STREGTH_CURVATURE
+
+#ifdef STREGTH_CURVATURE
+	#define SSSS_STREGTH_SOURCE 1.0+texture(curvature_texture, vUV).r
+#else
+	#define SSSS_STREGTH_SOURCE 1.0 
+	//#define SSSS_STREGTH_SOURCE (colorM.a)
+#endif
 vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy, bool follow_surf)
 {
 	// Fetch color of current pixel:
@@ -214,6 +220,10 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 			//weight = kernel[i].rgb*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
+		#ifdef BILATERAL_ON_CURV
+			weight = kernel[i].rgb*exp(-10*distance(texture(curvature_texture, vUV).r, texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
+		#endif
+
 		// Accumulate:
 		colorBlurred.rgb += weight * colorS.rgb;
 		weigths += weight;
@@ -225,7 +235,9 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 
 void main()
 {
-    vFragColor = SSSSBlurPS(vUV, color_texture, lineal_depth_texture, sssWidth,  vec2(1, -1), cam_fovy, true);
+    vFragColor = SSSSBlurPS(vUV, color_texture, lineal_depth_texture, sssWidth,  vec2(1, 0), cam_fovy, true);
+	//vFragColor = vec4(vec3(texture(curvature_texture, vUV).r), 1);
+	//vFragColor = vec4(vec3(texture(cross_bilateral_factor, vUV).r), 1);
 	
 	//vFragColor = vec4(texture(lineal_depth_texture, vUV).r);
 	//vFragColor = vec4(1, 0, 0, 1);

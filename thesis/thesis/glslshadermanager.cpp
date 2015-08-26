@@ -328,7 +328,7 @@ void GlslShaderManager::initSeparableSSSSHori()
 	shader.addUniform("cross_bilateral_factor");
 	glUniform1i(shader("cross_bilateral_factor"), 2);
 	shader.addUniform("curvature_texture");
-	glUniform1i(shader("curvature_texture"), 3);
+	glUniform1i(shader("curvature_texture"), 4);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");
@@ -358,7 +358,7 @@ void GlslShaderManager::initSeparableSSSSVert()
 	shader.addUniform("cross_bilateral_factor");
 	glUniform1i(shader("cross_bilateral_factor"), 2);
 	shader.addUniform("curvature_texture");
-	glUniform1i(shader("curvature_texture"), 3);
+	glUniform1i(shader("curvature_texture"), 4);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");

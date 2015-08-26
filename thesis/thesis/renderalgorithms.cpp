@@ -232,7 +232,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 	glCullFace(GL_BACK);
 
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::MAIN_RENDER_SHADER);
-	fbo->useFrameBuffer(4);
+	fbo->useFrameBuffer(fbo->getColorLevels());
 
 	//shader.addUniform("min_z");
 	shader->use();

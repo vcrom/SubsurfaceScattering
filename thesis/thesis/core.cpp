@@ -21,8 +21,8 @@ Core::Core()
 	_sssStrength =  12.75;
 	_pixel_size = glm::vec2(1);
 	_exposure = 2;
-	_ambientInt = 0.66;
-	_specInt = 0.2;
+	_ambientInt = 1;
+	_specInt = 1;
 	_burnout = std::numeric_limits<float>::infinity();
 
 
@@ -227,6 +227,16 @@ void Core::initializeTextures()
 	_curvature_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_curvature_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	checkCritOpenGLError();
+
+	////CBF factor
+	//_screen_space_curvature = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	//_screen_space_curvature->use();
+	//_screen_space_curvature->loadEmptyTexture(GL_R32F, 32, 32);
+	//_screen_space_curvature->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//_screen_space_curvature->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//_screen_space_curvature->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//_screen_space_curvature->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//checkCritOpenGLError();
 	
 	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
 	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
@@ -327,6 +337,9 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 
 	_curvature_tex->use();
 	_curvature_tex->resize(w, h);
+
+	//_screen_space_curvature->use();
+	//_screen_space_curvature->resize(w, h);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -439,10 +452,10 @@ void Core::mainRenderPass()
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilMask(0xFF);
 
-	_default_buffer->useFrameBuffer();
-	_default_buffer->clearColorDepthAndStencil();
+	//_default_buffer->useFrameBuffer();
+	//_default_buffer->clearColorDepthAndStencil();
 
-	_generic_buffer->useFrameBuffer(4);
+	_generic_buffer->useFrameBuffer(5);
 	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//difuse
 	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 1);//lin depth
 	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 2);//specular
@@ -484,7 +497,7 @@ void Core::mainRenderPass()
 	//_generic_buffer->useFrameBuffer(1);
 	//glStencilFunc(GL_EQUAL, 0, 0xFF);
 	//glStencilMask(0x00);
-	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	//RenderAlgorithms::renderTexture(_generic_buffer, _cross_bilateral_factor);
 	glDisable(GL_STENCIL_TEST);
 }
 

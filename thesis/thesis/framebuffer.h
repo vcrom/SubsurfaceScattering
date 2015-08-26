@@ -11,7 +11,7 @@ public:
 	~FrameBuffer();
 	void createFrameBuffer();
 	void deleteFrameBuffer();
-	void useFrameBuffer(unsigned int color_levels = 1) const;
+	void useFrameBuffer(unsigned int color_levels = 1);
 
 	GLuint getFrameBufferID();
 	GLuint getColorLevels();

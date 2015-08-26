@@ -247,6 +247,8 @@ vec3 FresnelSchlick(vec3 F0, vec3 l, vec3 h)
     return F0 + (1 - F0)*pow(1 - max(0, dot(l, h)),5);
 }
 
+//#define NORMAL_MAP_CURV
+#define TRANSLUCENCY_MOD_CURV
 void main()
 {
 	//Main
@@ -266,9 +268,12 @@ void main()
 
 	vec3 view_normal = normalize(vec4(viewInverseTransposeM*vec4(normalize(worldNormal), 1)).xyz);
 	vec3 aux_N = normalize(vec4(viewInverseTransposeM*vec4(N, 1)).xyz);
+	#ifdef NORMAL_MAP_CURV
 	float curvature = screenSpaceCurvature(aux_N, viewPos);
-	//curvature = screenSpaceCurvature(view_normal, viewPos);
-	FragCurvature = curvature;
+	#else
+	float curvature = screenSpaceCurvature(view_normal, viewPos);
+	#endif
+	FragCurvature = saturate(curvature);//0 ... 1
 
 	//CBF
 	FragCBFFactor = computeCBFFactor(/*view_normal*/aux_N, vec3(viewPos.xy, viewPos.z), z_near);// (normalize(viewNormal)+1)/2;
@@ -325,9 +330,14 @@ void main()
     #endif
 
 	// Add the transmittance component:
-    if (sssEnabled)
-        color.rgb += f2 * transmittance(translucency, sssWidth, worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
-
+    if (sssEnabled && translucency != 0)
+	{
+	#ifdef TRANSLUCENCY_MOD_CURV
+        color.rgb += f2 * transmittance(translucency, sssWidth*(1.0+FragCurvature), worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
+	#else
+		color.rgb += f2 * transmittance(translucency, sssWidth, worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
+	#endif
+	}
 	////end for
 	//// Add the ambient component:
     color.rgb += occlusion*albedo.rgb;//cubemapAmbient;
@@ -370,5 +380,7 @@ void main()
 	//FragColor = vec4(FragCBFFactor);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
 	//FragColor = vec4(FragSpecularColor, 1);
+	//FragColor = vec4(vec3(FragCurvature), 1);
+	//FragCurvature = 0.0;
 
 }

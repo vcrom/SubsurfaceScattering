@@ -87,11 +87,23 @@ float rgb2gray(vec3 rgb)
 }
 //////////////////////////////////////////////////
 
-#define SSSS_STREGTH_SOURCE 1
+//Filtering
 #define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
+//#define BILATERAL_ON_CURV
+
+///Strengh factor
+#define STREGTH_CURVATURE
+
+#ifdef STREGTH_CURVATURE
+	#define SSSS_STREGTH_SOURCE 1.0+texture(curvature_texture, vUV).r
+#else
+	#define SSSS_STREGTH_SOURCE 1.0 
+	//#define SSSS_STREGTH_SOURCE (colorM.a)
+#endif
+
 //vec4 BlurSSSSPas(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy
 vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, float correction, vec2 vUV, sampler2D color_texture, sampler2D depth_texture, float fovy)
 {
@@ -161,6 +173,9 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 			//weight = w[i]*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
+		#ifdef BILATERAL_ON_CURV
+			weight = kernel[i].r*exp(-10*distance(texture(curvature_texture, vUV).r, texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
+		#endif
 
         colorBlurred += weight * colorS;
 		weigths += weight;
