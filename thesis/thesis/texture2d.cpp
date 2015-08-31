@@ -186,3 +186,27 @@ void Texture2D::loadBufferToTexture(GLint level, GLint internalformat, GLsizei w
 	loadBufferToTexture(level, internalformat, width, height, 0, format, type, pixels);
 }
 
+void Texture2D::initTexStorage(GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+{
+	_width = width;
+	_height = height;
+	glTexStorage2D(_target, levels, internalformat, width, height);
+	checkCritOpenGLError();
+}
+
+void Texture2D::cubeFaceFromBuffer(GLuint face, GLint level, GLenum format, GLenum type, const GLvoid * pixels)
+{
+	assert(_target == GL_TEXTURE_CUBE_MAP);
+	subImageFromBuffer(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level, 0, 0, _width, _height, format, type, pixels);
+}
+
+void Texture2D::subImageFromBuffer(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid * pixels)
+{
+	subImageFromBuffer(_target, level, xoffset, yoffset, width, height, format, type, pixels);
+}
+
+void Texture2D::subImageFromBuffer(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid * pixels)
+{
+	glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+	checkCritOpenGLError();
+}

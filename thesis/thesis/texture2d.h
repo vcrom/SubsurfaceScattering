@@ -26,6 +26,12 @@ public:
 	void loadEmptyTexture(GLint level, GLint internalformat, GLsizei width, GLsizei height);
 	void loadEmptyTexture(GLint internalformat, GLsizei width, GLsizei height);
 
+	//initializers
+	void initTexStorage(GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+	void cubeFaceFromBuffer(GLuint face, GLint level, GLenum format, GLenum type, const GLvoid * pixels);
+	void subImageFromBuffer(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid * pixels);
+	void subImageFromBuffer(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid * pixels);
+
 private:
 	GLsizei _width, _height;
 	GLint _border;

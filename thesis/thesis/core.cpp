@@ -238,12 +238,12 @@ void Core::initializeTextures()
 	//_screen_space_curvature->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	//checkCritOpenGLError();
 	
-	//_background_texture = TextureLoader::Create2DTexture("textures/hills.jpg");bokeh.jpg
-	//_background_texture = TextureLoader::Create2DTexture("textures/flower.jpg");
-	//_background_texture = TextureLoader::Create2DTexture("textures/bokeh.jpg");
-	//_background_texture = TextureLoader::Create2DTexture("textures/grass.jpg");
-	_background_texture = TextureLoader::Create2DTexture("textures/forest.jpg");
-	//_background_texture = TextureLoader::Create2DTexture("textures/tris.jpg");
+	//_background_texture = TextureLoader::create2DTexture("textures/hills.jpg");bokeh.jpg
+	//_background_texture = TextureLoader::create2DTexture("textures/flower.jpg");
+	//_background_texture = TextureLoader::create2DTexture("textures/bokeh.jpg");
+	//_background_texture = TextureLoader::create2DTexture("textures/grass.jpg");
+	_background_texture = TextureLoader::create2DTexture("textures/forest.jpg");
+	//_background_texture = TextureLoader::create2DTexture("textures/tris.jpg");
 
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
@@ -285,6 +285,8 @@ void Core::initialize()
 	moveLight(glm::vec3(0.00001, 0, 0));
 	computeLightMatrices();
 
+	//Load skybox and pbr envs
+	_skybox = std::shared_ptr<CSkybox>(new CSkybox("textures/enviroment1/skybox"));
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 
@@ -640,21 +642,21 @@ void Core::loadMesh(const std::string& path)
 void Core::loadMeshDiffuseTexture(const std::string& path)
 {
 	_mesh_diffuse_texture.reset();
-	_mesh_diffuse_texture = TextureLoader::Create2DTexture(path);
+	_mesh_diffuse_texture = TextureLoader::create2DTexture(path);
 	_mesh_diffuse_texture->use();
 }
 
 void Core::loadMeshAOTexture(const std::string& path)
 {
 	_mesh_ao_texture.reset();
-	_mesh_ao_texture = TextureLoader::Create2DTexture(path);
+	_mesh_ao_texture = TextureLoader::create2DTexture(path);
 	_mesh_ao_texture->use();
 }
 
 void Core::loadMeshNormalsTexture(const std::string& path)
 {
 	_mesh_normals_texture.reset();
-	_mesh_normals_texture = TextureLoader::Create2DTexture(path);
+	_mesh_normals_texture = TextureLoader::create2DTexture(path);
 	_mesh_normals_texture->use();
 }
 

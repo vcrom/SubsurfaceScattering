@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.5.0
+** Created by: Qt User Interface Compiler version 5.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -360,7 +360,7 @@ public:
         doubleSpinBox_5->setObjectName(QStringLiteral("doubleSpinBox_5"));
         doubleSpinBox_5->setMaximum(4);
         doubleSpinBox_5->setSingleStep(0.01);
-        doubleSpinBox_5->setValue(0.2);
+        doubleSpinBox_5->setValue(1);
 
         horizontalLayout_7->addWidget(doubleSpinBox_5);
 

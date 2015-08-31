@@ -104,6 +104,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;assimp.lib;glew32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
+      <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -190,9 +191,11 @@
     <ClCompile Include="renderalgorithms.cpp" />
     <ClCompile Include="rgbimage.cpp" />
     <ClCompile Include="screenquad.cpp" />
+    <ClCompile Include="skybox.cpp" />
     <ClCompile Include="targetcamera.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="texture2d.cpp" />
+    <ClCompile Include="texturecube.cpp" />
     <ClCompile Include="textureloader.cpp" />
     <ClCompile Include="texturemanager.cpp" />
     <ClCompile Include="utils.cpp" />
@@ -281,9 +284,11 @@
     <ClInclude Include="renderalgorithms.h" />
     <ClInclude Include="rgbimage.h" />
     <ClInclude Include="screenquad.h" />
+    <ClInclude Include="skybox.h" />
     <ClInclude Include="targetcamera.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="texture2d.h" />
+    <ClInclude Include="texturecube.h" />
     <ClInclude Include="textureloader.h" />
     <ClInclude Include="texturemanager.h" />
     <ClInclude Include="utils.h" />
@@ -340,6 +345,8 @@
     <None Include="shaders\screen_space_quad.vert" />
     <None Include="shaders\separableSsss_blur_horiz.frag" />
     <None Include="shaders\separableSsss_blur_vert.frag" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
     <None Include="shaders\Ssss_blur_horiz.frag" />
     <None Include="shaders\Ssss_blur_vert.frag" />
     <None Include="shaders\Ssss_gauss_horiz.frag" />
@@ -353,7 +360,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2013_64_opengl" Qt5Version_x0020_x64="msvc2013_64" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2013_64_opengl" Qt5Version_x0020_x64="msvc2013_64_opengl" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

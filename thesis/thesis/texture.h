@@ -21,7 +21,8 @@ public:
 
 	virtual unsigned char* getTextureData(GLint level, GLenum format, GLenum type, unsigned int channels) = 0;
 
-	static GLint getBindedTextured();
+	static GLint getBindedTexture2d();
+	static GLint getBindedTextureCubeMap();
 
 	//uils
 	void use(GLenum tex_unit = GL_TEXTURE0) const;

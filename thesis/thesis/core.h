@@ -18,6 +18,7 @@
 #include "framebuffer.h"
 #include "meshimporter.h"
 #include "entity.h"
+#include "skybox.h"
 	
 
 class Core
@@ -103,7 +104,10 @@ private:
 		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2, _aux_ssss_pingpong,
 
 		//Filter aux
-		_cross_bilateral_factor, _curvature_tex;
+		_cross_bilateral_factor, _curvature_tex,
+		
+		//pbr
+		_diffuse_env_texture;
 
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);
@@ -113,6 +117,7 @@ private:
 
 	std::shared_ptr<Mesh> _sphere;
 	std::shared_ptr<Entity> _object, _light;
+	std::shared_ptr<CSkybox> _skybox;
 
 	//control params
 	std::vector<bool> _control_boolean_params;

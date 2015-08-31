@@ -22,11 +22,13 @@ Texture::~Texture()
 
 void Texture::createTexture()
 {
+	assert(_id == 0);
 	glGenTextures(1, &_id);
 }
 
 void Texture::deleteTexture()
 {
+	assert(_id > 0);
 	glDeleteTextures(1, &_id);
 }
 
@@ -89,10 +91,11 @@ void Texture::setTexParameter(GLenum pname, const GLfloat *param)
 
 bool Texture::isBinded() const
 {
-	return _id == getBindedTextured();
+	if(_target == GL_TEXTURE_2D) return _id == getBindedTexture2d();
+	else if (_target == GL_TEXTURE_CUBE_MAP) return _id == getBindedTextureCubeMap();
 }
 
-GLint Texture::getBindedTextured()
+GLint Texture::getBindedTexture2d()
 {
 	GLint texture_binded;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture_binded);
@@ -100,6 +103,13 @@ GLint Texture::getBindedTextured()
 	return texture_binded;
 }
 
+GLint Texture::getBindedTextureCubeMap()
+{
+	GLint texture_binded;
+	glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &texture_binded);
+	checkCritOpenGLError();
+	return texture_binded;
+}
 void Texture::generateMipMaps()
 {
 	assert(isBinded());
