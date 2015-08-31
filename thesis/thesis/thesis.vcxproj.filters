@@ -95,13 +95,7 @@
     <ClCompile Include="fimage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hdrimage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rgbimage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
@@ -132,9 +126,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="skybox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="texturecube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -192,13 +183,7 @@
     <ClInclude Include="fimage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hdrimage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rgbimage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
@@ -226,9 +211,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="skybox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="texturecube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
