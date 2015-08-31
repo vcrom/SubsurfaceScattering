@@ -109,6 +109,8 @@ private:
 		//pbr
 		_diffuse_env_texture;
 
+	std::string _enviroment_path;
+
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);
 
@@ -117,7 +119,7 @@ private:
 
 	std::shared_ptr<Mesh> _sphere;
 	std::shared_ptr<Entity> _object, _light;
-	std::shared_ptr<CSkybox> _skybox;
+	std::shared_ptr<CSkybox> _sky_box;
 
 	//control params
 	std::vector<bool> _control_boolean_params;

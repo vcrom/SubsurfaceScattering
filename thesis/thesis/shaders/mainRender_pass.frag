@@ -66,6 +66,7 @@ uniform sampler2D ao_texture;
 uniform sampler2D normal_texture;
 uniform float z_far;
 uniform float roughness = 	pow(8192.0f, 0.5f);
+uniform samplerCube diffuse_env;
 ///////////////Main///////////////
 
 
@@ -340,7 +341,10 @@ void main()
 	}
 	////end for
 	//// Add the ambient component:
-    color.rgb += occlusion*albedo.rgb;//cubemapAmbient;
+    //color.rgb += occlusion*albedo.rgb*1.75*pow(texture(diffuse_env, view_normal).rgb, vec3(2.2));
+	//color.rgb += occlusion*albedo.rgb*1.75*pow(texture(diffuse_env, aux_N).rgb, vec3(2.2));
+	color.rgb += occlusion*albedo.rgb*1.5*pow(texture(diffuse_env, N).rgb, vec3(2.2));
+
 	//// Store the linear depth value:
 	FragLinearDepth = linear_depth;
 
@@ -381,6 +385,7 @@ void main()
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
 	//FragColor = vec4(FragSpecularColor, 1);
 	//FragColor = vec4(vec3(FragCurvature), 1);
-	//FragCurvature = 0.0;
+	//FragCurvature = 0.0
+	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 
 }

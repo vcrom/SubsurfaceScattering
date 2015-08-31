@@ -35,6 +35,9 @@ Core::Core()
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
 	_falloff = {1.0f, 0.37f, 0.3f};
 
+	//_enviroment_path = "textures/env1";
+	_enviroment_path = "textures/env2";
+	//_enviroment_path = "textures/env3";
 }
 
 #include "fimage.h"
@@ -245,6 +248,7 @@ void Core::initializeTextures()
 	_background_texture = TextureLoader::create2DTexture("textures/forest.jpg");
 	//_background_texture = TextureLoader::create2DTexture("textures/tris.jpg");
 
+	_diffuse_env_texture = TextureLoader::createCubeMap(_enviroment_path + "/diffuse");
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
 	loadMeshAOTexture("textures/AO.jpg");
@@ -286,7 +290,8 @@ void Core::initialize()
 	computeLightMatrices();
 
 	//Load skybox and pbr envs
-	_skybox = std::shared_ptr<CSkybox>(new CSkybox("textures/enviroment1/skybox"));
+	_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path+"/skybox"));
+	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path + "/diffuse"));
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 
@@ -487,7 +492,7 @@ void Core::mainRenderPass()
 	//std::cout << "max view Z: " << min_z << std::endl;
 
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, 
-		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness,
+		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness, _diffuse_env_texture,
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
 		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, true);
@@ -604,7 +609,7 @@ void Core::addSpecularPass()
 	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
 }
 
-
+#include <glm/gtc/type_ptr.hpp>
 void Core::toneMap()
 {
 	_generic_buffer->useFrameBuffer(1);
@@ -618,7 +623,11 @@ void Core::toneMap()
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_EQUAL, 0, 0xFF);
 	glStencilMask(0x00);
-	RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
+	_generic_buffer->useFrameBuffer();
+	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 0.1f, 1000.0f);
+	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(100.0f));
+	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()* _object->getTransformations() * S));
 	glDisable(GL_STENCIL_TEST);
 
 

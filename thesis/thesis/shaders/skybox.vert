@@ -12,6 +12,6 @@ void main()
 	//clipspace position by multiplying the MVP matrix with the vertex position
 	gl_Position = MVP*vec4(vVertex,1);
 	
-	//output the object vertex vertex position as teh 3D texture coordinate
+	//output the object vertex vertex position as the 3D texture coordinate
 	uv = vVertex;
 }

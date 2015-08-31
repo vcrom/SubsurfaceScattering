@@ -109,3 +109,8 @@ GLint fImage::getOpenGLImageInternalFormat()
 {
 	return GL_RGB8;
 }
+
+void fImage::flipDiagonal()
+{
+	assert(_image.flipHorizontal() && _image.flipVertical());
+}

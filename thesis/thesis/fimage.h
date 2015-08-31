@@ -20,6 +20,7 @@ public:
 	GLint getOpenGLFormat();
 	GLint getOpenGLImageType();
 	GLint getOpenGLImageInternalFormat();
+	void flipDiagonal();
 
 protected:
 	fipImage _image;

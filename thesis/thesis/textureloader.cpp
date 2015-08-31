@@ -48,12 +48,15 @@ std::shared_ptr<Texture2D> TextureLoader::createCubeMap(const std::string& folde
 											"/i_c01.jpg",   //negx
 											"/i_c02.jpg",   //posy
 											"/i_c03.jpg",   //negy
-											"/i_c04.jpg",   //posz
-											"/i_c05.jpg" };  //negz
+											"/i_c05.jpg",   //posz
+											"/i_c04.jpg" };  //negz
 
 	std::vector<fImage> faces(6);
 	for (int i = 0; i < 6; ++i)
+	{
 		faces[i].loadImage(folder_path + texture_names[i]);
+		if(i != 2 && i != 3) faces[i].flipDiagonal();
+	}
 	std::shared_ptr<Texture2D> tex = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_CUBE_MAP));
 	tex->use();
 	tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);

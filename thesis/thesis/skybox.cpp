@@ -46,14 +46,14 @@ GLenum CSkybox::getPrimitiveType() {
 
  void CSkybox::fillVertexBuffer(GLfloat* pBuffer) {
 	glm::vec3* vertices = (glm::vec3*)(pBuffer); 
-	vertices[0]=glm::vec3(-0.5f,-0.5f,-0.5f);
-	vertices[1]=glm::vec3( 0.5f,-0.5f,-0.5f);
-	vertices[2]=glm::vec3( 0.5f, 0.5f,-0.5f);
-	vertices[3]=glm::vec3(-0.5f, 0.5f,-0.5f);
-	vertices[4]=glm::vec3(-0.5f,-0.5f, 0.5f);
-	vertices[5]=glm::vec3( 0.5f,-0.5f, 0.5f);
-	vertices[6]=glm::vec3( 0.5f, 0.5f, 0.5f);
-	vertices[7]=glm::vec3(-0.5f, 0.5f, 0.5f); 
+	vertices[0]=glm::vec3(-1.0f,-1.0f,-1.0f);
+	vertices[1]=glm::vec3( 1.0f,-1.0f,-1.0f);
+	vertices[2]=glm::vec3( 1.0f, 1.0f,-1.0f);
+	vertices[3]=glm::vec3(-1.0f, 1.0f,-1.0f);
+	vertices[4]=glm::vec3(-1.0f,-1.0f, 1.0f);
+	vertices[5]=glm::vec3( 1.0f,-1.0f, 1.0f);
+	vertices[6]=glm::vec3( 1.0f, 1.0f, 1.0f);
+	vertices[7]=glm::vec3(-1.0f, 1.0f, 1.0f); 
 }
 
 void CSkybox::fillIndexBuffer(GLuint* pBuffer) {
@@ -82,29 +82,28 @@ void CSkybox::fillIndexBuffer(GLuint* pBuffer) {
 	*id++ = 7; 	*id++ = 4; 	*id++ = 0;
 
 	//right face 
-	*id++ = 6; 	*id++ = 2; 	*id++ = 5;
+	*id++ = 5; 	*id++ = 6; 	*id++ = 2;
 	*id++ = 2; 	*id++ = 1; 	*id++ = 5;
 }
 
 void CSkybox::fillNormalBuffer(GLfloat* pBuffer)
 {
     glm::vec3* normal = (glm::vec3*)(pBuffer);
-    normal[0]=glm::vec3(0.5f, 0.5f, 0.5f);
-    normal[1]=glm::vec3(-0.5f, 0.5f, 0.5f);
-    normal[2]=glm::vec3(-0.5f, -0.5f, 0.5f);
-    normal[3]=glm::vec3(0.5f, -0.5f, 0.5f);
-    normal[4]=glm::vec3(0.5f, 0.5f, -0.5f);
-    normal[5]=glm::vec3(-0.5f, 0.5f, -0.5f);
-    normal[6]=glm::vec3(-0.5f, -0.5f, -0.5f);
-    normal[7]=glm::vec3(0.5f, -0.5f, -0.5f);
+    normal[0]=glm::vec3(1.0f, 1.0f, 1.0f);
+    normal[1]=glm::vec3(-1.0f, 1.0f, 1.0f);
+    normal[2]=glm::vec3(-1.0f, -1.0f, 1.0f);
+    normal[3]=glm::vec3(1.0f, -1.0f, 1.0f);
+    normal[4]=glm::vec3(1.0f, 1.0f, -1.0f);
+    normal[5]=glm::vec3(-1.0f, 1.0f, -1.0f);
+    normal[6]=glm::vec3(-1.0f, -1.0f, -1.0f);
+    normal[7]=glm::vec3(1.0f, -1.0f, -1.0f);
 }
 
 
 void CSkybox::render(const GLfloat* MVP) {
+	_sky_texture->use(GL_TEXTURE0);
     shader.use();
         glUniformMatrix4fv(shader("MVP"), 1, GL_FALSE, MVP);
-        glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, _sky_texture->getTextureID());
         RenderableObject::render();
     shader.unUse();
 }

@@ -240,6 +240,10 @@ void GlslShaderManager::initMainRenderShader()
 	shader.addUniform("viewInverseTransposeM"); 
 	shader.addUniform("z_near");
 	shader.addUniform("roughness");
+
+	shader.addUniform("diffuse_env");
+	glUniform1i(shader("diffuse_env"), 5);
+
 	shader.unUse();
 	checkCritOpenGLError();
 
