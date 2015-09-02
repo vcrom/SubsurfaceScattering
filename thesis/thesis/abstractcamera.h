@@ -12,7 +12,8 @@ public:
 	void setupProjection(const float fovy, const float aspectRatio, const float near = 0.1f, const float far = 1000.0f);
 
 	virtual void update() = 0;
-	virtual void rotate(const float yaw, const float pitch, const float roll);
+	virtual void rotated(const float yaw, const float pitch, const float roll);
+	virtual void rotater(const float yaw, const float pitch, const float roll);
 
 	const glm::mat4 getViewMatrix() const;
 	const glm::mat4 getProjectionMatrix() const;
@@ -27,6 +28,7 @@ public:
 	void setAspectRatio(const float aspRatio);
 	float getZfar();
 	float getZnear();
+	glm::vec3 getYawPitchRoll();
 
 
 protected:

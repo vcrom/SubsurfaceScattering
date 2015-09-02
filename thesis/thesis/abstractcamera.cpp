@@ -78,10 +78,24 @@ float AbstractCamera::getZnear()
 	return z_near_;
 }
 
-void AbstractCamera::rotate(const float y, const float p, const float r)
+void AbstractCamera::rotated(const float y, const float p, const float r)
 {
 	yaw_ = glm::radians(y);
 	pitch_ = glm::radians(p);
 	roll_ = glm::radians(r);
 	update();
+}
+
+void AbstractCamera::rotater(const float y, const float p, const float r)
+{
+	yaw_ = y;
+	pitch_ = p;
+	roll_ = r;
+	update();
+}
+
+
+glm::vec3 AbstractCamera::getYawPitchRoll()
+{
+	return glm::vec3(yaw_, pitch_, roll_);
 }

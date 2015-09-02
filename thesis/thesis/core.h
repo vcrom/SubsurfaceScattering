@@ -70,6 +70,9 @@ public:
 
 	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
 
+	//cam load and save stuff
+	void saveCamtoFile(const std::string &path);
+	void loadCamFromFile(const std::string &path);
 
 private:
 	//constants
