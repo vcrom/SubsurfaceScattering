@@ -96,7 +96,7 @@ uniform sampler2D lineal_depth_texture;
 uniform float sssWidth;
 uniform float cam_fovy;
 
-
+uniform float kernel_range = 3.0f;
 uniform float correction = 300;
 smooth in vec2 vUV;
 
@@ -139,14 +139,14 @@ float rgb2gray(vec3 rgb)
 //////////////////////////////////////////////////
 
 //Filtering
-#define ORIGINAL_FILTER
+//#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-//#define SIMPLE_BILATERAL_FILTER
+#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
 ///Strengh factor
-//#define STREGTH_CURVATURE
+#define STREGTH_CURVATURE
 
 #ifdef STREGTH_CURVATURE
 	#define SSSS_STREGTH_SOURCE 1.0+texture(curvature_texture, vUV).r
@@ -159,7 +159,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 	// Fetch color of current pixel:
     vec4 colorM = texture(colorTex, texcoord).rgba;
 	#ifdef CROSS_BILATERAL_FILTER
-		float I_p = rgb2gray(colorM)*texture(cross_bilateral_factor, texcoord).r;
+		float I_p = rgb2gray(colorM.rgb)*texture(cross_bilateral_factor, texcoord).r;
 	#endif
 
 	if (SSSS_STREGTH_SOURCE == 0.0) discard;
@@ -175,7 +175,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
     // Calculate the final step to fetch the surrounding pixels:
     vec2 finalStep = sssWidth * scale * dir * 0.7;
     finalStep *= SSSS_STREGTH_SOURCE; // Modulate it using the alpha channel.
-    finalStep *= 1.0 / 3.0;//(3.0*sssWidth);//3.0; // Divide by 3 as the kernels range from -3 to 3.
+    finalStep *= 1.0 / kernel_range;//(3.0*sssWidth);//3.0; // Divide by 3 as the kernels range from -3 to 3.
 
 	// Accumulate the center sample:
     vec4 colorBlurred = vec4(0);//colorM;

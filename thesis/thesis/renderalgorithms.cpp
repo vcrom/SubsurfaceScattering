@@ -32,6 +32,7 @@ std::vector<float> RenderAlgorithms::_ssss_precomputed_kernel = std::vector<floa
 std::vector<float> RenderAlgorithms::_ssss_precomputed_kernel_sampled = std::vector<float>();
 
 int RenderAlgorithms::_num_sss_samples = 0;
+float RenderAlgorithms::_pre_int_range = 1;
 
 //static void initialize(unsigned int num_tex);
 //static void resizeTextures(unsigned int w, unsigned int h);
@@ -151,6 +152,7 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	glEnable(GL_DEPTH_TEST);
 
 	fbo->useFrameBuffer(1);
+
 	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -653,20 +655,32 @@ void RenderAlgorithms::setSeparableKernels(int kernel)
 
 	horizontal->use();
 	glUniform1i(horizontal->operator()("ssss_n_samples"), _num_sss_samples);
-	if (kernel == 0) 
-		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples*4, &_ssss_kernel[0]);
+	if (kernel == 0)
+	{
+		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, &_ssss_kernel[0]);
+		glUniform1f(horizontal->operator()("kernel_range"), 3.0f);
+	}
 	else if (kernel == 1)
+	{
 		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, &_ssss_precomputed_kernel_sampled[0]);
+		glUniform1f(horizontal->operator()("kernel_range"), _pre_int_range);
+	}
 	horizontal->unUse();
 
 	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
 
 	vertical->use();
 	glUniform1i(vertical->operator()("ssss_n_samples"), _num_sss_samples);
-	if (kernel == 0) 
+	if (kernel == 0)
+	{
 		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, &_ssss_kernel[0]);
-	else if (kernel == 1) 
+		glUniform1f(vertical->operator()("kernel_range"), 3.0f);
+	}
+	else if (kernel == 1)
+	{
 		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, &_ssss_precomputed_kernel_sampled[0]);
+		glUniform1f(vertical->operator()("kernel_range"), _pre_int_range);
+	}
 	vertical->unUse();
 	checkCritOpenGLError();
 }
@@ -786,19 +800,27 @@ glm::vec3 linInterpol1D(const std::vector<float> &kernelData, float _x, unsigned
 
 void RenderAlgorithms::computeSampledPreIntegratedKernel(int num_samples)
 {
+	//int counter = 0;
 	std::cout << "Computing Sampled preintegrated" << std::endl;
- 	const float EXPONENT = 2.0f; // used for impartance sampling
-	float RANGE = _ssss_precomputed_kernel[_ssss_precomputed_kernel.size()-1];
+	std::chrono::high_resolution_clock::time_point t1 = hi_clock.now();
 
+ 	const float EXPONENT = 2.0f; // used for impartance sampling
+	//std::cout << ++counter << std::endl;
+	float RANGE = _ssss_precomputed_kernel[_ssss_precomputed_kernel.size()-1];
+	_pre_int_range = RANGE;
+	//std::cout << ++counter << std::endl;
 	// calculate offsets
 	std::vector<float> offsets;
 	calculateOffsets(RANGE, EXPONENT, num_samples, offsets);
+	//std::cout << ++counter << std::endl;
 
 	// calculate areas (using importance-sampling) 
 	std::vector<float> areas;
 	calculateAreas(offsets, areas);
+	//std::cout << ++counter << std::endl;
 
 	_ssss_precomputed_kernel_sampled = std::vector<float>(num_samples * 4);
+	//std::cout << ++counter << std::endl;
 
 	glm::vec3 sum = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -817,14 +839,14 @@ void RenderAlgorithms::computeSampledPreIntegratedKernel(int num_samples)
 		sum.y += _ssss_precomputed_kernel_sampled[i*4 + 1];
 		sum.z += _ssss_precomputed_kernel_sampled[i*4 + 2];
 	}
-
+	//std::cout << ++counter << std::endl;
 	// Normalize
 	for (int i = 0; i < num_samples; i++) {
 		_ssss_precomputed_kernel_sampled[i*4] /= sum.x;
 		_ssss_precomputed_kernel_sampled[i*4 + 1] /= sum.y;
 		_ssss_precomputed_kernel_sampled[i*4 + 2] /= sum.z;
 	}
-
+	//std::cout << ++counter << std::endl;
 	// TEMP put center at first
 	glm::vec4 t = glm::vec4(_ssss_precomputed_kernel_sampled[(num_samples / 2) * 4], _ssss_precomputed_kernel_sampled[(num_samples / 2) * 4 + 1], _ssss_precomputed_kernel_sampled[(num_samples / 2) * 4 + 2], _ssss_precomputed_kernel_sampled[(num_samples / 2) * 4 + 3]);
 	for (int i = num_samples / 2; i > 0; i--)
@@ -834,9 +856,11 @@ void RenderAlgorithms::computeSampledPreIntegratedKernel(int num_samples)
 		_ssss_precomputed_kernel_sampled[i * 4 + 2] = _ssss_precomputed_kernel_sampled[(i - 1) * 4 + 2];
 		_ssss_precomputed_kernel_sampled[i * 4 + 3] = _ssss_precomputed_kernel_sampled[(i - 1) * 4 + 3];
 	}
+	//std::cout << ++counter << std::endl;
 	//_ssss_kernel[0] = t;
 	_ssss_precomputed_kernel_sampled[0] = t.x;
 	_ssss_precomputed_kernel_sampled[1] = t.y;
 	_ssss_precomputed_kernel_sampled[2] = t.z;
 	_ssss_precomputed_kernel_sampled[3] = t.w;
+	//std::cout << ++counter << std::endl;
 }

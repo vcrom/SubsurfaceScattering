@@ -82,8 +82,8 @@ uniform float translucency;
 
 ///////////////Shadows///////////////
 //shadow mapping mode
-//#define PCF_STRATIFIED_3x3
-#define PCF_STRATIFIED_4x4
+#define PCF_STRATIFIED_3x3
+//#define PCF_STRATIFIED_4x4
 //#define PCF_RANDOM_SAMPLING
 //#define SIMPLE_SHADOW_MAP
 
@@ -249,7 +249,7 @@ vec3 FresnelSchlick(vec3 F0, vec3 l, vec3 h)
 }
 
 //#define NORMAL_MAP_CURV
-#define TRANSLUCENCY_MOD_CURV
+//#define TRANSLUCENCY_MOD_CURV
 void main()
 {
 	//Main
@@ -308,26 +308,22 @@ void main()
 	L = normalize(L);
 	vec3 H = normalize(L + V);
 
-	float attenuation = 1.0; 
-	float spot = 1.0; 
-	vec3 f1 = light_color * attenuation * spot;
-	vec3 f2 = albedo.rgb * f1;
+	vec3 f2 = albedo.rgb * light_color;
 
-	float diffuse = saturate(dot(L, aux_N/*view_normal*/)) * m_ambientcomp;
+	float diffuse = saturate(dot(L, N));// * m_ambientcomp;
 
 	//specular
 	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
-	//float specular = max(0, pow(dot(N, H), 17)) * spec_int;//17
-	//float specular = intensity * SpecularKSK(beckmannTex, normal, light, input.view, roughness);
+	//float specular = max(0, pow(dot(N, H), 17)) * spec_int;
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);
 	// Add the diffuse and specular components:
     #ifdef SEPARATE_SPECULARS
     color.rgb += shadow * f2 * diffuse;
-    FragSpecularColor += shadow * f1 * specular;
+    FragSpecularColor += shadow * light_color * specular;
     #else
-    color.rgb += shadow * (f2 * diffuse + f1 * specular);
+    color.rgb += shadow * (f2 * diffuse + light_color * specular);
     #endif
 
 	// Add the transmittance component:
@@ -341,9 +337,12 @@ void main()
 	}
 	////end for
 	//// Add the ambient component:
-    //color.rgb += occlusion*albedo.rgb*1.75*pow(texture(diffuse_env, view_normal).rgb, vec3(2.2));
+	//color.rgb += occlusion*albedo.rgb;
+    color.rgb += occlusion*albedo.rgb*pow(texture(diffuse_env, view_normal).rgb, vec3(2.2));
 	//color.rgb += occlusion*albedo.rgb*1.75*pow(texture(diffuse_env, aux_N).rgb, vec3(2.2));
-	color.rgb += occlusion*albedo.rgb*1.5*pow(texture(diffuse_env, N).rgb, vec3(2.2));
+	//color.rgb += occlusion*albedo.rgb*1.5*pow(texture(diffuse_env, N).rgb, vec3(2.2));
+	//color.rgb += occlusion*albedo.rgb*(pow(pow(texture(diffuse_env, N).rgb, vec3(2.2))+1, vec3(2))-vec3(1));
+	//color.rgb += occlusion*albedo.rgb*1.5*pow(texture(diffuse_env, N).rgb, vec3(2.2));
 
 	//// Store the linear depth value:
 	FragLinearDepth = linear_depth;

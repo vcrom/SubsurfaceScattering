@@ -334,8 +334,9 @@ void GlslShaderManager::initSeparableSSSSHori()
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
 
-	shader.addUniform("ssss_n_samples");
+	shader.addUniform("ssss_n_samples"); 
 	shader.addUniform("kernel");
+	shader.addUniform("kernel_range");
 
 	shader.unUse();
 	checkCritOpenGLError();
@@ -366,6 +367,7 @@ void GlslShaderManager::initSeparableSSSSVert()
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");
+	shader.addUniform("kernel_range");
 
 	shader.unUse();
 	checkCritOpenGLError();

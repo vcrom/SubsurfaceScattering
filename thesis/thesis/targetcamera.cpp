@@ -36,12 +36,12 @@ void TargetCamera::initFromBBox(BBox bbox)
 	initialize();
 	target_ = bbox.getCenter();
 	float rad = bbox.getCircumRadius();
-	min_distance_to_target_ = 1.2f*rad;
+	min_distance_to_target_ = 0.7f*rad;
 	max_distance_to_target_ = 4 * rad;
 	if (distance_to_target_ == 0) distance_to_target_ = 2 * rad;
 	//rX = 0;
 	//rY = 0;
-	z_near_ = 0.5f*rad;
+	z_near_ = 0.1f*rad;
 	z_far_ = 15.0f * rad;
 	//CAbstractCamera::Rotate(0, 0, 0);
 	setupProjection(fov_, aspect_ratio_, z_near_, z_far_);

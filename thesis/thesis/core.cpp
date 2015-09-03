@@ -282,8 +282,9 @@ void Core::initialize()
 
 	loadMesh("meshes/tests.ply");
 	_light->scale(glm::vec3(0.19));
-	_light->setPosition(glm::vec3(2)*glm::vec3(0.5, 1, 0.5));
+	_light->setPosition(glm::vec3(1.5, 0.4, 0.9));
 	moveLight(glm::vec3(0.00001, 0, 0));
+	moveLight(glm::vec3(-0.00001, 0, 0));
 	computeLightMatrices();
 
 	//Load skybox and pbr envs
@@ -346,9 +347,6 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 
 	_curvature_tex->use();
 	_curvature_tex->resize(w, h);
-
-	//_screen_space_curvature->use();
-	//_screen_space_curvature->resize(w, h);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
@@ -627,9 +625,10 @@ void Core::toneMap()
 	glStencilMask(0x00);
 	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 	_generic_buffer->useFrameBuffer();
-	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 0.1f, 1000.0f);
-	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(1000.0f));
-	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()* _object->getTransformations() * S));
+	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 0.01f, 10000.0f);
+	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(100.0f));
+	glm::mat4 T = glm::translate(glm::mat4(1), _object->getBBox().getCenter());
+	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()/** _object->getTransformations()*/ * S * T));
 	glDisable(GL_STENCIL_TEST);
 
 
@@ -753,8 +752,8 @@ void Core::setSSSMethod(int val)
 	if (_sss_method < 2)
 	{
 		RenderAlgorithms::setSeparableKernels(_sss_method);
-		if (_sss_method == 0)_ssss_mod_factor = 0.6f;
-		else if (_sss_method == 1) _ssss_mod_factor = 0.07f;
+		if (_sss_method == 0)_ssss_mod_factor = 0.7f;
+		else if (_sss_method == 1) _ssss_mod_factor = 0.2f; //_ssss_mod_factor = 0.07f;
 	}
 }
 
@@ -785,6 +784,7 @@ void Core::moveLight(glm::vec3 dir)
 {
 	_light->translate(LIGHT_MOV_SPEED*glm::normalize(dir));
 	computeLightMatrices();
+	std::cout << "light pos: " << glm::to_string(_light->getPosition()) << std::endl;
 }
 
 void Core::reloadShaders()
@@ -840,6 +840,30 @@ void Core::setSSSGreenStr(float s)
 void Core::setSSSBlueStr(float s)
 {
 	_sss_strength.b = s;
+	//Compute kernel
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
+}
+
+void Core::setSSSRedFalloff(float s)
+{
+	_falloff[0] = s;
+	//Compute kernel
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
+}
+
+void Core::setSSSGreenFalloff(float s)
+{
+	_falloff[1] = s;
+	//Compute kernel
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
+}
+
+void Core::setSSSBlueFalloff(float s)
+{
+	_falloff[2] = s;
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));

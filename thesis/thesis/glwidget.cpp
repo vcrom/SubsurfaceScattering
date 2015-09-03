@@ -121,6 +121,16 @@ void GLWidget::keyPressEvent(QKeyEvent* event)
 		core_engine_->moveLight(glm::vec3(1, 0, 0));
 		update();
 	}
+	else if (event->key() == Qt::Key_E)
+	{
+		core_engine_->moveLight(glm::vec3(0, 1, 0));
+		update();
+	}
+	else if (event->key() == Qt::Key_Q)
+	{
+		core_engine_->moveLight(glm::vec3(0, -1, 0));
+		update();
+	}
 	else if (event->key() == Qt::Key_M)
 	{
 		QString filename = QFileDialog::getOpenFileName(this, tr("Load Mesh"), _previous_path, tr("PLY Files (*.ply);;All files (*)"));
@@ -284,12 +294,28 @@ void GLWidget::setSSSRedStr(double s)
 }
 void GLWidget::setSSSGreenStr(double s)
 {
-	core_engine_->setSSSRedStr(s);
+	core_engine_->setSSSGreenStr(s);
 	update();
 }
 void GLWidget::setSSSBlueStr(double s)
 {
-	core_engine_->setSSSRedStr(s);
+	core_engine_->setSSSBlueStr(s);
+	update();
+}
+
+void GLWidget::setSSSRedFalloff(double s)
+{
+	core_engine_->setSSSRedFalloff(s);
+	update();
+}
+void GLWidget::setSSSGreenFalloff(double s)
+{
+	core_engine_->setSSSGreenFalloff(s);
+	update();
+}
+void GLWidget::setSSSBlueFalloff(double s)
+{
+	core_engine_->setSSSBlueFalloff(s);
 	update();
 }
 

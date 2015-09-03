@@ -30,6 +30,9 @@ public slots:
 	void setSSSRedStr(double s);
 	void setSSSGreenStr(double s);
 	void setSSSBlueStr(double s);
+	void setSSSRedFalloff(double s);
+	void setSSSGreenFalloff(double s);
+	void setSSSBlueFalloff(double s);
 	void setSSSNumSamples(int s);
 	void setGlossines(double g);
 

@@ -68,6 +68,10 @@ public:
 	void setSSSNumSamples(int s);
 	void setGlossines(float g);
 
+	void setSSSRedFalloff(float s);
+	void setSSSGreenFalloff(float s);
+	void setSSSBlueFalloff(float s);
+
 	void loadPreComputedKernel(const std::string &path);
 	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
 

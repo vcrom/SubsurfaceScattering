@@ -66,6 +66,7 @@ private:
 	static std::vector<float> _ssss_kernel;
 	static std::vector<float> _ssss_precomputed_kernel, _ssss_precomputed_kernel_sampled;
 	static int _num_sss_samples;
+	static float _pre_int_range;
 
 	static std::vector<float> _gaussian_weights;
 };

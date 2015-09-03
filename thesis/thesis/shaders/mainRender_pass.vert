@@ -45,7 +45,7 @@ void main()
 
 	//shading variables
 	vec4 world_pos = worldM*vec4(vVertex, 1);
-	worldPosition = world_pos.xyz;
+	worldPosition = world_pos.xyz/world_pos.w;
 	view_vector = m_camera_pos - worldPosition;
 	worldNormal = vec4(worldInverseTransposeM*vec4(vNormal, 1)).xyz;
 	worldTangent = vec4(worldInverseTransposeM*vec4(vTangent, 1)).xyz;
