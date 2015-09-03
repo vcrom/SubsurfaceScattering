@@ -68,7 +68,9 @@ public:
 	void setSSSNumSamples(int s);
 	void setGlossines(float g);
 
+	void readPreComputedKernel(const std::string &path);
 	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
+
 
 
 private:

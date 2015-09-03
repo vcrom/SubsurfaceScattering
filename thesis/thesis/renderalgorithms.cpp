@@ -694,3 +694,8 @@ void RenderAlgorithms::setSSSSKernels()
 	setSeparableKernels();
 	setGaussianKernels();
 }
+
+void RenderAlgorithms::setPreComputedKernel(const std::vector<float> &kernel)
+{
+	_ssss_precomputed_kernel = kernel;
+}

@@ -844,3 +844,8 @@ void Core::setGlossines(float g)
 	_glossines = g;
 	_roughness = std::pow(ALPHA_MAX, g);
 }
+
+void Core::readPreComputedKernel(const std::string &path)
+{
+
+}
