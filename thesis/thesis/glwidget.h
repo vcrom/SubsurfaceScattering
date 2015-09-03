@@ -36,6 +36,7 @@ public slots:
 	void saveCam(const QString &path);
 	void loadCam(const QString &path);
 	void loadKernel(const QString &path);
+	void loadEnviroment(const QString &path);
 
 protected:
 	void paintGL();

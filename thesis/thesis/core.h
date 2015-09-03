@@ -74,7 +74,7 @@ public:
 	//cam load and save stuff
 	void saveCamtoFile(const std::string &path);
 	void loadCamFromFile(const std::string &path);
-
+	void loadEnviroment(const std::string &path);
 
 private:
 	//constants
@@ -114,7 +114,7 @@ private:
 		//pbr
 		_diffuse_env_texture;
 
-	std::string _enviroment_path;
+	//std::string _enviroment_path;
 
 	void initializeTextures();
 	void resizeTextures(unsigned int w, unsigned int h);

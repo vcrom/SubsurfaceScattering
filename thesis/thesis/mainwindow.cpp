@@ -47,3 +47,12 @@ void MainWindow::on_actionLoad_Kernel_tiggered()
 	if (!filename.isNull())
 		ui.widget->loadKernel(filename);
 }
+
+void MainWindow::on_actionLoadEnv_triggered()
+{
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Open enviroment dir"), "./", QFileDialog::ShowDirsOnly);
+	if (!dir.isNull())
+	{
+		ui.widget->loadEnviroment(dir);
+	}
+}

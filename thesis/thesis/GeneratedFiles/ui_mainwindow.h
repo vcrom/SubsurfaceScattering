@@ -39,6 +39,7 @@ class Ui_mainwindowClass
 public:
     QAction *actionSaveCam;
     QAction *actionLoadCam;
+    QAction *actionLoadEnv;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     GLWidget *widget;
@@ -102,6 +103,8 @@ public:
         actionSaveCam->setObjectName(QStringLiteral("actionSaveCam"));
         actionLoadCam = new QAction(mainwindowClass);
         actionLoadCam->setObjectName(QStringLiteral("actionLoadCam"));
+        actionLoadEnv = new QAction(mainwindowClass);
+        actionLoadEnv->setObjectName(QStringLiteral("actionLoadEnv"));
         centralWidget = new QWidget(mainwindowClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayout = new QHBoxLayout(centralWidget);
@@ -420,6 +423,7 @@ public:
 
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(menuCammera->menuAction());
+        menuFile->addAction(actionLoadEnv);
         menuCammera->addAction(actionSaveCam);
         menuCammera->addAction(actionLoadCam);
 
@@ -447,6 +451,7 @@ public:
         mainwindowClass->setWindowTitle(QApplication::translate("mainwindowClass", "mainwindow", 0));
         actionSaveCam->setText(QApplication::translate("mainwindowClass", "Save", 0));
         actionLoadCam->setText(QApplication::translate("mainwindowClass", "Load", 0));
+        actionLoadEnv->setText(QApplication::translate("mainwindowClass", "Load Env", 0));
         label->setText(QApplication::translate("mainwindowClass", "Control Panel", 0));
         pushButton->setText(QApplication::translate("mainwindowClass", "Reload Shaders", 0));
         radioButton->setText(QApplication::translate("mainwindowClass", "SSS active", 0));

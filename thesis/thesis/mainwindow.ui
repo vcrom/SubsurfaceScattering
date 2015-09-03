@@ -451,6 +451,7 @@
      <addaction name="actionLoadCam"/>
     </widget>
     <addaction name="menuCammera"/>
+    <addaction name="actionLoadEnv"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -471,6 +472,11 @@
   <action name="actionLoadCam">
    <property name="text">
     <string>Load</string>
+   </property>
+  </action>
+  <action name="actionLoadEnv">
+   <property name="text">
+    <string>Load Env</string>
    </property>
   </action>
  </widget>

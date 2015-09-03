@@ -34,10 +34,6 @@ Core::Core()
 	_num_samples = 20;
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
 	_falloff = {1.0f, 0.37f, 0.3f};
-
-	//_enviroment_path = "textures/env1";
-	_enviroment_path = "textures/env2";
-	//_enviroment_path = "textures/env3";
 }
 
 #include "fimage.h"
@@ -249,7 +245,7 @@ void Core::initializeTextures()
 	_background_texture = TextureLoader::create2DTexture("textures/forest.jpg");
 	//_background_texture = TextureLoader::create2DTexture("textures/tris.jpg");
 
-	_diffuse_env_texture = TextureLoader::createCubeMap(_enviroment_path + "/diffuse");
+	//_diffuse_env_texture = TextureLoader::createCubeMap(_enviroment_path + "/diffuse");
 	//loadMeshDiffuseTexture("textures/flower.jpg"); 
 	loadMeshDiffuseTexture("textures/tests.png"); 
 	loadMeshAOTexture("textures/AO.jpg");
@@ -291,7 +287,8 @@ void Core::initialize()
 	computeLightMatrices();
 
 	//Load skybox and pbr envs
-	_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path+"/skybox"));
+	loadEnviroment("textures/env2");
+	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path+"/skybox"));
 	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path + "/diffuse"));
 
 	//load kernel
@@ -631,7 +628,7 @@ void Core::toneMap()
 	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 	_generic_buffer->useFrameBuffer();
 	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 0.1f, 1000.0f);
-	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(100.0f));
+	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(1000.0f));
 	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()* _object->getTransformations() * S));
 	glDisable(GL_STENCIL_TEST);
 
@@ -888,6 +885,12 @@ void Core::loadCamFromFile(const std::string &path)
 	file.close();
 
 	std::cout << "Load " << path << std::endl;
+}
+
+void Core::loadEnviroment(const std::string &path)
+{
+	_sky_box = std::shared_ptr<CSkybox>(new CSkybox(path + "/skybox"));
+	_diffuse_env_texture = TextureLoader::createCubeMap(path + "/diffuse");
 }
 
 void Core::loadPreComputedKernel(const std::string &path)

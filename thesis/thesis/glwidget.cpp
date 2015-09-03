@@ -322,3 +322,8 @@ void GLWidget::loadKernel(const QString &path)
 {
 	core_engine_->loadPreComputedKernel(path.toLatin1().data());
 }
+
+void GLWidget::loadEnviroment(const QString &path)
+{
+	core_engine_->loadEnviroment(path.toLatin1().data());
+}
