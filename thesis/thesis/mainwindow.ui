@@ -431,8 +431,14 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNothing"/>
-    <addaction name="actionFoo"/>
+    <widget class="QMenu" name="menuCammera">
+     <property name="title">
+      <string>Camera</string>
+     </property>
+     <addaction name="actionSaveCam"/>
+     <addaction name="actionLoadCam"/>
+    </widget>
+    <addaction name="menuCammera"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -445,14 +451,19 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionNothing">
-   <property name="text">
-    <string>nothing</string>
-   </property>
-  </action>
   <action name="actionFoo">
    <property name="text">
     <string>foo</string>
+   </property>
+  </action>
+  <action name="actionSaveCam">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionLoadCam">
+   <property name="text">
+    <string>Load</string>
    </property>
   </action>
  </widget>

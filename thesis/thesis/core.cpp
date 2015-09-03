@@ -1,13 +1,13 @@
 #include "core.h"
 
-#include <iostream>
-#include <chrono>
-//#include <thread>
-
 #include "utils.h"
 #include "meshimporter.h"
 #include "renderalgorithms.h"
 
+#include <iostream>
+#include <chrono>
+#include <fstream>
+//#include <thread>
 
 Core::Core()
 {
@@ -843,6 +843,35 @@ void Core::setGlossines(float g)
 {
 	_glossines = g;
 	_roughness = std::pow(ALPHA_MAX, g);
+}
+
+void Core::saveCamtoFile(const std::string &path)
+{
+	std::ofstream file;
+	file.open(path);
+	glm::vec3 cam_pos = _cam.getPosition();
+	file << cam_pos.x << " " << cam_pos.y << " " << cam_pos.z << " ";
+	glm::vec3 cam_angles = _cam.getYawPitchRoll();
+	file << cam_angles.x << " " << cam_angles.y << " " << cam_angles.z;
+	file.close();
+	std::cout << "Save: " << path << std::endl;
+}
+
+void Core::loadCamFromFile(const std::string &path)
+{
+	std::ifstream file;
+	file.open(path);
+	glm::vec3 cam_pos, cam_angles;
+	file >> cam_pos.x >> cam_pos.y >> cam_pos.z;
+	_cam.setPosition(cam_pos);
+	_cam.zoom(0);
+	file >> cam_angles.x >> cam_angles.y >> cam_angles.z;
+	_cam.rotater(cam_angles.x, cam_angles.y, cam_angles.z);
+	_cam.update();
+
+	file.close();
+
+	std::cout << "Load " << path << std::endl;
 }
 
 void Core::readPreComputedKernel(const std::string &path)

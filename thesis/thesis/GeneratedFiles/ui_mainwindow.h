@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.1
+** Created by: Qt User Interface Compiler version 5.5.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -37,8 +37,9 @@ QT_BEGIN_NAMESPACE
 class Ui_mainwindowClass
 {
 public:
-    QAction *actionNothing;
     QAction *actionFoo;
+    QAction *actionSaveCam;
+    QAction *actionLoadCam;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     GLWidget *widget;
@@ -88,6 +89,7 @@ public:
     QSpacerItem *verticalSpacer;
     QMenuBar *menuBar;
     QMenu *menuFile;
+    QMenu *menuCammera;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -96,10 +98,12 @@ public:
         if (mainwindowClass->objectName().isEmpty())
             mainwindowClass->setObjectName(QStringLiteral("mainwindowClass"));
         mainwindowClass->resize(910, 697);
-        actionNothing = new QAction(mainwindowClass);
-        actionNothing->setObjectName(QStringLiteral("actionNothing"));
         actionFoo = new QAction(mainwindowClass);
         actionFoo->setObjectName(QStringLiteral("actionFoo"));
+        actionSaveCam = new QAction(mainwindowClass);
+        actionSaveCam->setObjectName(QStringLiteral("actionSaveCam"));
+        actionLoadCam = new QAction(mainwindowClass);
+        actionLoadCam->setObjectName(QStringLiteral("actionLoadCam"));
         centralWidget = new QWidget(mainwindowClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayout = new QHBoxLayout(centralWidget);
@@ -399,6 +403,8 @@ public:
         menuBar->setGeometry(QRect(0, 0, 910, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
+        menuCammera = new QMenu(menuFile);
+        menuCammera->setObjectName(QStringLiteral("menuCammera"));
         mainwindowClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(mainwindowClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -408,8 +414,9 @@ public:
         mainwindowClass->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
-        menuFile->addAction(actionNothing);
-        menuFile->addAction(actionFoo);
+        menuFile->addAction(menuCammera->menuAction());
+        menuCammera->addAction(actionSaveCam);
+        menuCammera->addAction(actionLoadCam);
 
         retranslateUi(mainwindowClass);
         QObject::connect(radioButton, SIGNAL(clicked()), widget, SLOT(toggleSSS()));
@@ -433,8 +440,9 @@ public:
     void retranslateUi(QMainWindow *mainwindowClass)
     {
         mainwindowClass->setWindowTitle(QApplication::translate("mainwindowClass", "mainwindow", 0));
-        actionNothing->setText(QApplication::translate("mainwindowClass", "nothing", 0));
         actionFoo->setText(QApplication::translate("mainwindowClass", "foo", 0));
+        actionSaveCam->setText(QApplication::translate("mainwindowClass", "Save", 0));
+        actionLoadCam->setText(QApplication::translate("mainwindowClass", "Load", 0));
         label->setText(QApplication::translate("mainwindowClass", "Control Panel", 0));
         pushButton->setText(QApplication::translate("mainwindowClass", "Reload Shaders", 0));
         radioButton->setText(QApplication::translate("mainwindowClass", "SSS active", 0));
@@ -466,6 +474,7 @@ public:
         label_7->setText(QApplication::translate("mainwindowClass", "specularInt", 0));
         label_11->setText(QApplication::translate("mainwindowClass", "glossiness", 0));
         menuFile->setTitle(QApplication::translate("mainwindowClass", "File", 0));
+        menuCammera->setTitle(QApplication::translate("mainwindowClass", "Camera", 0));
     } // retranslateUi
 
 };

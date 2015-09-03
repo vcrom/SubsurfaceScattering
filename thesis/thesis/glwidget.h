@@ -33,6 +33,9 @@ public slots:
 	void setSSSNumSamples(int s);
 	void setGlossines(double g);
 
+	void saveCam(QString path);
+	void loadCam(QString path);
+
 protected:
 	void paintGL();
 	void initializeGL();

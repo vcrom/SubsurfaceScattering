@@ -83,7 +83,7 @@ void TargetCamera::rotate(const float yaw, const float pitch) {
 	x_axis_angle_ += pitch;
 	y_axis_angle_ = std::min(std::max(y_axis_angle_, min_y_angle_), max_y_angle_);
 
-	AbstractCamera::rotate(x_axis_angle_, y_axis_angle_, roll_);
+	AbstractCamera::rotated(x_axis_angle_, y_axis_angle_, roll_);
 }
 
 void TargetCamera::pan(const float dx, const float dy) {

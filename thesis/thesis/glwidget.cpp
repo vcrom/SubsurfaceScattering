@@ -304,3 +304,15 @@ void GLWidget::setGlossines(double g)
 	core_engine_->setGlossines(g);
 	update();
 }
+
+void GLWidget::saveCam(QString path)
+{
+	std::string string_path= path.toLatin1().data();
+	core_engine_->saveCamtoFile(string_path);
+}
+
+void GLWidget::loadCam(QString path)
+{
+	core_engine_->loadCamFromFile(path.toLatin1().data());
+	update();
+}
