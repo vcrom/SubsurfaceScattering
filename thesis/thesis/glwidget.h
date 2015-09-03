@@ -33,8 +33,9 @@ public slots:
 	void setSSSNumSamples(int s);
 	void setGlossines(double g);
 
-	void saveCam(QString path);
-	void loadCam(QString path);
+	void saveCam(const QString &path);
+	void loadCam(const QString &path);
+	void loadKernel(const QString &path);
 
 protected:
 	void paintGL();

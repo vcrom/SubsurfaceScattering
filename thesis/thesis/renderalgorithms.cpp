@@ -26,8 +26,10 @@ std::shared_ptr<GlslShaderManager> RenderAlgorithms::_shader_manager = GlslShade
 //const GLenum render_buff[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 GLuint RenderAlgorithms::default_buffer = 0;
 
-std::vector<float> RenderAlgorithms::_ssss_kernel = std::vector<float>();
-std::vector<float> RenderAlgorithms::_gaussian_weights = std::vector<float>();
+std::vector<float> RenderAlgorithms::_ssss_kernel = std::vector<float>(); 
+std::vector<float> RenderAlgorithms::_gaussian_weights = std::vector<float>(); 
+std::vector<float> RenderAlgorithms::_ssss_precomputed_kernel = std::vector<float>();
+std::vector<float> RenderAlgorithms::_ssss_precomputed_kernel_sampled = std::vector<float>();
 
 int RenderAlgorithms::_num_sss_samples = 0;
 
@@ -348,7 +350,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 
 void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
 {
-
+	std::cout << "WIDTH: " << sssWidth << std::endl;
 	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
 	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
 	horizontal->use();
@@ -601,7 +603,6 @@ void RenderAlgorithms::computeSeparableKernel(int num_samples, const glm::vec3 &
 
 		std::chrono::high_resolution_clock::time_point t2 = hi_clock.now();
 		std::cout << "\tSeparableKernelComputation time: " << std::chrono::duration_cast<time_unit>(t2 - t1).count() << std::endl;
-		setSeparableKernels();
 }
 
 void RenderAlgorithms::computeGaussianKernel(int num_samples)
@@ -637,29 +638,35 @@ void RenderAlgorithms::computeGaussianKernel(int num_samples)
 	for (int i = 0; i < num_samples * 2; i += 2)
 		_gaussian_weights[i] /= sum;
 
-	for (int i = 0; i < num_samples * 2; i += 2)
-		std::cout << _gaussian_weights[i] << " ";
-	std::cout << std::endl;
-	for (int i = 0; i < num_samples * 2; i += 2)
-		std::cout << _gaussian_weights[i+1] << " ";
-	std::cout << std::endl;
-	setGaussianKernels();
+	//for (int i = 0; i < num_samples * 2; i += 2)
+	//	std::cout << _gaussian_weights[i] << " ";
+	//std::cout << std::endl;
+	//for (int i = 0; i < num_samples * 2; i += 2)
+	//	std::cout << _gaussian_weights[i+1] << " ";
+	//std::cout << std::endl;
 }
 
-void RenderAlgorithms::setSeparableKernels()
+void RenderAlgorithms::setSeparableKernels(int kernel)
 {
+	assert(kernel == 0 || kernel == 1);
 	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
 
 	horizontal->use();
 	glUniform1i(horizontal->operator()("ssss_n_samples"), _num_sss_samples);
-	glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples*4, &_ssss_kernel[0]);
+	if (kernel == 0) 
+		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples*4, &_ssss_kernel[0]);
+	else if (kernel == 1)
+		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, &_ssss_precomputed_kernel_sampled[0]);
 	horizontal->unUse();
 
 	std::shared_ptr<GlslShader> vertical = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_VERTICAL_BLUR);
 
 	vertical->use();
 	glUniform1i(vertical->operator()("ssss_n_samples"), _num_sss_samples);
-	glUniform4fv(vertical->operator()("kernel"), _num_sss_samples*4, &_ssss_kernel[0]);
+	if (kernel == 0) 
+		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, &_ssss_kernel[0]);
+	else if (kernel == 1) 
+		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, &_ssss_precomputed_kernel_sampled[0]);
 	vertical->unUse();
 	checkCritOpenGLError();
 }
@@ -686,16 +693,150 @@ void RenderAlgorithms::computeKernels(int num_samples, const glm::vec3 &sss_stre
 	_num_sss_samples = num_samples;
 	computeSeparableKernel(num_samples, sss_strength, falloff);
 	computeGaussianKernel(num_samples);
-	//computeGaussianKernel(7);
+	computeSampledPreIntegratedKernel(num_samples);
 }
 
-void RenderAlgorithms::setSSSSKernels()
+void RenderAlgorithms::setSSSSKernels(int separable_mode)
 {
-	setSeparableKernels();
+	setSeparableKernels(separable_mode);
 	setGaussianKernels();
 }
 
 void RenderAlgorithms::setPreComputedKernel(const std::vector<float> &kernel)
 {
 	_ssss_precomputed_kernel = kernel;
+}
+
+void calculateOffsets(float _range, float _exponent, int _offsetCount, std::vector<float> & _offsets)
+{
+	// Calculate the offsets:
+	float step = 2.0f * _range / (_offsetCount - 1);
+	for (int i = 0; i < _offsetCount; i++) {
+		float o = -_range + float(i) * step;
+		float sign = o < 0.0f ? -1.0f : 1.0f;
+		float ofs = _range * sign * abs(pow(o, _exponent)) / pow(_range, _exponent);
+		_offsets.push_back(ofs);
+	}
+}
+
+void calculateAreas(std::vector<float> & _offsets, std::vector<float> & _areas)
+{
+	int size = _offsets.size();
+
+	for (int i = 0; i < size; i++) {
+		float w0 = i > 0 ? abs(_offsets[i] - _offsets[i - 1]) : 0.0f;
+		float w1 = i < size - 1 ? abs(_offsets[i] - _offsets[i + 1]) : 0.0f;
+		float area = (w0 + w1) / 2.0f;
+		_areas.push_back(area);
+	}
+}
+
+//r, g, b, x, y
+glm::vec3 linInterpol1D(const std::vector<float> &kernelData, float _x, unsigned int element_size)
+{
+	// naive, a lot to improve here
+	unsigned int num_elements = kernelData.size() / 4;
+	if (num_elements < 1) throw "_kernelData empty";
+
+	unsigned int i = 0;
+	while (i < num_elements)
+	{
+		if (_x > kernelData[i*element_size + 3]) i++;
+		else break;
+	}
+
+	glm::vec3 v;
+
+	if (i<1)
+	{
+		v.x = kernelData[0];
+		v.y = kernelData[1];
+		v.z = kernelData[2];
+	}
+	else if (i > num_elements - 1)
+	{
+		v.x = kernelData[(num_elements - 1)*element_size];
+		v.y = kernelData[(num_elements - 1)*element_size + 1];
+		v.z = kernelData[(num_elements - 1)*element_size + 2];
+	}
+	else
+	{
+		float br = kernelData[i*element_size];
+		float bg = kernelData[i*element_size + 1];
+		float bb = kernelData[i*element_size + 2];
+		float bx = kernelData[i*element_size + 3];
+
+		float ar = kernelData[(i - 1)*element_size];
+		float ag = kernelData[(i - 1)*element_size + 1];
+		float ab = kernelData[(i - 1)*element_size + 2];
+		float ax = kernelData[(i - 1)*element_size + 3];
+
+		float d = bx - ax;
+		float dx = _x - ax;
+
+		float t = dx / d;
+
+		v.x = ar * (1 - t) + br * t;
+		v.y = ag * (1 - t) + bg * t;
+		v.z = ab * (1 - t) + bb * t;
+	}
+
+	return v;
+}
+
+void RenderAlgorithms::computeSampledPreIntegratedKernel(int num_samples)
+{
+	std::cout << "Computing Sampled preintegrated" << std::endl;
+ 	const float EXPONENT = 2.0f; // used for impartance sampling
+	float RANGE = _ssss_precomputed_kernel[_ssss_precomputed_kernel.size()-1];
+
+	// calculate offsets
+	std::vector<float> offsets;
+	calculateOffsets(RANGE, EXPONENT, num_samples, offsets);
+
+	// calculate areas (using importance-sampling) 
+	std::vector<float> areas;
+	calculateAreas(offsets, areas);
+
+	_ssss_precomputed_kernel_sampled = std::vector<float>(num_samples * 4);
+
+	glm::vec3 sum = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	// compute interpolated weights
+	for (int i = 0; i<num_samples; i++)
+	{
+		float sx = offsets[i];
+
+		glm::vec3 v = linInterpol1D(_ssss_precomputed_kernel, sx, 4);
+		_ssss_precomputed_kernel_sampled[i*4] = v.x * areas[i];
+		_ssss_precomputed_kernel_sampled[i*4 + 1] = v.y * areas[i];
+		_ssss_precomputed_kernel_sampled[i*4 + 2] = v.z * areas[i];
+		_ssss_precomputed_kernel_sampled[i*4 + 3] = sx;
+
+		sum.x += _ssss_precomputed_kernel_sampled[i*4];
+		sum.y += _ssss_precomputed_kernel_sampled[i*4 + 1];
+		sum.z += _ssss_precomputed_kernel_sampled[i*4 + 2];
+	}
+
+	// Normalize
+	for (int i = 0; i < num_samples; i++) {
+		_ssss_precomputed_kernel_sampled[i*4] /= sum.x;
+		_ssss_precomputed_kernel_sampled[i*4 + 1] /= sum.y;
+		_ssss_precomputed_kernel_sampled[i*4 + 2] /= sum.z;
+	}
+
+	// TEMP put center at first
+	glm::vec4 t = glm::vec4(_ssss_precomputed_kernel_sampled[(num_samples / 2) * 4], _ssss_precomputed_kernel_sampled[(num_samples / 2) * 4 + 1], _ssss_precomputed_kernel_sampled[(num_samples / 2) * 4 + 2], _ssss_precomputed_kernel_sampled[(num_samples / 2) * 4 + 3]);
+	for (int i = num_samples / 2; i > 0; i--)
+	{
+		_ssss_precomputed_kernel_sampled[i * 4] = _ssss_precomputed_kernel_sampled[(i - 1) * 4];
+		_ssss_precomputed_kernel_sampled[i * 4 + 1] = _ssss_precomputed_kernel_sampled[(i - 1) * 4 + 1];
+		_ssss_precomputed_kernel_sampled[i * 4 + 2] = _ssss_precomputed_kernel_sampled[(i - 1) * 4 + 2];
+		_ssss_precomputed_kernel_sampled[i * 4 + 3] = _ssss_precomputed_kernel_sampled[(i - 1) * 4 + 3];
+	}
+	//_ssss_kernel[0] = t;
+	_ssss_precomputed_kernel_sampled[0] = t.x;
+	_ssss_precomputed_kernel_sampled[1] = t.y;
+	_ssss_precomputed_kernel_sampled[2] = t.z;
+	_ssss_precomputed_kernel_sampled[3] = t.w;
 }

@@ -18,7 +18,6 @@ Core::Core()
 	_sss_width = 0.005;//0.0117500005;
 	_translucency = 0.95;
 	_correction = 1700;
-	_sssStrength =  12.75;
 	_pixel_size = glm::vec2(1);
 	_exposure = 2;
 	_ambientInt = 1;
@@ -31,6 +30,7 @@ Core::Core()
 	_sss_method = 0;
 	_tone_mapping_method = 0;
 
+	_ssss_mod_factor = 0.5f;
 	_num_samples = 20;
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
 	_falloff = {1.0f, 0.37f, 0.3f};
@@ -90,6 +90,7 @@ void Core::initializeGL()
 	glewInitialization();
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearStencil(0);
+	//glClearDepth(0);
 
 
 	//glEnable(GL_DEPTH_TEST);
@@ -156,8 +157,8 @@ void Core::initializeTextures()
 	_diffuse_color_texture->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_diffuse_color_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_diffuse_color_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -166,8 +167,8 @@ void Core::initializeTextures()
 	_specular_texture->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_specular_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_specular_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_specular_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_specular_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -186,8 +187,8 @@ void Core::initializeTextures()
 	_aux_ssss_texture1->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -196,8 +197,8 @@ void Core::initializeTextures()
 	_aux_ssss_texture2->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -206,8 +207,8 @@ void Core::initializeTextures()
 	_aux_ssss_pingpong->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -292,8 +293,12 @@ void Core::initialize()
 	//Load skybox and pbr envs
 	_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path+"/skybox"));
 	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path + "/diffuse"));
+
+	//load kernel
+	loadPreComputedKernel("kernels/Skin1_PreInt_DISCSEP.bn");
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSeparableKernels(_sss_method%2);
 
 }
 
@@ -517,6 +522,7 @@ void Core::subSurfaceScatteringPass()
 	switch (_sss_method)
 	{
 	case 0: //SSSS
+	case 1: //precomputed kernel
 		//glDisable(GL_STENCIL_TEST);
 		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
@@ -525,13 +531,12 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*0.5, _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*_ssss_mod_factor, _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-
 		break;
-	case 1: //Perceptual
+	case 2: //Perceptual variable #samples
 		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
@@ -547,7 +552,7 @@ void Core::subSurfaceScatteringPass()
 		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		break;
-	case 2: //Perceptual
+	case 3: //Perceptual
 		_generic_buffer->useFrameBuffer(3);
 		_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);
 		_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
@@ -746,6 +751,14 @@ void Core::toggleControlBool(unsigned int i)
 void Core::setSSSMethod(int val)
 {
 	_sss_method = val;
+		//case 0: //SSSS
+		//case 1: //precomputed kernel
+	if (_sss_method < 2)
+	{
+		RenderAlgorithms::setSeparableKernels(_sss_method);
+		if (_sss_method == 0)_ssss_mod_factor = 0.6f;
+		else if (_sss_method == 1) _ssss_mod_factor = 0.07f;
+	}
 }
 
 void Core::setToneMappingMethod(int val)
@@ -781,7 +794,7 @@ void Core::reloadShaders()
 {
 	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
 	shader_manager->reloadShaders();
-	RenderAlgorithms::setSSSSKernels();
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
 }
 
 
@@ -792,9 +805,8 @@ void Core::setTranslucency(float t)
 
 void Core::setSSWidth(float w)
 {
-	_sss_width = w;
+	_sss_width = w * _initial_width;
 	float factor = 0.9;
-	_sssStrength = factor*_sss_width;
 }
 
 void Core::setExposure(float e)
@@ -817,6 +829,7 @@ void Core::setSSSRedStr(float s)
 	_sss_strength.r = s;
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
 }
 
 void Core::setSSSGreenStr(float s)
@@ -824,6 +837,7 @@ void Core::setSSSGreenStr(float s)
 	_sss_strength.g = s;
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
 }
 
 void Core::setSSSBlueStr(float s)
@@ -831,12 +845,14 @@ void Core::setSSSBlueStr(float s)
 	_sss_strength.b = s;
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
 }
 
 void Core::setSSSNumSamples(int s)
 {
 	_num_samples = s;
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
 }
 
 void Core::setGlossines(float g)
@@ -874,7 +890,48 @@ void Core::loadCamFromFile(const std::string &path)
 	std::cout << "Load " << path << std::endl;
 }
 
-void Core::readPreComputedKernel(const std::string &path)
+void Core::loadPreComputedKernel(const std::string &path)
 {
+	bool binary = false;
+	if (path.compare(path.size() - 3, 3, ".bn") == 0)
+		binary = true;
+	std::ifstream in_file;
+	std::ios_base::openmode om;
 
+	if (binary) om = std::ios_base::in | std::ios_base::binary;
+	else om = std::ios_base::in;
+
+	in_file.open(path, om);
+	assert(in_file.good());
+	std::vector<float> kernel;
+
+	if (binary)
+	{
+		// read float count
+		char sv[4];
+		in_file.read(sv, 4);
+		int fc = (int)(floor(*((float*)sv)));
+		kernel.resize(fc);
+		in_file.read(reinterpret_cast<char*>(&kernel[0]), fc * 4);
+	}
+	else
+	{
+		float v;
+		while (in_file >> v)
+		{
+			kernel.push_back(v);
+			char next = in_file.peek();
+			switch (next)
+			{
+				case ',': in_file.ignore(1); break;
+				case ' ': in_file.ignore(1); break;
+			}
+		}
+	}
+
+	in_file.close();
+
+	RenderAlgorithms::setPreComputedKernel(kernel);
+	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
+	RenderAlgorithms::setSSSSKernels((_sss_method < 2 ? _sss_method : 0));
 }

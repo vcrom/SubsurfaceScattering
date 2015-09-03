@@ -93,6 +93,7 @@ bool Texture::isBinded() const
 {
 	if(_target == GL_TEXTURE_2D) return _id == getBindedTexture2d();
 	else if (_target == GL_TEXTURE_CUBE_MAP) return _id == getBindedTextureCubeMap();
+	return false;
 }
 
 GLint Texture::getBindedTexture2d()

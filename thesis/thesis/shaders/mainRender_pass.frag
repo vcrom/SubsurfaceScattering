@@ -313,7 +313,7 @@ void main()
 	vec3 f1 = light_color * attenuation * spot;
 	vec3 f2 = albedo.rgb * f1;
 
-	float diffuse = saturate(dot(L, aux_N/*N*/)) * m_ambientcomp;
+	float diffuse = saturate(dot(L, aux_N/*view_normal*/)) * m_ambientcomp;
 
 	//specular
 	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;

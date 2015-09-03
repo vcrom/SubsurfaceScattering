@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.5.0
+** Created by: Qt User Interface Compiler version 5.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -37,7 +37,6 @@ QT_BEGIN_NAMESPACE
 class Ui_mainwindowClass
 {
 public:
-    QAction *actionFoo;
     QAction *actionSaveCam;
     QAction *actionLoadCam;
     QWidget *centralWidget;
@@ -61,6 +60,7 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_4;
     QDoubleSpinBox *doubleSpinBox_2;
+    QFrame *line_4;
     QHBoxLayout *horizontalLayout_9;
     QLabel *label_9;
     QDoubleSpinBox *doubleSpinBox_6;
@@ -98,8 +98,6 @@ public:
         if (mainwindowClass->objectName().isEmpty())
             mainwindowClass->setObjectName(QStringLiteral("mainwindowClass"));
         mainwindowClass->resize(910, 697);
-        actionFoo = new QAction(mainwindowClass);
-        actionFoo->setObjectName(QStringLiteral("actionFoo"));
         actionSaveCam = new QAction(mainwindowClass);
         actionSaveCam->setObjectName(QStringLiteral("actionSaveCam"));
         actionLoadCam = new QAction(mainwindowClass);
@@ -225,14 +223,21 @@ public:
         doubleSpinBox_2 = new QDoubleSpinBox(centralWidget);
         doubleSpinBox_2->setObjectName(QStringLiteral("doubleSpinBox_2"));
         doubleSpinBox_2->setDecimals(4);
-        doubleSpinBox_2->setMaximum(0.05);
+        doubleSpinBox_2->setMaximum(2);
         doubleSpinBox_2->setSingleStep(0.0001);
-        doubleSpinBox_2->setValue(0.005);
+        doubleSpinBox_2->setValue(1);
 
         horizontalLayout_4->addWidget(doubleSpinBox_2);
 
 
         verticalLayout->addLayout(horizontalLayout_4);
+
+        line_4 = new QFrame(centralWidget);
+        line_4->setObjectName(QStringLiteral("line_4"));
+        line_4->setFrameShape(QFrame::HLine);
+        line_4->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_4);
 
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setSpacing(6);
@@ -440,7 +445,6 @@ public:
     void retranslateUi(QMainWindow *mainwindowClass)
     {
         mainwindowClass->setWindowTitle(QApplication::translate("mainwindowClass", "mainwindow", 0));
-        actionFoo->setText(QApplication::translate("mainwindowClass", "foo", 0));
         actionSaveCam->setText(QApplication::translate("mainwindowClass", "Save", 0));
         actionLoadCam->setText(QApplication::translate("mainwindowClass", "Load", 0));
         label->setText(QApplication::translate("mainwindowClass", "Control Panel", 0));
@@ -449,7 +453,8 @@ public:
         label_2->setText(QApplication::translate("mainwindowClass", "SSS Method", 0));
         comboBox->clear();
         comboBox->insertItems(0, QStringList()
-         << QApplication::translate("mainwindowClass", "Separable", 0)
+         << QApplication::translate("mainwindowClass", "Separable Artistic", 0)
+         << QApplication::translate("mainwindowClass", "Separable Pre Integrated", 0)
          << QApplication::translate("mainwindowClass", "Samples Gaussian", 0)
          << QApplication::translate("mainwindowClass", "Perceptual", 0)
         );

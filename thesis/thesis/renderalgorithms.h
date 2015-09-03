@@ -46,14 +46,15 @@ public:
 	static void computeSeparableKernel(int num_samples, const glm::vec3 &sss_strength, std::vector<float> &falloff);
 	static void computeGaussianKernel(int num_samples);
 	static void setPreComputedKernel(const std::vector<float> & kernel);
-	static void setSSSSKernels();
+	static void computeSampledPreIntegratedKernel(int num_samples);
+	static void setSSSSKernels(int separable_mode);
 
 	static void toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> tex, float exposure, float burnout, int method = 0);
+	static void setSeparableKernels(int kernel);
 	//void render(std::vector<);
 private:
 	static std::shared_ptr<GlslShaderManager> _shader_manager;
 
-	static void setSeparableKernels();
 	static void setGaussianKernels();
 	//static std::vector<Texture2D> _aux_textures;
 	//static FrameBuffer buffer;
@@ -63,7 +64,7 @@ private:
 	static std::vector<glm::vec4> _gaussians;
 
 	static std::vector<float> _ssss_kernel;
-	static std::vector<float> _ssss_precomputed_kernel;
+	static std::vector<float> _ssss_precomputed_kernel, _ssss_precomputed_kernel_sampled;
 	static int _num_sss_samples;
 
 	static std::vector<float> _gaussian_weights;

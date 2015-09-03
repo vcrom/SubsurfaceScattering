@@ -68,7 +68,7 @@ public:
 	void setSSSNumSamples(int s);
 	void setGlossines(float g);
 
-	void readPreComputedKernel(const std::string &path);
+	void loadPreComputedKernel(const std::string &path);
 	//float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout;
 
 	//cam load and save stuff
@@ -144,12 +144,13 @@ private:
 	glm::mat4 _prev_VP;
 
 	const float ALPHA_MAX = 8192.0f;
-	float _sss_width, _translucency, _correction, _sssStrength, _exposure, _burnout, _ambientInt, _specInt, _glossines, _roughness;
+	float _sss_width, _translucency, _correction, _exposure, _burnout, _ambientInt, _specInt, _glossines, _roughness;
 	glm::vec2 _pixel_size;
 	int _num_samples;
 	glm::vec3 _sss_strength;
 	std::vector<float> _falloff;
-		
+	float _ssss_mod_factor;
+	const float _initial_width = 0.005f;
 
 };
 

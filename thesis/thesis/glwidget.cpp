@@ -305,14 +305,20 @@ void GLWidget::setGlossines(double g)
 	update();
 }
 
-void GLWidget::saveCam(QString path)
+void GLWidget::saveCam(const QString &path)
 {
 	std::string string_path= path.toLatin1().data();
 	core_engine_->saveCamtoFile(string_path);
 }
 
-void GLWidget::loadCam(QString path)
+void GLWidget::loadCam(const QString &path)
 {
 	core_engine_->loadCamFromFile(path.toLatin1().data());
 	update();
+}
+
+
+void GLWidget::loadKernel(const QString &path)
+{
+	core_engine_->loadPreComputedKernel(path.toLatin1().data());
 }

@@ -15,9 +15,13 @@ public:
 private:
 	Ui::mainwindowClass ui;
 
+public slots:
+	void on_actionLoad_Kernel_tiggered();
+
 private slots:
 	void on_actionSaveCam_triggered();
 	void on_actionLoadCam_triggered();
+
 };
 
 #endif // MAINWINDOW_H

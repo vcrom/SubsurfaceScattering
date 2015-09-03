@@ -139,11 +139,11 @@ float rgb2gray(vec3 rgb)
 //////////////////////////////////////////////////
 
 //Filtering
-//#define ORIGINAL_FILTER
+#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
-#define BILATERAL_ON_CURV
+//#define BILATERAL_ON_CURV
 
 ///Strengh factor
 //#define STREGTH_CURVATURE
@@ -188,6 +188,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		vec2 offset = texcoord + despl;
 		vec4 colorS = texture2D(color_texture, offset).rgba;
 		//vec4 color = colorS;
+		if(colorS.rgb == vec3(0)) continue;
 
 		if(follow_surf)
 		{
