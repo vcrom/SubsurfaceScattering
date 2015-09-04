@@ -67,6 +67,7 @@ uniform sampler2D normal_texture;
 uniform float z_far;
 uniform float roughness = 	pow(8192.0f, 0.5f);
 uniform samplerCube diffuse_env;
+uniform float bumpiness = 0.5f;
 ///////////////Main///////////////
 
 
@@ -261,8 +262,6 @@ void main()
 		vec3 bitg = normalize(cross(N, tg));
 		mat3 tbn = transpose(mat3(tg, bitg, N));
 		tbn = mat3(tg, bitg, N);
-
-		float bumpiness = 0.5;
 		vec3 tangent_normal = mix(vec3(0.0, 0.0, 1.0), bumpMap(normal_texture, texture_coords), bumpiness);
 		N = normalize(tbn*tangent_normal);
 	}

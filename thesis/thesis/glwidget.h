@@ -35,6 +35,7 @@ public slots:
 	void setSSSBlueFalloff(double s);
 	void setSSSNumSamples(int s);
 	void setGlossines(double g);
+	void setBumpInt(double g);
 
 	void saveCam(const QString &path);
 	void loadCam(const QString &path);

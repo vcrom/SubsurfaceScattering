@@ -266,6 +266,13 @@
        </layout>
       </item>
       <item>
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <widget class="QLabel" name="label_6">
@@ -307,7 +314,7 @@
            <double>0.010000000000000</double>
           </property>
           <property name="value">
-           <double>3.000000000000000</double>
+           <double>1.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -332,6 +339,30 @@
           </property>
           <property name="value">
            <double>0.200000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_17">
+        <item>
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>bump str</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_13">
+          <property name="maximum">
+           <double>4.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.500000000000000</double>
           </property>
          </widget>
         </item>
@@ -587,6 +618,7 @@
     <slot>setSSSRedFalloff(double)</slot>
     <slot>setSSSGreenFalloff(double)</slot>
     <slot>setSSSBlueFalloff(double)</slot>
+    <slot>setBumpInt(double)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -713,8 +745,8 @@
    <slot>selectSSSMethod(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>839</x>
-     <y>145</y>
+     <x>996</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
      <x>643</x>
@@ -745,8 +777,8 @@
    <slot>setSSSRedStr(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>898</x>
-     <y>447</y>
+     <x>996</x>
+     <y>475</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -761,8 +793,8 @@
    <slot>setSSSGreenStr(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>898</x>
-     <y>475</y>
+     <x>996</x>
+     <y>503</y>
     </hint>
     <hint type="destinationlabel">
      <x>574</x>
@@ -777,8 +809,8 @@
    <slot>setSSSBlueStr(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>898</x>
-     <y>503</y>
+     <x>996</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>626</x>
@@ -793,8 +825,8 @@
    <slot>setSSSNumSamples(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>841</x>
-     <y>183</y>
+     <x>996</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>529</x>
@@ -825,8 +857,8 @@
    <slot>setSSSRedFalloff(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>519</y>
+     <x>996</x>
+     <y>559</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -841,8 +873,8 @@
    <slot>setSSSGreenFalloff(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>553</y>
+     <x>996</x>
+     <y>587</y>
     </hint>
     <hint type="destinationlabel">
      <x>567</x>
@@ -857,12 +889,28 @@
    <slot>setSSSBlueFalloff(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>578</y>
+     <x>996</x>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
      <x>612</x>
      <y>580</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBox_13</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>widget</receiver>
+   <slot>setBumpInt(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>945</x>
+     <y>415</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>735</x>
+     <y>409</y>
     </hint>
    </hints>
   </connection>

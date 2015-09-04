@@ -34,6 +34,7 @@ Core::Core()
 	_num_samples = 20;
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
 	_falloff = {1.0f, 0.37f, 0.3f};
+	_bumpint = 0.5f;
 }
 
 #include "fimage.h"
@@ -492,7 +493,7 @@ void Core::mainRenderPass()
 	//std::cout << "max view Z: " << min_z << std::endl;
 
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, 
-		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness, _diffuse_env_texture,
+		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness, _bumpint, _diffuse_env_texture,
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
 		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, true);
@@ -880,6 +881,11 @@ void Core::setGlossines(float g)
 {
 	_glossines = g;
 	_roughness = std::pow(ALPHA_MAX, g);
+}
+
+void Core::setBumpInt(float s)
+{
+	_bumpint = s;
 }
 
 void Core::saveCamtoFile(const std::string &path)

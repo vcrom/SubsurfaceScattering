@@ -39,7 +39,7 @@ void GLWidget::initializeGL()
 		core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 		core_engine_->initialize();
 		core_engine_->setGlossines(0.2);
-		core_engine_->setSpeculartInt(0.2);
+		core_engine_->setSpeculartInt(1);
 		core_engine_->setAmbientInt(1);
 
 		//selectSSSMethod(1);
@@ -328,6 +328,12 @@ void GLWidget::setSSSNumSamples(int s)
 void GLWidget::setGlossines(double g)
 {
 	core_engine_->setGlossines(g);
+	update();
+}
+
+void GLWidget::setBumpInt(double g)
+{
+	core_engine_->setBumpInt(g);
 	update();
 }
 
