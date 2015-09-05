@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.5.0
+** Created by: Qt User Interface Compiler version 5.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -77,6 +77,9 @@ public:
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_11;
     QDoubleSpinBox *doubleSpinBox_7;
+    QHBoxLayout *horizontalLayout_17;
+    QLabel *label_18;
+    QDoubleSpinBox *doubleSpinBox_13;
     QFrame *line_4;
     QLabel *label_14;
     QHBoxLayout *horizontalLayout_9;
@@ -345,6 +348,25 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_11);
 
+        horizontalLayout_17 = new QHBoxLayout();
+        horizontalLayout_17->setSpacing(6);
+        horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
+        label_18 = new QLabel(centralWidget);
+        label_18->setObjectName(QStringLiteral("label_18"));
+
+        horizontalLayout_17->addWidget(label_18);
+
+        doubleSpinBox_13 = new QDoubleSpinBox(centralWidget);
+        doubleSpinBox_13->setObjectName(QStringLiteral("doubleSpinBox_13"));
+        doubleSpinBox_13->setMaximum(4);
+        doubleSpinBox_13->setSingleStep(0.01);
+        doubleSpinBox_13->setValue(0.5);
+
+        horizontalLayout_17->addWidget(doubleSpinBox_13);
+
+
+        verticalLayout->addLayout(horizontalLayout_17);
+
         line_4 = new QFrame(centralWidget);
         line_4->setObjectName(QStringLiteral("line_4"));
         line_4->setFrameShape(QFrame::HLine);
@@ -518,6 +540,7 @@ public:
         QObject::connect(doubleSpinBox_11, SIGNAL(valueChanged(double)), widget, SLOT(setSSSRedFalloff(double)));
         QObject::connect(doubleSpinBox_8, SIGNAL(valueChanged(double)), widget, SLOT(setSSSGreenFalloff(double)));
         QObject::connect(doubleSpinBox_12, SIGNAL(valueChanged(double)), widget, SLOT(setSSSBlueFalloff(double)));
+        QObject::connect(doubleSpinBox_13, SIGNAL(valueChanged(double)), widget, SLOT(setBumpInt(double)));
 
         QMetaObject::connectSlotsByName(mainwindowClass);
     } // setupUi
@@ -556,6 +579,7 @@ public:
         label_6->setText(QApplication::translate("mainwindowClass", "diffuseInt", 0));
         label_7->setText(QApplication::translate("mainwindowClass", "specularInt", 0));
         label_11->setText(QApplication::translate("mainwindowClass", "glossiness", 0));
+        label_18->setText(QApplication::translate("mainwindowClass", "bump str", 0));
         label_14->setText(QApplication::translate("mainwindowClass", "Artistic method", 0));
         label_9->setText(QApplication::translate("mainwindowClass", "R str", 0));
         label_12->setText(QApplication::translate("mainwindowClass", "G str", 0));

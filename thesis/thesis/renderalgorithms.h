@@ -30,7 +30,7 @@ public:
 	static void translucency(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, std::shared_ptr<Texture2D> lineal_deepth_tex, float z_far, glm::mat4 V_L, glm::mat4 P_L, glm::vec3 light_pos);
 	static void renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, 
 		glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::mat4 prev_VP, 
-		glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float z_near, float roughness, std::shared_ptr<Texture2D> diffuse_env_map,
+		glm::vec3 camera_pos, float z_far, glm::vec3 light_pos, float z_near, float roughness, float bump_int, std::shared_ptr<Texture2D> diffuse_env_map,
 		std::shared_ptr<Texture2D> shadow_tex, glm::mat4 V_L, glm::mat4 P_L, 
 		std::shared_ptr<Texture2D> light_linear_shadow_tex, float light_far_plane, 
 		float sss_width, float translucency, float ambient_int, float specular_int, bool ssss_enabled = true, 

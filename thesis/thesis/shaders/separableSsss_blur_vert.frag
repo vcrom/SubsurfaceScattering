@@ -138,14 +138,14 @@ float rgb2gray(vec3 rgb)
 //////////////////////////////////////////////////
 
 //Filtering
-//#define ORIGINAL_FILTER
+#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-#define SIMPLE_BILATERAL_FILTER
+//#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
 ///Strengh factor
-#define STREGTH_CURVATURE
+//#define STREGTH_CURVATURE
 
 #ifdef STREGTH_CURVATURE
 	#define SSSS_STREGTH_SOURCE 1.0+texture(curvature_texture, vUV).r
