@@ -44,6 +44,8 @@ void GlslShaderManager::initializeShaders()
 	initToneMap();
 	initSSSSGaussianHori();
 	initSSSSGaussianVert();
+	initImageBlurHori();
+	initImageBlurVert();
 }
 
 void GlslShaderManager::deleteShaders()
@@ -467,4 +469,43 @@ void GlslShaderManager::initSSSSGaussianVert()
 
 	_shaders[Shaders::GAUSSIAN_SSSS_VERTICAL_BLUR] = shader;
 	std::cout << "\tGaussian SSSS vertical blur shader initialized" << std::endl;
+}
+
+
+void GlslShaderManager::initImageBlurHori()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/image_blur_vert.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	shader.addUniform("pixel_size");
+	shader.addUniform("blur_width");
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::IMAGE_BLUR_SHADER_VERT] = shader;
+	std::cout << "\tImage vertical blur shader initialized" << std::endl;
+}
+
+void GlslShaderManager::initImageBlurVert()
+{
+	GlslShader shader;
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/screen_space_quad.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/image_blur_horiz.frag");
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addUniform("color_texture");
+	glUniform1i(shader("color_texture"), 0);
+	shader.addUniform("pixel_size");
+	shader.addUniform("blur_width");
+	shader.unUse();
+	checkCritOpenGLError();
+
+	_shaders[Shaders::IMAGE_BLUR_SHADER_HORI] = shader;
+	std::cout << "\tImage vertical blur shader initialized" << std::endl;
 }

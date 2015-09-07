@@ -281,5 +281,11 @@
     <None Include="shaders\skybox.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\image_blur_horiz.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\image_blur_vert.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

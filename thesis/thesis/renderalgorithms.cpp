@@ -62,6 +62,41 @@ void RenderAlgorithms::renderTexture(const std::shared_ptr<FrameBuffer> fbo, std
 	//glBindFramebuffer(GL_FRAMEBUFFER, RenderAlgorithms::default_buffer);
 }
 
+
+void RenderAlgorithms::blurTexture(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> tex, std::shared_ptr<Texture2D> aux_blur_tex, glm::vec2 pixel_size)
+{
+	
+	ScreenQuad* quad = ScreenQuad::getInstanceP();
+	std::shared_ptr<GlslShader> vert = _shader_manager->getShader(GlslShaderManager::Shaders::IMAGE_BLUR_SHADER_VERT);
+	vert->use();
+	glUniform2fv(vert->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
+
+	std::shared_ptr<GlslShader> horiz = _shader_manager->getShader(GlslShaderManager::Shaders::IMAGE_BLUR_SHADER_HORI);
+	horiz->use();
+	glUniform2fv(horiz->operator()("pixel_size"), 1, glm::value_ptr(pixel_size));
+
+	fbo->useFrameBuffer();
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	tex->use(GL_TEXTURE0);
+	horiz->use();
+	quad->render();
+
+	aux_blur_tex->use(GL_TEXTURE0);
+	fbo->useFrameBuffer();
+	fbo->colorBuffer(tex->getTextureID(), 0);
+	
+	vert->use();
+	quad->render();
+	vert->unUse();
+
+	checkCritOpenGLError();
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+
+}
+
 void RenderAlgorithms::renderMesh(const std::shared_ptr<FrameBuffer> fbo, const std::shared_ptr<Mesh> mesh, glm::mat4 M, glm::mat4 V, glm::mat4 P, glm::vec3 col)
 {
 	glEnable(GL_CULL_FACE);
@@ -97,7 +132,7 @@ void RenderAlgorithms::getShadowMap(const std::shared_ptr<FrameBuffer> fbo, cons
 
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::PASS_THROUGH);
 	fbo->useFrameBuffer();
-	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
+	//glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 	glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
 	glCullFace(GL_BACK);
@@ -151,9 +186,9 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	//return;
 	glEnable(GL_DEPTH_TEST);
 
-	fbo->useFrameBuffer(1);
+	//glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
 
-	glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
+	fbo->useFrameBuffer(1);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	checkCritOpenGLError();
@@ -170,7 +205,7 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	shader->unUse();
 
 	glDisable(GL_CULL_FACE);
-	glViewport(0, 0, viewport_size.x, viewport_size.y);
+	//glViewport(0, 0, viewport_size.x, viewport_size.y);
 	checkCritOpenGLError();
 }
 

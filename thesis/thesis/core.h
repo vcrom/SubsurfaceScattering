@@ -109,7 +109,7 @@ private:
 	//Textures
 	std::shared_ptr<Texture2D> _background_texture, _mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture,
 		//shadow mapping(for each light)
-		_shadow_map_texture, _lineal_shadow_map_texture,
+		_shadow_map_texture, _lineal_shadow_map_texture, _aux_blur_tex,
 
 		//ssss
 		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2, _aux_ssss_pingpong,

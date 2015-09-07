@@ -1,5 +1,5 @@
 #version 330
-precision highp float;
+//precision highp float;
 layout(location = 0) in vec3 vVertex;
 //layout(location = 1) in vec3 vNormal;
 
@@ -10,7 +10,7 @@ uniform mat4 P;
 uniform float z_far;
 uniform vec3 light_position = vec3(0, 0, 0);
 
-smooth out highp float linear_depth;
+smooth out float linear_depth;
 
 void main()
 {

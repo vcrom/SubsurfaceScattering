@@ -330,6 +330,8 @@
     <None Include="shaders\beckmann.frag" />
     <None Include="shaders\diffuse_and_shadows.frag" />
     <None Include="shaders\diffuse_and_shadows.vert" />
+    <None Include="shaders\image_blur_horiz.frag" />
+    <None Include="shaders\image_blur_vert.frag" />
     <None Include="shaders\linear_depth_shader.frag" />
     <None Include="shaders\linear_depth_shader.vert" />
     <None Include="shaders\mainRender_pass.frag" />

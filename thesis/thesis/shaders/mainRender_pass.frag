@@ -281,15 +281,15 @@ void main()
 
 	//vec3 N = normalize(worldNormal);
     vec3 V = normalize(view_vector);
-	vec4 albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);;
+	vec4 albedo;
 	float occlusion = 1;
 	if(texture_enabled != 0)
 	{
 		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
 		occlusion = texture(ao_texture, texture_coords).r;
 	}
-	//else
-	//	albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
+	else
+		albedo =  vec4(pow(mesh_color.rgb, vec3(2.2)), 1.0f);// mesh_color;
 
 	//float intensity = 1.88;
 	//float roughness = 0.3;

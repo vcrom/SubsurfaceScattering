@@ -16,6 +16,7 @@ public:
 		SEPARABLE_SSSS_HORIZONTAL_BLUR, SEPARABLE_SSSS_VERTICAL_BLUR,
 		TONE_MAP,
 		GAUSSIAN_SSSS_HORIZONTAL_BLUR, GAUSSIAN_SSSS_VERTICAL_BLUR,
+		IMAGE_BLUR_SHADER_HORI, IMAGE_BLUR_SHADER_VERT,
 		Count 
 	};
 
@@ -36,7 +37,6 @@ private:
 	void initTextureToScreenShader();
 	void initPassThroughShader();
 	void initShadowsAndDiffuseShader();
-	//void initThicknessShader();
 	void initLinealDeepthShader();
 	void initTranslucecyhader();
 	void initMainRenderShader(); 
@@ -47,6 +47,9 @@ private:
 	void initToneMap();
 	void initSSSSGaussianHori();
 	void initSSSSGaussianVert();
+	void initImageBlurHori();
+	void initImageBlurVert();
+
 };
 
 #endif // GLSLSHADERMANAGER_H

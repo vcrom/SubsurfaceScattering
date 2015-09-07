@@ -114,8 +114,8 @@ void Core::initializeTextures()
 	_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_shadow_map_texture->use();
 	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT/*GL_DEPTH_COMPONENT32F*/, 32, 32);
-	_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_shadow_map_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_shadow_map_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	GLfloat border[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	_shadow_map_texture->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
 	_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -129,14 +129,27 @@ void Core::initializeTextures()
 	//lineal shadow map
 	_lineal_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_lineal_shadow_map_texture->use();
-	_lineal_shadow_map_texture->loadEmptyTexture(GL_R32F, 32, 32);
-	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_lineal_shadow_map_texture->loadEmptyTexture(GL_R16, 32, 32);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
+
+	//lineal shadow map
+	_aux_blur_tex = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_aux_blur_tex->use();
+	_aux_blur_tex->loadEmptyTexture(GL_R16, 32, 32);
+	_aux_blur_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_blur_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_blur_tex->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
+	_aux_blur_tex->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	_aux_blur_tex->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
+	checkCritOpenGLError();
+
 
 	_depth_stencil_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_depth_stencil_texture->use();
@@ -154,8 +167,8 @@ void Core::initializeTextures()
 	_diffuse_color_texture->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_diffuse_color_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_diffuse_color_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -314,14 +327,17 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	unsigned int shadow_width, shadow_height;
 	//shadow_width = 2048; //w
 	//shadow_height = 2048; //h
-	shadow_width = w;
-	shadow_height = h;
+	shadow_width = GLsizei(w);
+	shadow_height = GLsizei(h);
 
 	_shadow_map_texture->use(); 
 	_shadow_map_texture->resize(shadow_width, shadow_height);
 
 	_lineal_shadow_map_texture->use();
 	_lineal_shadow_map_texture->resize(shadow_width, shadow_height);
+
+	_aux_blur_tex->use();
+	_aux_blur_tex->resize(shadow_width, shadow_height);
 
 	_depth_stencil_texture->use();
 	_depth_stencil_texture->resize(shadow_width, shadow_height);
@@ -356,7 +372,7 @@ void Core::resize(unsigned int w, unsigned int h)
 	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
 	_window_size = glm::vec2(w, h);
 	_pixel_size = glm::vec2(1.0 / float(w), 1.0 / float(h));
-	glViewport(0, 0, w, h);
+	//glViewport(0, 0, w, h);
 	_cam.updateProjection(glm::radians(60.0f), float(w) / float(h));
 	_cam.update();
 	resizeTextures(w, h);
@@ -394,18 +410,21 @@ void Core::renderScene()
 	_default_buffer->clearColorAndDepth();
 	std::cout << "Rendering scene..." << std::endl;
 
+	glFinish();
 	_t1 = _clock.now();
 	shadowMapPass();
 	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tShadow mapping time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
+	glFinish();
 	_t1 = _clock.now();
 	mainRenderPass();
 	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
+	glFinish();
 	_t1 = _clock.now();
 	if(_control_boolean_params[2]) subSurfaceScatteringPass();
 	glFinish();
@@ -413,12 +432,14 @@ void Core::renderScene()
 	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
+	glFinish();
 	_t1 = _clock.now();
 	addSpecularPass();
 	glFinish();
 	_t2 = _clock.now();
 	std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
-
+	
+	glFinish();
 	_t1 = _clock.now();
 	toneMap();
 	glFinish();
@@ -435,6 +456,7 @@ void Core::renderScene()
 /// </summary>
 void Core::shadowMapPass()
 {
+	glViewport(0, 0, _lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight());
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
@@ -442,6 +464,13 @@ void Core::shadowMapPass()
 	//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorAndDepth();
 	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());
+	
+	_generic_buffer->useFrameBuffer();
+	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
+	_generic_buffer->depthBuffer(0);
+	RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
+
+	glViewport(0, 0, _window_size.x, _window_size.y);
 }
 
 void getMinViewZPoint()
@@ -600,6 +629,9 @@ void Core::subSurfaceScatteringPass()
 	//}
 }
 
+/// <summary>
+/// This render step adds the specular component to the sss part
+/// </summary>
 void Core::addSpecularPass()
 {
 	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
@@ -612,6 +644,9 @@ void Core::addSpecularPass()
 }
 
 #include <glm/gtc/type_ptr.hpp>
+/// <summary>
+/// This render step does the tonne mapping of teh renderer scene and also outputs the background
+/// </summary>
 void Core::toneMap()
 {
 	_generic_buffer->useFrameBuffer(1);
@@ -622,21 +657,20 @@ void Core::toneMap()
 	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _tone_mapping_method);
 
 	//render background
-	//glEnable(GL_STENCIL_TEST);
-	//glStencilFunc(GL_EQUAL, 0, 0xFF);
-	//glStencilMask(0x00);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 0, 0xFF);
+	glStencilMask(0x00);
 	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 	_generic_buffer->useFrameBuffer();
-	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 0.01f, 10000.0f);
+	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 50.0f, 200.0f);
 	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(100.0f));
-	//glm::mat4 T = glm::translate(glm::mat4(1), _object->getBBox().getCenter());
-	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()/** _object->getTransformations() */* S));
-	//glDisable(GL_STENCIL_TEST);
+	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()* S));
+	glDisable(GL_STENCIL_TEST);
 
 
 	RenderAlgorithms::renderTexture(_default_buffer, _aux_ssss_texture1);
 
-	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
+	if (_control_boolean_params[1]) RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
 }
 
 /// <summary>
@@ -678,7 +712,7 @@ void Core::loadMeshNormalsTexture(const std::string& path)
 void Core::computeLightMatrices()
 {
 	_light_view_matrix = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
-	_light_projection_matrix = glm::perspective(glm::radians(60.0f), _cam.getAspectRatio(), _cam.getZnear(), _cam.getZfar());
+	_light_projection_matrix = glm::perspective(glm::radians(60.0f), float(_lineal_depth_texture->getWidth())/float(_lineal_depth_texture->getHeight()), _cam.getZnear(), _cam.getZfar());
 }
 
 void Core::unloadMesh()
