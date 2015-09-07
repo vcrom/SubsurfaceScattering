@@ -297,9 +297,9 @@ void Core::initialize()
 	loadMesh("meshes/tests.ply");
 	_light->scale(glm::vec3(0.19));
 	_light->setPosition(glm::vec3(1.5, 0.4, 0.9));
-	moveLight(glm::vec3(0.00001, 0, 0));
-	moveLight(glm::vec3(-0.00001, 0, 0));
-	computeLightMatrices();
+	//moveLight(glm::vec3(0.00001, 0, 0));
+	//moveLight(glm::vec3(-0.00001, 0, 0));
+	//computeLightMatrices();
 
 	//Load skybox and pbr envs
 	_sky_box = std::shared_ptr<CSkybox>(new CSkybox());
@@ -324,11 +324,13 @@ void Core::initializeCam()
 
 void Core::resizeTextures(unsigned int w, unsigned int h)
 {
-	unsigned int shadow_width, shadow_height;
+	GLsizei shadow_width, shadow_height, width, height;
+	width = GLsizei(int(w));
+	height = GLsizei(int(h));
+	shadow_width = width;// *2;
+	shadow_height = height;// *2;
 	//shadow_width = 2048; //w
 	//shadow_height = 2048; //h
-	shadow_width = GLsizei(w);
-	shadow_height = GLsizei(h);
 
 	_shadow_map_texture->use(); 
 	_shadow_map_texture->resize(shadow_width, shadow_height);
@@ -340,42 +342,43 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	_aux_blur_tex->resize(shadow_width, shadow_height);
 
 	_depth_stencil_texture->use();
-	_depth_stencil_texture->resize(shadow_width, shadow_height);
+	_depth_stencil_texture->resize(width, height);
 
 	_aux_ssss_texture1->use();
-	_aux_ssss_texture1->resize(w, h);
+	_aux_ssss_texture1->resize(width, height);
 
 	_aux_ssss_texture2->use();
-	_aux_ssss_texture2->resize(w, h);
+	_aux_ssss_texture2->resize(width, height);
 
 	_diffuse_color_texture->use();
-	_diffuse_color_texture->resize(w, h);
+	_diffuse_color_texture->resize(width, height);
 
 	_specular_texture->use();
-	_specular_texture->resize(w, h);
+	_specular_texture->resize(width, height);
 
 	_lineal_depth_texture->use();
-	_lineal_depth_texture->resize(w, h);
+	_lineal_depth_texture->resize(width, height);
 
 	_aux_ssss_pingpong->use();
-	_aux_ssss_pingpong->resize(w, h);
+	_aux_ssss_pingpong->resize(width, height);
 
 	_cross_bilateral_factor->use();
-	_cross_bilateral_factor->resize(w, h);
+	_cross_bilateral_factor->resize(width, height);
 
 	_curvature_tex->use();
-	_curvature_tex->resize(w, h);
+	_curvature_tex->resize(width, height);
 }
 
 void Core::resize(unsigned int w, unsigned int h)
 {
 	std::cout << "Resize(" << w << ", " << h << ")" << std::endl;
-	_window_size = glm::vec2(w, h);
+	_window_size = glm::vec2(int(w), int(h));
 	_pixel_size = glm::vec2(1.0 / float(w), 1.0 / float(h));
-	//glViewport(0, 0, w, h);
+	glViewport(0, 0, GLint(w), GLint(h));
 	_cam.updateProjection(glm::radians(60.0f), float(w) / float(h));
 	_cam.update();
 	resizeTextures(w, h);
+	computeLightMatrices();
 	checkCritOpenGLError();
 }
 
@@ -456,21 +459,30 @@ void Core::renderScene()
 /// </summary>
 void Core::shadowMapPass()
 {
-	glViewport(0, 0, _lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight());
+	//glViewport(0, 0, GLint(_lineal_shadow_map_texture->getWidth()), GLint(_lineal_depth_texture->getHeight()));
+	std::cout << "Shadow size " << glm::to_string(glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight()));
+	_lineal_shadow_map_texture->use(GL_TEXTURE0);
+	//_lineal_shadow_map_texture->resize(GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
+	_lineal_depth_texture->use(GL_TEXTURE1);
+	//_lineal_depth_texture->resize(GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
+	//glViewport(0, 0, _lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight());
+
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
 	_generic_buffer->stencilBuffer(0);
+	
+
 	//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorAndDepth();
 	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());
-	
+	//glViewport(0, 0, GLsizei(_window_size.x), GLsizei(_window_size.y));
+
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
 	_generic_buffer->depthBuffer(0);
 	RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
 
-	glViewport(0, 0, _window_size.x, _window_size.y);
 }
 
 void getMinViewZPoint()
@@ -670,7 +682,11 @@ void Core::toneMap()
 
 	RenderAlgorithms::renderTexture(_default_buffer, _aux_ssss_texture1);
 
-	if (_control_boolean_params[1]) RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+	if (_control_boolean_params[1])
+	{
+		//glViewport(0, 0, GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
+		RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+	}
 }
 
 /// <summary>

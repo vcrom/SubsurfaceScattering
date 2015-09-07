@@ -186,7 +186,7 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	//return;
 	glEnable(GL_DEPTH_TEST);
 
-	//glViewport(0, 0, shadow_buffer_size.x, shadow_buffer_size.y);
+	glViewport(0, 0, GLint(shadow_buffer_size.x), GLint(shadow_buffer_size.y));
 
 	fbo->useFrameBuffer(1);
 	glEnable(GL_CULL_FACE);
@@ -205,7 +205,7 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	shader->unUse();
 
 	glDisable(GL_CULL_FACE);
-	//glViewport(0, 0, viewport_size.x, viewport_size.y);
+	glViewport(0, 0, viewport_size.x, viewport_size.y);
 	checkCritOpenGLError();
 }
 
@@ -290,7 +290,7 @@ void RenderAlgorithms::renderDiffuseAndSpecular(const std::shared_ptr<FrameBuffe
 		glUniform1f(shader->operator()("m_ambientcomp"), ambient_int);
 		glUniform1f(shader->operator()("spec_int"), specular_int);
 		
-		glUniformMatrix4fv(shader->operator()("lightViewProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L * V_L));
+		glUniformMatrix4fv(shader->operator()("lightViewProjBiasM"), 1, GL_FALSE, glm::value_ptr(lightViewProjM));
 		glUniformMatrix4fv(shader->operator()("lightViewM"), 1, GL_FALSE, glm::value_ptr(V_L));
 		glUniformMatrix4fv(shader->operator()("lightProjBiasM"), 1, GL_FALSE, glm::value_ptr(B * P_L));
 		glUniform1f(shader->operator()("light_far_plane"), light_far_plane);

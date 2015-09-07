@@ -8,17 +8,6 @@ layout(location = 4) out float FragCurvature;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 #define SEPARATE_SPECULARS
-/*
-    float bumpiness;
-    float specularIntensity;
-    float specularRoughness;
-    float specularFresnel;
-    float translucency;
-    float sssEnabled;
-    float sssWidth;
-    float ambient;
-*/
-
 
 ////////////////////////////////////////
 /////////////For each light/////////////
