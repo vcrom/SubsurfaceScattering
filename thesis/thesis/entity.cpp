@@ -16,7 +16,6 @@ Entity::Entity(std::shared_ptr<Mesh> mesh) : _mesh(mesh)
 
 Entity::~Entity()
 {
-	//delete _mesh;
 	_mesh.reset();
 }
 
@@ -40,6 +39,15 @@ void Entity::setUnitary()
 	max_dim = glm::max(max_dim, dims.z);
 	setScale(glm::vec3(1.0f / max_dim));
 	_updated = false;
+}
+
+/// <summary>
+/// Translates the entity center to origin(0,0,0).
+/// </summary>
+void Entity::translateToOrigin()
+{
+	glm::vec3 center = getBBox().getCenter();
+	translate(-center);
 }
 
 /// <summary>

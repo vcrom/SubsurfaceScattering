@@ -14,6 +14,7 @@ public:
 	void render();
 	glm::mat4 getTransformations();
 
+	//convenience functions
 	void setUnitary();
 	void translateToOrigin();
 	

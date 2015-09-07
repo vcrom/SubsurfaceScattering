@@ -11,6 +11,7 @@ class CSkybox:public RenderableObject
 {
 public: 
 	CSkybox(std::string sky_textures_dir_path);
+	CSkybox();
 	virtual ~CSkybox(void);
 
 	unsigned int getTotalVertices();
@@ -24,6 +25,9 @@ public:
 	unsigned int vertexNumberOfComponents();
 
     void render(const GLfloat* MVP);
+
+	void setSkyTexture(std::shared_ptr<Texture2D> tex);
+
 private:
 	GlslShader shader;
 	std::shared_ptr<Texture2D> _sky_texture;

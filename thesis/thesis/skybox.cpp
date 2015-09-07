@@ -25,9 +25,26 @@ CSkybox::CSkybox(std::string sky_textures_dir_path)
 	_sky_texture = TextureLoader::createCubeMap(sky_textures_dir_path);
 }
  
+CSkybox::CSkybox()
+{
+	shader.loadFromFile(GL_VERTEX_SHADER, "shaders/skybox.vert");
+	shader.loadFromFile(GL_FRAGMENT_SHADER, "shaders/skybox.frag");
+	//compile and link shader
+	shader.createAndLinkProgram();
+	shader.use();
+	shader.addAttribute("vVertex");
+	shader.addUniform("MVP");
+	shader.addUniform("cubeMap");
+	glUniform1i(shader("cubeMap"), 0);
+	shader.unUse();
+	//setup the parent's fields
+	initialize();
+}
 
 CSkybox::~CSkybox(void)
 {
+	_sky_texture->~Texture2D();
+	shader.deleteShaderProgram();
 } 
 
 //there are 8 vertices in a skybox
@@ -116,4 +133,10 @@ unsigned int CSkybox::sizeOfVertexElement()
 unsigned int CSkybox::vertexNumberOfComponents()
 {
 	return 3;
+}
+
+void CSkybox::setSkyTexture(std::shared_ptr<Texture2D> tex)
+{
+	_sky_texture.reset();
+	_sky_texture = tex;
 }

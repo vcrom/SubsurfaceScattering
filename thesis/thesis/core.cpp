@@ -289,6 +289,7 @@ void Core::initialize()
 	computeLightMatrices();
 
 	//Load skybox and pbr envs
+	_sky_box = std::shared_ptr<CSkybox>(new CSkybox());
 	loadEnviroment("textures/env2");
 	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path+"/skybox"));
 	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path + "/diffuse"));
@@ -621,16 +622,16 @@ void Core::toneMap()
 	RenderAlgorithms::toneMapTexture(_generic_buffer, _diffuse_color_texture, _exposure, _burnout, _tone_mapping_method);
 
 	//render background
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_EQUAL, 0, 0xFF);
-	glStencilMask(0x00);
+	//glEnable(GL_STENCIL_TEST);
+	//glStencilFunc(GL_EQUAL, 0, 0xFF);
+	//glStencilMask(0x00);
 	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 	_generic_buffer->useFrameBuffer();
 	glm::mat4 P_sky = glm::perspective(_cam.getFOV(), _cam.getAspectRatio(), 0.01f, 10000.0f);
 	glm::mat4 S = glm::scale(glm::mat4(1), glm::vec3(100.0f));
-	glm::mat4 T = glm::translate(glm::mat4(1), _object->getBBox().getCenter());
-	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()/** _object->getTransformations()*/ * S * T));
-	glDisable(GL_STENCIL_TEST);
+	//glm::mat4 T = glm::translate(glm::mat4(1), _object->getBBox().getCenter());
+	_sky_box->render(glm::value_ptr(P_sky * _cam.getViewMatrix()/** _object->getTransformations() */* S));
+	//glDisable(GL_STENCIL_TEST);
 
 
 	RenderAlgorithms::renderTexture(_default_buffer, _aux_ssss_texture1);
@@ -647,6 +648,9 @@ void Core::loadMesh(const std::string& path)
 	unloadMesh();
 	_object = std::shared_ptr<Entity>(new Entity(MeshImporter::importMeshFromFile(path, true)));
 	_object->setUnitary();
+	//glm::vec3 center = _object->getBBox().getCenter();
+	//_object->translate(-center);
+	_object->translateToOrigin();
 	initializeCam();
 }
 
@@ -919,7 +923,8 @@ void Core::loadCamFromFile(const std::string &path)
 
 void Core::loadEnviroment(const std::string &path)
 {
-	_sky_box = std::shared_ptr<CSkybox>(new CSkybox(path + "/skybox"));
+	auto sky_tex = TextureLoader::createCubeMap(path + "/skybox");
+	_sky_box->setSkyTexture(sky_tex);
 	_diffuse_env_texture = TextureLoader::createCubeMap(path + "/diffuse");
 }
 

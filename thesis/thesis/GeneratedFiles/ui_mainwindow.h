@@ -68,6 +68,7 @@ public:
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_5;
     QDoubleSpinBox *doubleSpinBox_3;
+    QFrame *line_5;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_6;
     QDoubleSpinBox *doubleSpinBox_4;
@@ -291,6 +292,13 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_5);
 
+        line_5 = new QFrame(centralWidget);
+        line_5->setObjectName(QStringLiteral("line_5"));
+        line_5->setFrameShape(QFrame::HLine);
+        line_5->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_5);
+
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setSpacing(6);
         horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
@@ -322,7 +330,7 @@ public:
         doubleSpinBox_5->setObjectName(QStringLiteral("doubleSpinBox_5"));
         doubleSpinBox_5->setMaximum(4);
         doubleSpinBox_5->setSingleStep(0.01);
-        doubleSpinBox_5->setValue(3);
+        doubleSpinBox_5->setValue(1);
 
         horizontalLayout_7->addWidget(doubleSpinBox_5);
 
