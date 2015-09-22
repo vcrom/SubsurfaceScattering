@@ -177,8 +177,8 @@ void Core::initializeTextures()
 	_specular_texture->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_specular_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_specular_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_specular_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_specular_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_specular_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -197,8 +197,8 @@ void Core::initializeTextures()
 	_aux_ssss_texture1->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_ssss_texture1->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -207,8 +207,8 @@ void Core::initializeTextures()
 	_aux_ssss_texture2->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_ssss_texture2->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -217,8 +217,8 @@ void Core::initializeTextures()
 	_aux_ssss_pingpong->loadEmptyTexture(GL_RGBA32F, 32, 32);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_aux_ssss_pingpong->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
 	checkCritOpenGLError();
 
@@ -708,6 +708,10 @@ void Core::loadMeshDiffuseTexture(const std::string& path)
 {
 	_mesh_diffuse_texture.reset();
 	_mesh_diffuse_texture = TextureLoader::create2DTexture(path);
+	//_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_mesh_diffuse_texture->use();
 }
 

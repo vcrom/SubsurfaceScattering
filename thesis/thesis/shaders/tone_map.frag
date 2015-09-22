@@ -147,7 +147,6 @@ vec3 FilmicTonemap(vec3 x) {
 #define TONEMAP_REINHARD int(4)
 #define TONEMAP_FILMIC int(5)
 
-
 vec3 doToneMap(vec3 color, int option, float exposure, float burnout) {
 //return color;
 	if(option == GAMMA_CORR)
@@ -194,7 +193,7 @@ vec3 doToneMap(vec3 color, int option, float exposure, float burnout) {
 
 uniform sampler2D color_texture;
 uniform float exposure = 2;
-uniform float m_burnout;
+uniform float m_burnout = 50.0f;
 uniform int method;
 
 smooth in vec2 vUV;
@@ -203,5 +202,6 @@ void main()
 {
 	vec4 color = texture(color_texture, vUV);
 	color.rgb = doToneMap(color.rgb, method, exposure, m_burnout);
+	if(method != GAMMA_CORR) color.rgb = pow(color.rgb, vec3(1/2.2));
 	pixelColor = color;
 }

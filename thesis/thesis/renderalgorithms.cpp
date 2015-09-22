@@ -499,7 +499,7 @@ void RenderAlgorithms::toneMapTexture(const std::shared_ptr<FrameBuffer> fbo, st
 	std::shared_ptr<GlslShader> shader = _shader_manager->getShader(GlslShaderManager::Shaders::TONE_MAP);
 	shader->use();
 	glUniform1f(shader->operator()("exposure"), exposure);
-	glUniform1f(shader->operator()("m_burnout"), burnout); 
+	//glUniform1f(shader->operator()("m_burnout"), 50); 
 	glUniform1i(shader->operator()("method"), method);
 	std::cout << "Method " << float(method) << std::endl;
 	checkCritOpenGLError();

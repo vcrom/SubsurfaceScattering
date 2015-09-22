@@ -274,7 +274,9 @@ void main()
 	float occlusion = 1;
 	if(texture_enabled != 0)
 	{
-		albedo =  vec4(pow(texture(diffuse_color_texture, texture_coords), vec4(2.2)));
+		vec4 tex_color = texture(diffuse_color_texture, texture_coords);
+		if(tex_color.r >= 0.9 && tex_color.g <= 0.1 && tex_color.b >= 0.9) discard;
+		albedo =  vec4(pow(tex_color, vec4(2.2)));
 		occlusion = texture(ao_texture, texture_coords).r;
 	}
 	else
