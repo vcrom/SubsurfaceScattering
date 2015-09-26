@@ -572,7 +572,7 @@ public:
         );
         label_10->setText(QApplication::translate("mainwindowClass", "#Samples", 0));
         label_3->setText(QApplication::translate("mainwindowClass", "translucency", 0));
-        label_4->setText(QApplication::translate("mainwindowClass", "sssWidth", 0));
+        label_4->setText(QApplication::translate("mainwindowClass", "sssStrength", 0));
         label_8->setText(QApplication::translate("mainwindowClass", "ToneMap Method", 0));
         comboBox_2->clear();
         comboBox_2->insertItems(0, QStringList()

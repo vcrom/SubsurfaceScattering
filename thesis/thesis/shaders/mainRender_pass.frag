@@ -181,13 +181,20 @@ vec3 transmittance(float translucency, float sss_width, vec3 world_position, vec
 	//float d = scale * dist;
 	highp float d = dist;
 	highp float dd = -d * d;
+	/*
     vec3 profile =	vec3(0.233, 0.455, 0.649) * exp(dd / 0.0064) +
                     vec3(0.1,   0.336, 0.344) * exp(dd / 0.0484) +
                     vec3(0.118, 0.198, 0.0)   * exp(dd / 0.187)  +
                     vec3(0.113, 0.007, 0.007) * exp(dd / 0.567)  +
                     vec3(0.358, 0.004, 0.0)   * exp(dd / 1.99)   +
                     vec3(0.078, 0.0,   0.0)   * exp(dd / 7.41);
-
+	*/
+	vec3 profile =	vec3(1, 1, 1) * exp(dd / 0.0064) +
+                    vec3(0.3,   0.424, 0.344) * exp(dd / 0.0484) +
+                    vec3(0.261, 0.2, 0.0)   * exp(dd / 0.187)  +
+                    vec3(0.2, 0.007, 0.007) * exp(dd / 0.567)  +
+                    vec3(0.388, 0.004, 0.0)   * exp(dd / 1.99)   +
+                    vec3(0.078, 0.0,   0.0)   * exp(dd / 7.41);
 	return profile * clamp(0.3 + dot(normalize(light_vector), -normalize(world_normal)), 0.0, 1.0);
 }
 /////////////Translucency/////////////
