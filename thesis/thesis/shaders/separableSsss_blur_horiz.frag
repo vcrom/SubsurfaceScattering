@@ -139,9 +139,9 @@ float rgb2gray(vec3 rgb)
 //////////////////////////////////////////////////
 
 //Filtering
-//#define ORIGINAL_FILTER
+#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-#define SIMPLE_BILATERAL_FILTER
+//#define SIMPLE_BILATERAL_FILTER
 //#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
@@ -218,7 +218,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		#endif
 
 		#ifdef CROSS_BILATERAL_FILTER
-			weight = kernel[i].rgb*exp(-10*distance(I_p, rgb2gray(colorS.rgb)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
+			weight = kernel[i].rgb*exp(-50*distance(I_p, rgb2gray(colorS.rgb)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
 			//weight = kernel[i].rgb*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 

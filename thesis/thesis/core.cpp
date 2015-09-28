@@ -129,7 +129,7 @@ void Core::initializeTextures()
 	//lineal shadow map
 	_lineal_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_lineal_shadow_map_texture->use();
-	_lineal_shadow_map_texture->loadEmptyTexture(GL_R16, 32, 32);
+	_lineal_shadow_map_texture->loadEmptyTexture(GL_R16F, 32, 32);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_lineal_shadow_map_texture->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
@@ -141,7 +141,7 @@ void Core::initializeTextures()
 	//lineal shadow map
 	_aux_blur_tex = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_aux_blur_tex->use();
-	_aux_blur_tex->loadEmptyTexture(GL_R16, 32, 32);
+	_aux_blur_tex->loadEmptyTexture(GL_R16F, 32, 32);
 	_aux_blur_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_aux_blur_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_aux_blur_tex->setTexParameter(GL_TEXTURE_BORDER_COLOR, border);
@@ -481,6 +481,7 @@ void Core::shadowMapPass()
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
 	_generic_buffer->depthBuffer(0);
+	_generic_buffer->clearColor();
 	RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
 
 }
@@ -548,6 +549,12 @@ void Core::mainRenderPass()
 	//glStencilFunc(GL_EQUAL, 0, 0xFF);
 	//glStencilMask(0x00);
 	//RenderAlgorithms::renderTexture(_generic_buffer, _cross_bilateral_factor);
+	_generic_buffer->useFrameBuffer();
+	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
+	_generic_buffer->clearColor();
+	_generic_buffer->depthBuffer(0);
+	RenderAlgorithms::blurTexture(_generic_buffer, _curvature_tex, _aux_blur_tex, _pixel_size);
+
 	glDisable(GL_STENCIL_TEST);
 }
 
@@ -685,7 +692,8 @@ void Core::toneMap()
 	if (_control_boolean_params[1])
 	{
 		//glViewport(0, 0, GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
-		RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+		//RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+		RenderAlgorithms::renderTexture(_default_buffer, _curvature_tex);
 	}
 }
 

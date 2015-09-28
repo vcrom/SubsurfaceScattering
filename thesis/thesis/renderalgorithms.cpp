@@ -541,7 +541,7 @@ glm::vec3 profile(float r, const std::vector<float> &falloff) {
 	* the profile. For example, it allows to create blue SSS gradients, which
 	* could be useful in case of rendering blue creatures.
 	*/
-	return  // 0.233f * gaussian(0.0064f, r) + /* We consider this one to be directly bounced light, accounted by the strength parameter (see @STRENGTH) */
+	return
 		0.100f * gaussian(0.0484f, r, falloff) +
 		0.118f * gaussian(0.187f, r, falloff) +
 		0.113f * gaussian(0.567f, r, falloff) +
@@ -660,7 +660,7 @@ void RenderAlgorithms::computeGaussianKernel(int num_samples)
 	{
 		//std::cout << dist << " ";
 		_gaussian_weights[i] = exp(-(dist*dist) / (2.0f * dev*dev)) / (sqrt(2.0f * M_PI) * dev);
-		_gaussian_weights[i + 1] = dist/3;
+		_gaussian_weights[i + 1] = dist / RANGE;
 		dist += incr;
 		sum += _gaussian_weights[i];
 	}
@@ -676,12 +676,12 @@ void RenderAlgorithms::computeGaussianKernel(int num_samples)
 	for (int i = 0; i < num_samples * 2; i += 2)
 		_gaussian_weights[i] /= sum;
 
-	//for (int i = 0; i < num_samples * 2; i += 2)
-	//	std::cout << _gaussian_weights[i] << " ";
-	//std::cout << std::endl;
-	//for (int i = 0; i < num_samples * 2; i += 2)
-	//	std::cout << _gaussian_weights[i+1] << " ";
-	//std::cout << std::endl;
+	for (int i = 0; i < num_samples * 2; i += 2)
+		std::cout << _gaussian_weights[i] << " ";
+	std::cout << std::endl;
+	for (int i = 0; i < num_samples * 2; i += 2)
+		std::cout << _gaussian_weights[i+1] << " ";
+	std::cout << std::endl;
 }
 
 void RenderAlgorithms::setSeparableKernels(int kernel)

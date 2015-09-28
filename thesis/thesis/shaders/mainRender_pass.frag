@@ -269,8 +269,10 @@ void main()
 	#else
 	float curvature = screenSpaceCurvature(view_normal, viewPos);
 	#endif
-	FragCurvature = saturate(curvature);//0 ... 1
-
+	if(curvature < 0) curvature = 0;
+	//curvature = 
+	//saturate(curvature);//0 ... 1
+	FragCurvature = curvature;
 	//CBF
 	FragCBFFactor = computeCBFFactor(/*view_normal*/aux_N, vec3(viewPos.xy, viewPos.z), z_near);// (normalize(viewNormal)+1)/2;
 	//FragCBFFactor /= max_cbf_factor;
@@ -377,10 +379,11 @@ void main()
 	//FragColor = vec4(vec3(abs(curvature)), 1);
 	//FragColor = vec4(vec3(dFdx(worldNormal)), 1);
 	//FragColor = vec4(vec3(dFdy(worldNormal)), 1);
+	//FragCBFFactor *= (color.r+color.g+color.b)/3;
 	//FragColor = vec4(FragCBFFactor);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
 	//FragColor = vec4(FragSpecularColor, 1);
-	//FragColor = vec4(vec3(FragCurvature), 1);
+	FragColor = vec4(vec3(FragCurvature), 1);
 	//FragCurvature = 0.0
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 

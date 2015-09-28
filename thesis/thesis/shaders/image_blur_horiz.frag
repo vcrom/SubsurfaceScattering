@@ -3,7 +3,7 @@ layout(location=0) out vec4 vFColor;
 
 uniform sampler2D color_texture;
 
-uniform float blur_width = 1;
+uniform float blur_width = 5;
 uniform vec2 pixel_size;
 
 smooth in vec2 vUV;
