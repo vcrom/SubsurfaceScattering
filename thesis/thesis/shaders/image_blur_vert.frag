@@ -3,9 +3,10 @@ layout(location=0) out vec4 vFColor;
 
 uniform sampler2D color_texture;
 
-uniform float blur_width = 5;
+uniform float blur_width = 10;
 uniform vec2 pixel_size;
- 
+uniform int num_samples = 10;
+
 smooth in vec2 vUV;
 
 
@@ -17,17 +18,18 @@ vec4 BlurSSSSPas(float width, vec2 pixel_size, vec2 dir, vec2 tex_coords, sample
 {
     vec2 filter_step = width * pixel_size * dir;
     vec2 finalStep = filter_step;
-	//finalStep/= 3;
-
+	float range = 1;
+	float step = 1.0f/float(num_samples/2);
 	vec3 colorBlurred = texture2D(color_texture, tex_coords).rgb * vec3(0.382);
-	float weigths = 0.382;
-    for (int i = 0; i < 7; i++)
+	float weigths = 1;
+	float despl = -1;
+    for (int i = 0; i < num_samples; i++)
     {
-		vec2 despl = o[i] * finalStep;
-        vec2 offset = tex_coords + despl;
+        vec2 offset = tex_coords + despl*finalStep;
         vec3 colorS = texture2D(color_texture, offset).rgb;
-        colorBlurred += vec3(w[i]) * colorS;
-		weigths += w[i];
+        colorBlurred +=  colorS;
+		weigths += 1;
+		despl += step;
     }
     return vec4(colorBlurred/vec3(weigths), 1);
 }

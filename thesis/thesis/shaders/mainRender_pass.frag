@@ -236,7 +236,7 @@ float screenSpaceCurvature(vec3 normal, vec3 screen_pos)
 	vec3 yneg = normal - dy;
 	vec3 ypos = normal + dy;
 	float depth = length(screen_pos);
-	float curvature = (cross(xneg, xpos).y - cross(yneg, ypos).x) * 4 / depth;
+	float curvature = (cross(xneg, xpos).y - cross(yneg, ypos).x)*2 / depth;
 	return curvature;
 }
 
@@ -380,11 +380,12 @@ void main()
 	//FragColor = vec4(vec3(dFdx(worldNormal)), 1);
 	//FragColor = vec4(vec3(dFdy(worldNormal)), 1);
 	//FragCBFFactor *= (color.r+color.g+color.b)/3;
-	//FragColor = vec4(FragCBFFactor);
+	//FragColor = vec4(FragCBFFactor*(color.r + color.g + color.b)/3);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
 	//FragColor = vec4(FragSpecularColor, 1);
-	FragColor = vec4(vec3(FragCurvature), 1);
+	//FragColor = vec4(vec3(FragCurvature), 1);
 	//FragCurvature = 0.0
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
+	//FragColor = vec4(diffuse*0.5+0.1);
 
 }

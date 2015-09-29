@@ -77,6 +77,7 @@ void RenderAlgorithms::blurTexture(const std::shared_ptr<FrameBuffer> fbo, std::
 
 	fbo->useFrameBuffer();
 	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_STENCIL_TEST);
 	glDepthMask(GL_FALSE);
 
 	tex->use(GL_TEXTURE0);
@@ -557,7 +558,7 @@ void RenderAlgorithms::computeSeparableKernel(int num_samples, const glm::vec3 &
 		//std::vector<glm::vec4> kernel(num_samples);
 
 		std::chrono::high_resolution_clock::time_point t1 = hi_clock.now();
-		const float RANGE = 3.0f;
+		const float RANGE = 2.0f;
 		const float EXPONENT = 2.0f;
 
 		_ssss_kernel = std::vector<float> (num_samples * 4);

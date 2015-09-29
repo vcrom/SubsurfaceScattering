@@ -482,7 +482,7 @@ void Core::shadowMapPass()
 	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
 	_generic_buffer->depthBuffer(0);
 	_generic_buffer->clearColor();
-	RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
+	//RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
 
 }
 
@@ -549,13 +549,15 @@ void Core::mainRenderPass()
 	//glStencilFunc(GL_EQUAL, 0, 0xFF);
 	//glStencilMask(0x00);
 	//RenderAlgorithms::renderTexture(_generic_buffer, _cross_bilateral_factor);
+	glDisable(GL_STENCIL_TEST);
+
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
 	_generic_buffer->clearColor();
 	_generic_buffer->depthBuffer(0);
 	RenderAlgorithms::blurTexture(_generic_buffer, _curvature_tex, _aux_blur_tex, _pixel_size);
 
-	glDisable(GL_STENCIL_TEST);
+	//glDisable(GL_STENCIL_TEST);
 }
 
 void Core::subSurfaceScatteringPass()
@@ -576,7 +578,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*_ssss_mod_factor, _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*_ssss_mod_factor*0.9, _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -589,7 +591,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.8/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -656,6 +658,8 @@ void Core::addSpecularPass()
 	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
+	_generic_buffer->useFrameBuffer(1);
+	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 	RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
 	glDisable(GL_BLEND);
 
