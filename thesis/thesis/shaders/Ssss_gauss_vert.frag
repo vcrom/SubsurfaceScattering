@@ -194,6 +194,7 @@ void main(void)
 		vBlur = vec4(vFColor.r*gaussian.g + dest_col.r*(1.0-gaussian.g),
                     vFColor.g*gaussian.b + dest_col.g*(1.0-gaussian.b),
                     vFColor.b*gaussian.a + dest_col.b*(1.0-gaussian.a), 1);
+		//vBlur = vec4(vFColor.r*gaussian.g + dest_col.r, vFColor.g*gaussian.b + dest_col.g, vFColor.b*gaussian.a + dest_col.b, 1);
 		//vBlur = vFColor;
 
 		//vBlur = texture2D(pinpong_texture, vUV).rgba;

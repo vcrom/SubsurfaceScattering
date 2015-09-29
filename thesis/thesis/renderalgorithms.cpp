@@ -315,9 +315,11 @@ std::vector<glm::vec4> initGaussians()
 {
 	auto gaussians = std::vector<glm::vec4>(0);
 	gaussians.push_back(glm::vec4(0.0064, 1, 1, 1));
-	gaussians.push_back(glm::vec4(0.0516, 0.3251, 0.45, 0.3583));
-	gaussians.push_back(glm::vec4(0.2719, 0.34, 0.1864, 0.0));
-	gaussians.push_back(glm::vec4(2.0062, 0.46, 0.0, 0.0402));
+	gaussians.push_back(glm::vec4(0.0484, 0.3251, 0.424, 0.346));
+	gaussians.push_back(glm::vec4(0.187, 0.261, 0.2, 0.0));
+	gaussians.push_back(glm::vec4(0.567, 0.2, 0.007, 0.007));
+	gaussians.push_back(glm::vec4(1.99, 0.388, 0.004, 0));
+	gaussians.push_back(glm::vec4(7.41, 0.078, 0.0, 0));
 	for (unsigned int  i = 1; i < gaussians.size(); ++i) gaussians[i].x = gaussians[i].x - gaussians[i - 1].x;
 	return gaussians;
 }
