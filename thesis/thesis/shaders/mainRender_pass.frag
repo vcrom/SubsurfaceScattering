@@ -319,7 +319,7 @@ void main()
 	float shadow = shadowMapping(shadow_map, shadow_coords);
 	// Add the diffuse and specular components:
     #ifdef SEPARATE_SPECULARS
-    color.rgb += shadow * f2 * diffuse;
+    color.rgb += shadow * f2 * diffuse;// * (1-FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H));
     FragSpecularColor += shadow * light_color * specular;
     #else
     color.rgb += shadow * (f2 * diffuse + light_color * specular);
@@ -382,7 +382,7 @@ void main()
 	//FragCBFFactor *= (color.r+color.g+color.b)/3;
 	//FragColor = vec4(FragCBFFactor*(color.r + color.g + color.b)/3);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
-	//FragColor = vec4(FragSpecularColor, 1);
+	FragColor = vec4(FragSpecularColor, 1);
 	//FragColor = vec4(vec3(FragCurvature), 1);
 	//FragCurvature = 0.0
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
