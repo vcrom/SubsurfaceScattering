@@ -245,6 +245,7 @@ vec3 FresnelSchlick(vec3 F0, vec3 l, vec3 h)
     return F0 + (1 - F0)*pow(1 - max(0, dot(l, h)),5);
 }
 
+#define M_PI           3.14159265358979323846
 //#define NORMAL_MAP_CURV
 //#define TRANSLUCENCY_MOD_CURV
 void main()
@@ -312,8 +313,10 @@ void main()
 	float diffuse = saturate(dot(L, N));// * m_ambientcomp;
 
 	//specular
-	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
-	//float specular = max(0, pow(dot(N, H), 17)) * spec_int;
+	vec3 specular = (roughness + 2) / (8)*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
+	//vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H)*spec_int;
+	//float specular =  max(0, pow(dot(N, H), roughness)) * spec_int*/*max(0, dot(aux_N, L))*/0.029;
+	//float specular =  (4*roughness + 2)/(4*M_PI)*max(0, pow(dot(N, H), 4*roughness))*max(0, dot(aux_N/*N*/, L)) * spec_int;
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);
