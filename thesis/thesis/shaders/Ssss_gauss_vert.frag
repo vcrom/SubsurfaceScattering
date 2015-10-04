@@ -191,11 +191,11 @@ void main(void)
 
 		vec4 src_col = vFColor;
 		vec3 dest_col = texture2D(pinpong_texture, vUV).rgb;
-		vBlur = vec4(vFColor.r*gaussian.g + dest_col.r*(1.0-gaussian.g),
-                    vFColor.g*gaussian.b + dest_col.g*(1.0-gaussian.b),
-                    vFColor.b*gaussian.a + dest_col.b*(1.0-gaussian.a), 1);
-		//vBlur = vec4(vFColor.r*gaussian.g + dest_col.r, vFColor.g*gaussian.b + dest_col.g, vFColor.b*gaussian.a + dest_col.b, 1);
-		//vBlur = vFColor;
+		vBlur = vec4(src_col.r*gaussian.g + dest_col.r*(1.0-gaussian.g),
+                    src_col.g*gaussian.b + dest_col.g*(1.0-gaussian.b),
+                    src_col.b*gaussian.a + dest_col.b*(1.0-gaussian.a), 1);
+		//vBlur = vec4(src_col.r*gaussian.g + dest_col.r, src_col.g*gaussian.b + dest_col.g, src_col.b*gaussian.a + dest_col.b, 1);
+		//vBlur = vec4(src_col.rgb*gaussian.gba, 1);
 
 		//vBlur = texture2D(pinpong_texture, vUV).rgba;
 		//vBlur = vFColor; 

@@ -245,6 +245,7 @@ vec3 FresnelSchlick(vec3 F0, vec3 l, vec3 h)
     return F0 + (1 - F0)*pow(1 - max(0, dot(l, h)),5);
 }
 
+#define M_PI           3.14159265358979323846
 //#define NORMAL_MAP_CURV
 //#define TRANSLUCENCY_MOD_CURV
 void main()
@@ -312,14 +313,14 @@ void main()
 	float diffuse = saturate(dot(L, N));// * m_ambientcomp;
 
 	//specular
-	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
-	//float specular = max(0, pow(dot(N, H), 17)) * spec_int;
+	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.028, 0.028, 0.028), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
+	//float specular = /*(roughness + 8) / (8*M_PI) */ max(0, pow(dot(N, H), 2*roughness)) * spec_int;// * 0.028;
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);
 	// Add the diffuse and specular components:
     #ifdef SEPARATE_SPECULARS
-    color.rgb += shadow * f2 * diffuse;// * (1-FresnelSchlick(vec3(0.04, 0.04, 0.04), L, H));
+    color.rgb += shadow * f2 * diffuse;//* (1-FresnelSchlick(vec3(0.028, 0.028, 0.028), L, H));
     FragSpecularColor += shadow * light_color * specular;
     #else
     color.rgb += shadow * (f2 * diffuse + light_color * specular);
@@ -336,7 +337,9 @@ void main()
 	}
 	////end for
 	//// Add the ambient component:
+	//color.rgb += albedo.rgb;
 	//color.rgb += occlusion*albedo.rgb;
+	//color.rgb += occlusion*pow(texture(diffuse_env, view_normal).rgb, vec3(2.2));
     color.rgb += occlusion*albedo.rgb*pow(texture(diffuse_env, view_normal).rgb, vec3(2.2));
 	//color.rgb += occlusion*albedo.rgb*1.75*pow(texture(diffuse_env, aux_N).rgb, vec3(2.2));
 	//color.rgb += occlusion*albedo.rgb*1.5*pow(texture(diffuse_env, N).rgb, vec3(2.2));
@@ -382,10 +385,12 @@ void main()
 	//FragCBFFactor *= (color.r+color.g+color.b)/3;
 	//FragColor = vec4(FragCBFFactor*(color.r + color.g + color.b)/3);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
-	FragColor = vec4(FragSpecularColor, 1);
+	//FragColor = vec4(FragSpecularColor, 1);
+	//FragColor = vec4(FresnelSchlick(vec3(0.028, 0.028, 0.028), L, H), 1);
 	//FragColor = vec4(vec3(FragCurvature), 1);
 	//FragCurvature = 0.0
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 	//FragColor = vec4(diffuse*0.5+0.1);
+	//FragColor = vec4(0);
 
 }

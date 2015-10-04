@@ -186,7 +186,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		vec2 despl = kernel[i].a * finalStep;
 		vec2 offset = texcoord + despl;
 		vec4 colorS = texture2D(color_texture, offset).rgba;
-		if(colorS.rgb == vec3(0)) continue;
+		//if(colorS.rgb == vec3(0)) continue;
 		//vec4 color = colorS;
 
 		if(follow_surf)
