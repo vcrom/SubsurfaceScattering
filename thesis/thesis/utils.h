@@ -13,8 +13,8 @@
 
 //#define checkCritOpenGLError() {GLenum _err_ = glGetError(); if(_err_ != GL_NO_ERROR) throw_critical("OpenGL error : " + std::to_string(_err_))};
 //#define checkNonCritOpenGLError() {GLenum _err_ = glGetError(); if(_err_ != GL_NO_ERROR) throw_non_critical("OpenGL error : " + std::to_string(_err_))};
-#define checkCritOpenGLError() assert(glGetError() == GL_NO_ERROR);
-#define checkNonCritOpenGLError() assert(glGetError() == GL_NO_ERROR);
+#define checkCritOpenGLError() //assert(glGetError() == GL_NO_ERROR);
+#define checkNonCritOpenGLError() //assert(glGetError() == GL_NO_ERROR);
 
 #ifndef GL_CHECK_ERRORS
 #define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);

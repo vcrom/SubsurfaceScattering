@@ -256,15 +256,17 @@ void Core::initializeTextures()
 	//_background_texture = TextureLoader::create2DTexture("textures/flower.jpg");
 	//_background_texture = TextureLoader::create2DTexture("textures/bokeh.jpg");
 	//_background_texture = TextureLoader::create2DTexture("textures/grass.jpg");
-	_background_texture = TextureLoader::create2DTexture("textures/forest.jpg");
+	//_background_texture = TextureLoader::create2DTexture("textures/forest.jpg");
 	//_background_texture = TextureLoader::create2DTexture("textures/tris.jpg");
 
 	//_diffuse_env_texture = TextureLoader::createCubeMap(_enviroment_path + "/diffuse");
-	//loadMeshDiffuseTexture("textures/flower.jpg"); 
-	loadMeshDiffuseTexture("textures/tests.png"); 
-	loadMeshAOTexture("textures/AO.jpg");
-	//loadMeshAOTexture("textures/tests_AO.png");
-	loadMeshNormalsTexture("textures/normals.jpg");
+	//loadMeshDiffuseTexture("textures/flower.jpg"); loadMesh("digital_emily/Emily_Head.ply");
+	//loadMeshDiffuseTexture("textures/tests.png"); 
+	loadMeshDiffuseTexture("digital_emily/Emily_albedo.jpg");
+	//loadMeshAOTexture("textures/AO.jpg");
+	loadMeshAOTexture("digital_emily/EmilyAO.jpg");
+	//loadMeshNormalsTexture("textures/normals.jpg");
+	loadMeshNormalsTexture("digital_emily/Emily_normals_c.jpg");
 	checkCritOpenGLError();
 
 	std::cout << "Textures init" << std::endl;
@@ -294,7 +296,8 @@ void Core::initialize()
 	_light = std::shared_ptr<Entity>(new Entity(_sphere));
 	_light->setUnitary();
 
-	loadMesh("meshes/tests.ply");
+	//loadMesh("meshes/tests.ply");
+	loadMesh("digital_emily/Emily_Head.ply");
 	_light->scale(glm::vec3(0.19));
 	_light->setPosition(glm::vec3(1.5, 0.4, 0.9));
 	//moveLight(glm::vec3(0.00001, 0, 0));
@@ -460,7 +463,7 @@ void Core::renderScene()
 void Core::shadowMapPass()
 {
 	//glViewport(0, 0, GLint(_lineal_shadow_map_texture->getWidth()), GLint(_lineal_depth_texture->getHeight()));
-	std::cout << "Shadow size " << glm::to_string(glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight()));
+	//std::cout << "Shadow size " << glm::to_string(glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight()));
 	_lineal_shadow_map_texture->use(GL_TEXTURE0);
 	//_lineal_shadow_map_texture->resize(GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
 	_lineal_depth_texture->use(GL_TEXTURE1);
@@ -619,35 +622,6 @@ void Core::subSurfaceScatteringPass()
 		break;
 	}
 	glDisable(GL_STENCIL_TEST);
-	//if (_sss_method)
-	//{
-	//	_generic_buffer->useFrameBuffer(1);
-	//	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0); 
-	//	_generic_buffer->colorBuffer(_aux_ssss_texture2->getTextureID(), 1);
-	//	_generic_buffer->colorBuffer(_aux_ssss_pingpong->getTextureID(), 2);
-	//	_generic_buffer->clearColor();
-	//	glEnable(GL_STENCIL_TEST);
-	//	glStencilFunc(GL_EQUAL, 1, 0xFF);
-	//	glStencilMask(0x00);
-	//	RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sssStrength);
-	//	//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-	//	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-	//	glDisable(GL_STENCIL_TEST);
-	//}
-
-	//else
-	//{
-	//	_generic_buffer->useFrameBuffer(1);
-	//	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 0);//diffuse
-	//	_generic_buffer->clearColor();
-	//	glEnable(GL_STENCIL_TEST);
-	//	glStencilFunc(GL_EQUAL, 1, 0xFF);
-	//	glStencilMask(0x00);
-
-	//	RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width);
-
-	//	glDisable(GL_STENCIL_TEST);
-	//}
 }
 
 /// <summary>
