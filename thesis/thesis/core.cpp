@@ -453,7 +453,7 @@ void Core::renderScene()
 	toneMap();
 	glFinish();
 	_t2 = _clock.now();
-	std::cout << "\tAdd Tone map pas time: " << std::chrono::duration_cast<std::chrono::milliseconds>(_t2 - _t1).count() << std::endl;
+	std::cout << "\tAdd Tone map pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	
 	
 	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
