@@ -406,8 +406,8 @@ void Core::onRender()
 }
 
 //using time_unit = std::chrono::milliseconds;
-//using time_unit = std::chrono::microseconds;
-using time_unit = std::chrono::nanoseconds;
+using time_unit = std::chrono::microseconds;
+//using time_unit = std::chrono::nanoseconds;
 
 
 void Core::renderScene()
@@ -416,6 +416,9 @@ void Core::renderScene()
 	_default_buffer->clearColorAndDepth();
 	std::cout << "Rendering scene..." << std::endl;
 
+	std::chrono::steady_clock::time_point _t1, _t2;
+	std::chrono::steady_clock _clock;
+	//_clock = std::chrono::high_resolution_clock();
 	glFinish();
 	_t1 = _clock.now();
 	shadowMapPass();

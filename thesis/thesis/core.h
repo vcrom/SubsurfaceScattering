@@ -140,8 +140,8 @@ private:
 	int _mouse_x, _mouse_y;
 
 	//timmer
-	std::chrono::high_resolution_clock _clock;
-	std::chrono::high_resolution_clock::time_point _t1, _t2;
+	//std::chrono::high_resolution_clock _clock;
+	//std::chrono::high_resolution_clock::time_point _t1, _t2;
 
 	//params
 	glm::mat4 _light_view_matrix, _light_projection_matrix;
