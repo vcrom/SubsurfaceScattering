@@ -313,8 +313,8 @@ void main()
 	float diffuse = saturate(dot(L, N));// * m_ambientcomp;
 
 	//specular
-	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.028, 0.028, 0.028), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
-	//float specular = /*(roughness + 8) / (8*M_PI) */ max(0, pow(dot(N, H), 2*roughness)) * spec_int;// * 0.028;
+	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
+	//float specular = /*(roughness + 8) / (8*M_PI) */ max(0, pow(dot(N, H), 2*roughness)) * spec_int;
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);

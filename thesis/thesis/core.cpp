@@ -597,7 +597,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.8/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
@@ -613,7 +613,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 
 		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
