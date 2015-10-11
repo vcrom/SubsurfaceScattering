@@ -216,7 +216,7 @@ float computeCBFFactor(vec3 view_normal, vec3 view_pos, float z_near)
 	float cos_a_i = abs(dot(vec3(0,0,-1), -w));
 	float cos_a_j = abs(dot(view_normal, w));
 	//view_pos.z = 5*view_pos.z/z_far;
-	float norm = length(vec3(view_pos.xy, -z_near));
+	float norm = length(vec3(view_pos.xyz));//, -z_near));
 	return cos_a_i*cos_a_i*cos_a_i*norm*norm/cos_a_j;
 }
 
@@ -392,5 +392,6 @@ void main()
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 	//FragColor = vec4(diffuse*0.5+0.1);
 	//FragColor = vec4(0);
+	//FragColor = vec4(FragCBFFactor);
 
 }

@@ -60,8 +60,8 @@ float rgb2gray(vec3 rgb)
 //Filtering
 //#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-#define SIMPLE_BILATERAL_FILTER
-//#define CROSS_BILATERAL_FILTER
+//#define SIMPLE_BILATERAL_FILTER
+#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
 ///Strengh factor
@@ -150,7 +150,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		weigths += weight;
 	}
 	colorBlurred.rgb /= weigths;
-	if(colorBlurred.rgb == vec3(0)) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
+	//if(colorBlurred.rgb == vec3(0) || weigths == 0) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
 	return colorBlurred;
 
 }

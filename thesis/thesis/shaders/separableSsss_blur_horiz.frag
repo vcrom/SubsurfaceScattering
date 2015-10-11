@@ -86,8 +86,8 @@ float rgb2gray(vec3 rgb)
 //Filtering
 //#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-#define SIMPLE_BILATERAL_FILTER
-//#define CROSS_BILATERAL_FILTER
+//#define SIMPLE_BILATERAL_FILTER
+#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
 ///Stngh factor
@@ -132,8 +132,8 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		vec2 despl = kernel[i].a * finalStep;
 		vec2 offset = texcoord + despl;
 		vec4 colorS = texture2D(color_texture, offset).rgba;
-		//vec4 color = colorS;
 		if(colorS.rgb == vec3(0)) continue;
+		//vec4 color = colorS;
 
 		if(follow_surf)
 		{
@@ -168,7 +168,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		#endif
 
 		#ifdef BILATERAL_ON_CURV
-			weight = kernel[i].rgb*exp(-5*distance(rgb2lab(colorM.rgb)*texture(curvature_texture, vUV).r, rgb2lab(colorS.rgb)*texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
+			weight = kernel[i].rgb*exp(-5*distance(texture(curvature_texture, vUV).r, texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
 		#endif
 
 		// Accumulate:
@@ -176,7 +176,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		weigths += weight;
 	}
 	colorBlurred.rgb /= weigths;
-	if(colorBlurred.rgb == vec3(0)) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
+	//if(colorBlurred.rgb == vec3(0) || weigths == 0) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
 	return colorBlurred;
 
 }
