@@ -216,7 +216,8 @@ float computeCBFFactor(vec3 view_normal, vec3 view_pos, float z_near)
 	float cos_a_i = abs(dot(vec3(0,0,-1), -w));
 	float cos_a_j = abs(dot(view_normal, w));
 	//view_pos.z = 5*view_pos.z/z_far;
-	float norm = length(vec3(view_pos.xy, -z_near));
+	//float norm = length(vec3(view_pos.xyz));//, -z_near));
+	float norm = length(vec3(view_pos.xy, -(2*z_near)));
 	return cos_a_i*cos_a_i*cos_a_i*norm*norm/cos_a_j;
 }
 
@@ -270,7 +271,7 @@ void main()
 	#else
 	float curvature = screenSpaceCurvature(view_normal, viewPos);
 	#endif
-	if(curvature < 0) curvature = 0;
+	if(curvature < 0.0) curvature = 0;
 	//curvature = 
 	//saturate(curvature);//0 ... 1
 	FragCurvature = curvature;
@@ -321,7 +322,7 @@ void main()
 	// Add the diffuse and specular components:
     #ifdef SEPARATE_SPECULARS
     color.rgb += shadow * f2 * diffuse;//* (1-FresnelSchlick(vec3(0.028, 0.028, 0.028), L, H));
-    FragSpecularColor += shadow * light_color * specular;
+    FragSpecularColor = shadow * light_color * specular;
     #else
     color.rgb += shadow * (f2 * diffuse + light_color * specular);
     #endif
