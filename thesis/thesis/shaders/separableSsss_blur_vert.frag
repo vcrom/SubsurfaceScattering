@@ -150,7 +150,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		weigths += weight;
 	}
 	colorBlurred.rgb /= weigths;
-	if(colorBlurred.rgb == vec3(0)) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
+	//if(colorBlurred.rgb == vec3(0) || weigths == 0) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
 	return colorBlurred;
 
 }

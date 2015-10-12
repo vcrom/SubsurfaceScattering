@@ -84,19 +84,17 @@ float rgb2gray(vec3 rgb)
 //////////////////////////////////////////////////
 
 //Filtering
-#define ORIGINAL_FILTER
+//#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
 //#define SIMPLE_BILATERAL_FILTER
-//#define CROSS_BILATERAL_FILTER
+#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
 ///Stngh factor
-#define STREGTH_CURVATURE
+//#define STREGTH_CURVATURE
 
 #ifdef STREGTH_CURVATURE
-	//#define SSSS_STREGTH_SOURCE 0.3+1.5*texture(curvature_texture, vUV).r
-	//#define SSSS_STREGTH_SOURCE 1+1.5*texture(curvature_texture, vUV).r
-	#define SSSS_STREGTH_SOURCE texture(curvature_texture, vUV).r
+	#define SSSS_STREGTH_SOURCE 0.3+1.5*texture(curvature_texture, vUV).r
 #else
 	#define SSSS_STREGTH_SOURCE 1.0 
 	//#define SSSS_STREGTH_SOURCE (colorM.a)
@@ -134,18 +132,18 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		vec2 despl = kernel[i].a * finalStep;
 		vec2 offset = texcoord + despl;
 		vec4 colorS = texture2D(color_texture, offset).rgba;
-		//vec4 color = colorS;
 		if(colorS.rgb == vec3(0)) continue;
+		//vec4 color = colorS;
 
 		if(follow_surf)
 		{
 			// If the difference in depth is huge, we lerp color back to "colorM":
-			//float depth = texture(depthTex, offset).r;
-			//float s = 0;
+			float depth = texture(depthTex, offset).r;
+			float s = 0;
 			//#ifndef CROSS_BILATERAL_FILTER
 				//s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
 			//#endif
-			//colorS.rgb = mix(colorS.rgb, colorM.rgb, s);
+			colorS.rgb = mix(colorS.rgb, colorM.rgb, s);
 		}
 
 		vec3 weight;
@@ -165,12 +163,12 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		#endif
 
 		#ifdef CROSS_BILATERAL_FILTER
-			weight = kernel[i].rgb*exp(-10*distance(I_p, rgb2gray(colorS.rgb)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
+			weight = kernel[i].rgb*exp(-50*distance(I_p, rgb2gray(colorS.rgb)*texture(cross_bilateral_factor, offset).r))*exp(-abs(length(despl)));
 			//weight = kernel[i].rgb*exp(-10*distance(colorM, colorS))*exp(-abs(length(offset)));
 		#endif
 
 		#ifdef BILATERAL_ON_CURV
-			weight = kernel[i].rgb*exp(-5*distance(rgb2lab(colorM.rgb)*texture(curvature_texture, vUV).r, rgb2lab(colorS.rgb)*texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
+			weight = kernel[i].rgb*exp(-5*distance(texture(curvature_texture, vUV).r, texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
 		#endif
 
 		// Accumulate:
@@ -178,7 +176,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		weigths += weight;
 	}
 	colorBlurred.rgb /= weigths;
-	if(colorBlurred.rgb == vec3(0)) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
+	//if(colorBlurred.rgb == vec3(0) || weigths == 0) colorBlurred.rgb = texture(color_texture, texcoord).rgb;
 	return colorBlurred;
 
 }
