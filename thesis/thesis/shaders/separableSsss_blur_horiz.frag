@@ -86,19 +86,22 @@ float rgb2gray(vec3 rgb)
 //Filtering
 //#define ORIGINAL_FILTER
 //#define SIMPLE_COL_DIST_FILTER
-//#define SIMPLE_BILATERAL_FILTER
-#define CROSS_BILATERAL_FILTER
+#define SIMPLE_BILATERAL_FILTER
+//#define CROSS_BILATERAL_FILTER
 //#define BILATERAL_ON_CURV
 
-///Stngh factor
+///Str factor
 //#define STREGTH_CURVATURE
 
 #ifdef STREGTH_CURVATURE
-	#define SSSS_STREGTH_SOURCE 0.3+1.5*texture(curvature_texture, vUV).r
+	#define SSSS_STREGTH_SOURCE 0.3+1.5*abs(texture(curvature_texture, vUV).r)
+	//#define SSSS_STREGTH_SOURCE 1+1.5*abs(texture(curvature_texture, vUV).r)
+	//#define SSSS_STREGTH_SOURCE min(abs(texture(curvature_texture, vUV).r), 1)
 #else
 	#define SSSS_STREGTH_SOURCE 1.0 
 	//#define SSSS_STREGTH_SOURCE (colorM.a)
 #endif
+
 vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy, bool follow_surf)
 {
 	// Fetch color of current pixel:
@@ -141,7 +144,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 			float depth = texture(depthTex, offset).r;
 			float s = 0;
 			//#ifndef CROSS_BILATERAL_FILTER
-				//s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
+				s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
 			//#endif
 			colorS.rgb = mix(colorS.rgb, colorM.rgb, s);
 		}

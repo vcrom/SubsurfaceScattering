@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "meshimporter.h"
 #include "renderalgorithms.h"
+#include "kxtime.h"
 
 #include <iostream>
 #include <chrono>
@@ -673,8 +674,8 @@ void Core::toneMap()
 	if (_control_boolean_params[1])
 	{
 		//glViewport(0, 0, GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
-		//RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
-		RenderAlgorithms::renderTexture(_default_buffer, _curvature_tex);
+		RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
+		//RenderAlgorithms::renderTexture(_default_buffer, _curvature_tex);
 	}
 }
 

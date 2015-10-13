@@ -331,7 +331,7 @@ void main()
     if (sssEnabled && translucency != 0)
 	{
 	#ifdef TRANSLUCENCY_MOD_CURV
-        color.rgb += f2 * transmittance(translucency, sssWidth*(1.0+FragCurvature), worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
+        color.rgb += f2 * transmittance(translucency, sssWidth*(1.0+2*FragCurvature), worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
 	#else
 		color.rgb += f2 * transmittance(translucency, sssWidth, worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
 	#endif
@@ -384,7 +384,7 @@ void main()
 	//FragColor = vec4(vec3(dFdx(worldNormal)), 1);
 	//FragColor = vec4(vec3(dFdy(worldNormal)), 1);
 	//FragCBFFactor *= (color.r+color.g+color.b)/3;
-	//FragColor = vec4(FragCBFFactor*(color.r + color.g + color.b)/3);
+	//FragColor = vec4(FragCBFFactor);//*(color.r + color.g + color.b)/3);
 	//if(FragCBFFactor < 0) FragColor = vec4(1, 0, 0, 1);
 	//FragColor = vec4(FragSpecularColor, 1);
 	//FragColor = vec4(FresnelSchlick(vec3(0.028, 0.028, 0.028), L, H), 1);
@@ -393,5 +393,5 @@ void main()
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 	//FragColor = vec4(diffuse*0.5+0.1);
 	//FragColor = vec4(0);
-
+	//FragColor = vec4(FragLinearDepth);
 }
