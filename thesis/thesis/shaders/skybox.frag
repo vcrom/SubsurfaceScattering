@@ -12,5 +12,5 @@ void main()
 {
 	//return the colour from the cubemap texture 
     vFragColor = vec4(texture(cubeMap, normalize(uv)).rgb, 1.0f);
-	//vFragColor = vec4(0);
+	vFragColor = vec4(0);
 }

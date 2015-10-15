@@ -315,7 +315,8 @@ void main()
 
 	//specular
 	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
-	//float specular = /*(roughness + 8) / (8*M_PI) */ max(0, pow(dot(N, H), 2*roughness)) * spec_int;
+	//vec3 specular = FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H);
+	//float specular = 0.029* max(0, pow(dot(N, H), 2*roughness)) * spec_int;
 
 	vec4 shadow_coords = lightViewProjBiasM*vec4(worldPosition + 0.005*L/*+ 0.001*N*/, 1);
 	float shadow = shadowMapping(shadow_map, shadow_coords);
@@ -392,6 +393,6 @@ void main()
 	//FragCurvature = 0.0
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 	//FragColor = vec4(diffuse*0.5+0.1);
-	//FragColor = vec4(0);
+	FragColor = vec4(0);
 	//FragColor = vec4(FragLinearDepth);
 }

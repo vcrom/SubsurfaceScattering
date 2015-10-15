@@ -157,6 +157,9 @@ private:
 	std::vector<float> _falloff;
 	float _ssss_mod_factor;
 	const float _initial_width = 0.005f;
+	std::vector<double> _timmings;
+	std::vector<std::string> _timed_regions;
+	long long _num_frames;
 
 };
 

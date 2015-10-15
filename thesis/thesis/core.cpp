@@ -36,6 +36,16 @@ Core::Core()
 	_sss_strength = glm::vec3(0.48, 0.41, 0.28);
 	_falloff = {1.0f, 0.37f, 0.3f};
 	_bumpint = 0.5f;
+
+	std::function<void()> syncOpenGl = [&]{glFinish();};
+	kxt::set_sync_function(syncOpenGl);
+	kxt::set_sample_frequency(2);
+	kxt::init();
+	
+	_num_frames = 0;
+	_timed_regions = std::vector<std::string> {"shadow mapping", "main render", "Subsurface simulation", "Specular", "Tonemapping"};
+	_timmings = std::vector<double>(_timed_regions.size(), 0);
+	
 }
 
 #include "fimage.h"
@@ -45,6 +55,7 @@ Core::~Core()
 	//image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
 	//image.writeImage("textures/depth_map.jpg");
 	_object.reset();
+	kxt::quit();
 }
 
 /// <summary>
@@ -417,48 +428,72 @@ void Core::renderScene()
 	_default_buffer->clearColorAndDepth();
 	std::cout << "Rendering scene..." << std::endl;
 
-	std::chrono::steady_clock::time_point _t1, _t2;
-	std::chrono::steady_clock _clock;
+	kxt::frame_start();
+	//std::chrono::steady_clock::time_point _t1, _t2;
+	//std::chrono::steady_clock _clock;
 	//_clock = std::chrono::high_resolution_clock();
-	glFinish();
-	_t1 = _clock.now();
+	//glFinish();
+	//_t1 = _clock.now();
+	//glFinish();
+	kxt::region_start(_timed_regions[0]);
 	shadowMapPass();
-	glFinish();
-	_t2 = _clock.now();
-	std::cout << "\tShadow mapping time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+	//glFinish();
+	kxt::region_end(_timed_regions[0]);
+	//_t2 = _clock.now();
+	//std::cout << "\tShadow mapping time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
-	glFinish();
-	_t1 = _clock.now();
+	//glFinish();
+	//_t1 = _clock.now();
+	//glFinish();
+	kxt::region_start(_timed_regions[1]);
 	mainRenderPass();
-	glFinish();
-	_t2 = _clock.now();
-	std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+	//glFinish();
+	kxt::region_end(_timed_regions[1]);
+	//_t2 = _clock.now();
+	//std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
-	glFinish();
-	_t1 = _clock.now();
+	//glFinish();
+	//_t1 = _clock.now();
+	//glFinish();
+	kxt::region_start(_timed_regions[2]);
 	if(_control_boolean_params[2]) subSurfaceScatteringPass();
-	glFinish();
-	_t2 = _clock.now();
-	std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+	//glFinish();
+	kxt::region_end(_timed_regions[2]);
+	//_t2 = _clock.now();
+	//std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
-	glFinish();
-	_t1 = _clock.now();
+	//glFinish();
+	//_t1 = _clock.now();
+	//glFinish();
+	kxt::region_start(_timed_regions[3]);
 	addSpecularPass();
-	glFinish();
-	_t2 = _clock.now();
-	std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+	//glFinish();
+	kxt::region_end(_timed_regions[3]);
+	//_t2 = _clock.now();
+	//std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	
-	glFinish();
-	_t1 = _clock.now();
+	//glFinish();
+	//_t1 = _clock.now();
+	//glFinish();
+	kxt::region_start(_timed_regions[4]);
 	toneMap();
-	glFinish();
-	_t2 = _clock.now();
-	std::cout << "\tAdd Tone map pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
+	//glFinish();
+	kxt::region_end(_timed_regions[4]);
+	//_t2 = _clock.now();
+	//std::cout << "\tAdd Tone map pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	
-	
-	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+	kxt::frame_end();
 
+	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
+	//auto regions = kxt::timed_regions();
+	for (unsigned int i = 0; i < _timmings.size(); ++i)
+	{
+		_timmings[i] = _timmings[i] + (kxt::region_duration(_timed_regions[i])*1000 - _timmings[i]) / double(_num_frames + 1);
+		std::cout << _timed_regions[i] << ": " << _timmings[i] << std::endl;
+	}
+	++_num_frames;
+	std::cout << "Frame: " << _num_frames << std::endl;
 }
 
 /// <summary>
@@ -804,6 +839,8 @@ void Core::setSSSMethod(int val)
 		if (_sss_method == 0)_ssss_mod_factor = 0.7f;
 		else if (_sss_method == 1) _ssss_mod_factor = 0.2f; //_ssss_mod_factor = 0.07f;
 	}
+	_num_frames = 0;
+	_timmings = std::vector<double>(_timed_regions.size(), 0);
 }
 
 void Core::setToneMappingMethod(int val)

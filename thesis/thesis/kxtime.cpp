@@ -60,7 +60,7 @@ bool gather_timings = false;
 
 void kxt::init ()
 {
-
+	auto t = Timer();
 }
 
 void kxt::quit ()
@@ -83,11 +83,12 @@ void kxt::frame_start ()
     // Clear state regardless of whether we should gather timings this frame so that
     // the client does not obtain duplicate results when calling timed_regions() to
     // get frame statistics.
-    map.clear();
+
+	map.clear();
     region_stack.clear();
     regions.clear();
 
-    if (gather_frequency > 1)
+    if (gather_frequency >= 1)
     {
         // Decide whether we should gather gl timings in this frame
         std::uniform_int_distribution<int> dis(1, gather_frequency);
@@ -111,12 +112,22 @@ void kxt::frame_end ()
     }
 }
 
+void kxt::region_start(const std::string &name)
+{
+	region_start(name.c_str());
+}
+
 void kxt::region_start (const char* name)
 {
     if (!gather_timings) return;
     sync();
     map[name].start = now();
     region_stack.push_back(name);
+}
+
+void kxt::region_end(const std::string &name)
+{
+	region_end(name.c_str());
 }
 
 void kxt::region_end (const char *name)
@@ -138,6 +149,11 @@ void kxt::region_end (const char *name)
     }
     sync();
     map[name].end = now();
+}
+
+double kxt::region_duration(const std::string &name)
+{
+	return region_duration(name.c_str());
 }
 
 double kxt::region_duration (const char *name)

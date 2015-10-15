@@ -44,16 +44,19 @@ void frame_start ();
 void frame_end ();
 
 /// Mark the start of a code region.
-void region_start (const char* name);
+void region_start (const char* name = nullptr);
+void region_start (const std::string &name);
 
 /// Mark the end of a code region.
 /// If a region name is provided, the timing library will double-check that the region
 /// being ended matches the region that was last started.
 /// Throw std::logic_error on region match failure.
 void region_end (const char* name = nullptr);
+void region_end (const std::string &name);
 
 /// Get the duration of a code region.
 double region_duration (const char* name);
+double region_duration(const std::string &name);
 
 /// Retrieve time measurements for the last frame.
 /// Make sure to call 'frame_end' before calling this function.
