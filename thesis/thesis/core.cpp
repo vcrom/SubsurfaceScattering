@@ -39,7 +39,7 @@ Core::Core()
 
 	std::function<void()> syncOpenGl = [&]{glFinish();};
 	kxt::set_sync_function(syncOpenGl);
-	kxt::set_sample_frequency(2);
+	kxt::set_sample_frequency(50);
 	kxt::init();
 	
 	_num_frames = 0;
