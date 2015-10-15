@@ -71,16 +71,24 @@ uniform float translucency;
 
 
 ///////////////Shadows///////////////
+
+float interleavedGradientNoise(vec2 pos, float scale)
+{
+	vec3 magic = vec3(0.0671156, 0.00583715, 52.9829189);
+	return -scale + 2*scale*fract(magic.z * fract(dot(pos.xy, magic.xy)));
+}
+
 //shadow mapping mode
 #define PCF_STRATIFIED_3x3
 //#define PCF_STRATIFIED_4x4
 //#define PCF_RANDOM_SAMPLING
 //#define SIMPLE_SHADOW_MAP
+//#define TEST_SAMPLE
 
-#ifdef RANDOM_SAMPLING
+#ifdef PCF_RANDOM_SAMPLING
 //pseudorandom number generator
 float random(vec4 seed) {
-        float dot_product = dot(seed, vec4(12.9898,78.233,45.164,94.673));
+	float dot_product = dot(seed, vec4(12.9898,78.233,45.164,94.673));
     return fract(sin(dot_product) * 43758.5453);
 }
 #endif
@@ -101,8 +109,9 @@ float shadowMapping(sampler2DShadow shadow_map, vec4 vShadowCoords)
         //using 3x3 neighborhood
         #ifdef PCF_STRATIFIED_3x3
 
-		const float rad = 1.0f;
-        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad,-rad));
+        const float rad = 1.0f;
+		//ivec2 offsetI = ivec2((int)offset.x, (int)offset.y));
+        sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, -rad));
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, 0));
         sum += textureProjOffset(shadow_map, vShadowCoords, ivec2(-rad, rad));
 
@@ -143,6 +152,39 @@ float shadowMapping(sampler2DShadow shadow_map, vec4 vShadowCoords)
 
         shadow = sum/16.0;
         #endif
+
+		#ifdef TEST_SAMPLE
+			float noise = interleavedGradientNoise(gl_FragCoord.xy, 1.0);
+	        float rotx = cos(noise);
+	        float roty = sin(noise);
+	        mat2 rota = mat2(
+			  rotx, -roty,   //first column
+			  roty, rotx);  //second column
+
+			const float rad = 1.0f;
+			vec2 offset = rota*vec2(-rad, -rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(-rad, -rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(-rad, 0);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(-rad, rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(0,-rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(0, 0);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(0, rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(rad, -rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(rad, 0);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+			offset = rota*vec2(rad, rad);
+			sum += textureProj(shadow_map, vShadowCoords+vec4(offset.x, offset.y, 0, 0));
+
+			shadow = sum/9.0;
+		#endif
 
         #ifdef PCF_RANDOM_SAMPLING
         for(int i=0;i<16;i++) {
@@ -314,7 +356,7 @@ void main()
 	float diffuse = saturate(dot(L, N));// * m_ambientcomp;
 
 	//specular
-	vec3 specular = (roughness + 2) / 8*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
+	vec3 specular = (roughness + 2) / (/*M_PI*/8)*pow((max(0, dot(N, H))), roughness) * FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H)*max(0, dot(aux_N/*N*/, L))*spec_int;
 	//vec3 specular = FresnelSchlick(vec3(0.029, 0.029, 0.029), L, H);
 	//float specular = 0.029* max(0, pow(dot(N, H), 2*roughness)) * spec_int;
 
@@ -393,6 +435,6 @@ void main()
 	//FragCurvature = 0.0
 	//FragColor = vec4(pow(texture(diffuse_env, N).rgb, vec3(2.2)), 1);
 	//FragColor = vec4(diffuse*0.5+0.1);
-	FragColor = vec4(0);
+	//FragColor = vec4(0);
 	//FragColor = vec4(FragLinearDepth);
 }
