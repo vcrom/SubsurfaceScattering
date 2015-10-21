@@ -24,6 +24,7 @@ public:
 	~Mesh();
 
 	BBox getBBox();
+	bool hasTexCoords();
 
 protected:
 	void destroy();

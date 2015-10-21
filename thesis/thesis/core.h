@@ -102,7 +102,9 @@ private:
 	void addSpecularPass();
 	void toneMap();
 
-	
+	//Textures
+	bool _use_textures;
+
 	//cammera
 	TargetCamera _cam;
 

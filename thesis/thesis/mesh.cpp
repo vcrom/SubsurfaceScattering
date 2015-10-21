@@ -278,6 +278,11 @@ BBox Mesh::getBBox()
 	return bbox_;
 }
 
+bool Mesh::hasTexCoords()
+{
+	return tex_coords_.size() > 0;
+}
+
 void Mesh::computeBBox()
 {
 	glm::vec3 min = vertices_[0];

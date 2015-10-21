@@ -40,6 +40,8 @@ public:
 	BBox getBBox();
 	std::shared_ptr<Mesh> getMeshPtr();
 
+	bool hasTextures();
+
 
 private:
 	std::shared_ptr<Mesh> _mesh;

@@ -38,7 +38,7 @@ void GLWidget::initializeGL()
 	{
 		core_engine_->setDefaultFBO(this->defaultFramebufferObject());
 		core_engine_->initialize();
-		core_engine_->setGlossines(0.2);
+		core_engine_->setGlossines(0.3);
 		core_engine_->setSpeculartInt(1);
 		core_engine_->setAmbientInt(1);
 

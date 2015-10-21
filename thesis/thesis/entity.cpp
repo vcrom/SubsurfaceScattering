@@ -227,3 +227,9 @@ void Entity::computetransformationMatrix()
 
 	_updated = true;
 }
+
+
+bool Entity::hasTextures()
+{
+	return _mesh->hasTexCoords();
+}

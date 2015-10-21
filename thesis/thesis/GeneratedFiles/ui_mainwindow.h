@@ -349,7 +349,7 @@ public:
         doubleSpinBox_7->setObjectName(QStringLiteral("doubleSpinBox_7"));
         doubleSpinBox_7->setMaximum(1);
         doubleSpinBox_7->setSingleStep(0.01);
-        doubleSpinBox_7->setValue(0.2);
+        doubleSpinBox_7->setValue(0.3);
 
         horizontalLayout_11->addWidget(doubleSpinBox_7);
 

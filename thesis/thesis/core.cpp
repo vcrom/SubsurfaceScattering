@@ -12,6 +12,7 @@
 
 Core::Core()
 {
+	_use_textures = true;
 	_mouse_x = _mouse_y = 0;
 
 	_window_size = glm::vec2(0);
@@ -581,7 +582,7 @@ void Core::mainRenderPass()
 		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness, _bumpint, _diffuse_env_texture,
 		_shadow_map_texture, _light_view_matrix, _light_projection_matrix, _lineal_shadow_map_texture, _cam.getZfar(), 
 		_sss_width, _translucency, _ambientInt, _specInt, _control_boolean_params[2], 
-		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, true);
+		_mesh_diffuse_texture, _mesh_ao_texture, _mesh_normals_texture, _use_textures);
 
 	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
 	_generic_buffer->useFrameBuffer(3);
@@ -727,6 +728,7 @@ void Core::loadMesh(const std::string& path)
 	//_object->translate(-center);
 	_object->translateToOrigin();
 	initializeCam();
+	_use_textures = _object->hasTextures();
 }
 
 void Core::loadMeshDiffuseTexture(const std::string& path)
