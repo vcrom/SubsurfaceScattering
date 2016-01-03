@@ -16,12 +16,12 @@
 #define checkCritOpenGLError() //assert(glGetError() == GL_NO_ERROR);
 #define checkNonCritOpenGLError() //assert(glGetError() == GL_NO_ERROR);
 
-#ifndef GL_CHECK_ERRORS
-#define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
-#endif
-
-#ifndef GL_CHECK_ERRORS_PRINT
-#define GL_CHECK_ERRORS_PRINT {GLenum err; while ((err = glGetError()) != GL_NO_ERROR) {std::cerr << "OpenGL error: " << err << std::endl;} exit(err);}
-#endif
+//#ifndef GL_CHECK_ERRORS
+//#define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
+//#endif
+//
+//#ifndef GL_CHECK_ERRORS_PRINT
+//#define GL_CHECK_ERRORS_PRINT {GLenum err; while ((err = glGetError()) != GL_NO_ERROR) {std::cerr << "OpenGL error: " << err << std::endl;} exit(err);}
+//#endif
 
 #endif // UTILS_H

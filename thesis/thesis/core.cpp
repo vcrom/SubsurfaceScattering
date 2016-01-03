@@ -53,8 +53,6 @@ Core::Core()
 Core::~Core()
 {
 	fImage image;
-	//image.loadImage(_shadow_map_texture->getTextureData(), _shadow_map_texture->getWidth(), _shadow_map_texture->getHeight());
-	//image.writeImage("textures/depth_map.jpg");
 	_object.reset();
 	kxt::quit();
 }
@@ -100,21 +98,8 @@ void Core::initializeGL()
 	glewInitialization();
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearStencil(0);
-	//glClearDepth(0);
 
-
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_TEXTURE_2D);
-	//GLuint textureID;
-	//glGenTextures(1, &textureID);
-	//glBindTexture(GL_TEXTURE_2D, textureID);
-	//glTexParameteri(GL_TEXTURE_2D, GL_REPEAT, GL_REPEAT);
-
-	//std::cout << "OpenGL No init" << std::endl;
-	//checkCritOpenGLError();
-
-
-	std::cout << "OpenGL init" << std::endl;
+	std::cout << "OpenGL initialized" << std::endl;
 }
 
 
@@ -255,30 +240,9 @@ void Core::initializeTextures()
 	_curvature_tex->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	checkCritOpenGLError();
 
-	////CBF factor
-	//_screen_space_curvature = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
-	//_screen_space_curvature->use();
-	//_screen_space_curvature->loadEmptyTexture(GL_R32F, 32, 32);
-	//_screen_space_curvature->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//_screen_space_curvature->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//_screen_space_curvature->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//_screen_space_curvature->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//checkCritOpenGLError();
 	
-	//_background_texture = TextureLoader::create2DTexture("textures/hills.jpg");bokeh.jpg
-	//_background_texture = TextureLoader::create2DTexture("textures/flower.jpg");
-	//_background_texture = TextureLoader::create2DTexture("textures/bokeh.jpg");
-	//_background_texture = TextureLoader::create2DTexture("textures/grass.jpg");
-	//_background_texture = TextureLoader::create2DTexture("textures/forest.jpg");
-	//_background_texture = TextureLoader::create2DTexture("textures/tris.jpg");
-
-	//_diffuse_env_texture = TextureLoader::createCubeMap(_enviroment_path + "/diffuse");
-	//loadMeshDiffuseTexture("textures/flower.jpg"); loadMesh("digital_emily/Emily_Head.ply");
-	//loadMeshDiffuseTexture("textures/tests.png"); 
 	loadMeshDiffuseTexture("digital_emily/Emily_albedo.jpg");
-	//loadMeshAOTexture("textures/AO.jpg");
 	loadMeshAOTexture("digital_emily/EmilyAO.jpg");
-	//loadMeshNormalsTexture("textures/normals.jpg");
 	loadMeshNormalsTexture("digital_emily/Emily_normals_c.jpg");
 	checkCritOpenGLError();
 
@@ -293,6 +257,7 @@ void Core::initialize()
 	initializeGL();
 	initializeTextures();
 
+	//init shader manager
 	std::shared_ptr<GlslShaderManager> shader_manager = GlslShaderManager::instance();
 	shader_manager->initializeShaders();
 
@@ -303,28 +268,26 @@ void Core::initialize()
 	_generic_buffer = std::shared_ptr<FrameBuffer>(new FrameBuffer());
 	_generic_buffer->createFrameBuffer();
 
+	//Init cam projection
 	_cam.updateProjection(glm::radians(60.0f), 1.0f);
 
+	//light
 	_sphere = MeshImporter::importMeshFromFile("meshes/sphere.ply");
 	_light = std::shared_ptr<Entity>(new Entity(_sphere));
 	_light->setUnitary();
-
-	//loadMesh("meshes/tests.ply");
-	loadMesh("digital_emily/Emily_Head.ply");
 	_light->scale(glm::vec3(0.19));
 	_light->setPosition(glm::vec3(1.5, 0.4, 0.9));
-	//moveLight(glm::vec3(0.00001, 0, 0));
-	//moveLight(glm::vec3(-0.00001, 0, 0));
-	//computeLightMatrices();
 
 	//Load skybox and pbr envs
 	_sky_box = std::shared_ptr<CSkybox>(new CSkybox());
 	loadEnviroment("textures/env2");
-	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path+"/skybox"));
-	//_sky_box = std::shared_ptr<CSkybox>(new CSkybox(_enviroment_path + "/diffuse"));
+
+	//loadFace Maesh
+	loadMesh("digital_emily/Emily_Head.ply");
 
 	//load kernel
 	loadPreComputedKernel("kernels/Skin1_PreInt_DISCSEP.bn");
+
 	//Compute kernel
 	RenderAlgorithms::computeKernels(_num_samples, _sss_strength, _falloff);
 	RenderAlgorithms::setSeparableKernels(_sss_method%2);
@@ -343,8 +306,8 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	GLsizei shadow_width, shadow_height, width, height;
 	width = GLsizei(int(w));
 	height = GLsizei(int(h));
-	shadow_width = width;// *2;
-	shadow_height = height;// *2;
+	shadow_width = width * 2;
+	shadow_height = height * 2;
 	//shadow_width = 2048; //w
 	//shadow_height = 2048; //h
 
@@ -406,22 +369,13 @@ void Core::onRender()
 	if (!_control_boolean_params[0])
 	{
 		renderScene();
-		//_default_buffer->useFrameBuffer();
-		//_default_buffer->clearColorAndDepth();
-		//RenderAlgorithms::renderTexture(_default_buffer, _cross_bilateral_factor);
 		return;
 	}
 	_default_buffer->useFrameBuffer();
-	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	_default_buffer->clearColorAndDepth();
 	
 	RenderAlgorithms::renderMesh(_default_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, glm::vec3(1, 0, 0));
 }
-
-//using time_unit = std::chrono::milliseconds;
-using time_unit = std::chrono::microseconds;
-//using time_unit = std::chrono::nanoseconds;
-
 
 void Core::renderScene()
 {
@@ -430,64 +384,28 @@ void Core::renderScene()
 	std::cout << "Rendering scene..." << std::endl;
 
 	kxt::frame_start();
-	//std::chrono::steady_clock::time_point _t1, _t2;
-	//std::chrono::steady_clock _clock;
-	//_clock = std::chrono::high_resolution_clock();
-	//glFinish();
-	//_t1 = _clock.now();
-	//glFinish();
 	kxt::region_start(_timed_regions[0]);
 	shadowMapPass();
-	//glFinish();
 	kxt::region_end(_timed_regions[0]);
-	//_t2 = _clock.now();
-	//std::cout << "\tShadow mapping time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
-	//glFinish();
-	//_t1 = _clock.now();
-	//glFinish();
 	kxt::region_start(_timed_regions[1]);
 	mainRenderPass();
-	//glFinish();
 	kxt::region_end(_timed_regions[1]);
-	//_t2 = _clock.now();
-	//std::cout << "\tMain pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 
-	//glFinish();
-	//_t1 = _clock.now();
-	//glFinish();
 	kxt::region_start(_timed_regions[2]);
 	if(_control_boolean_params[2]) subSurfaceScatteringPass();
-	//glFinish();
 	kxt::region_end(_timed_regions[2]);
-	//_t2 = _clock.now();
-	//std::cout << "\tSubsurface scattering pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
-	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
 
-	//glFinish();
-	//_t1 = _clock.now();
-	//glFinish();
 	kxt::region_start(_timed_regions[3]);
 	addSpecularPass();
-	//glFinish();
 	kxt::region_end(_timed_regions[3]);
-	//_t2 = _clock.now();
-	//std::cout << "\tAdd Specular pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	
-	//glFinish();
-	//_t1 = _clock.now();
-	//glFinish();
 	kxt::region_start(_timed_regions[4]);
 	toneMap();
-	//glFinish();
 	kxt::region_end(_timed_regions[4]);
-	//_t2 = _clock.now();
-	//std::cout << "\tAdd Tone map pas time: " << std::chrono::duration_cast<time_unit>(_t2 - _t1).count() << std::endl;
 	
 	kxt::frame_end();
 
-	//RenderAlgorithms::renderMesh(_default_buffer, _light->getMeshPtr(), _light->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), glm::vec3(1, 0, 0));
-	//auto regions = kxt::timed_regions();
 	for (unsigned int i = 0; i < _timmings.size(); ++i)
 	{
 		_timmings[i] = _timmings[i] + (kxt::region_duration(_timed_regions[i])*1000 - _timmings[i]) / double(_num_frames + 1);
@@ -502,31 +420,22 @@ void Core::renderScene()
 /// </summary>
 void Core::shadowMapPass()
 {
-	//glViewport(0, 0, GLint(_lineal_shadow_map_texture->getWidth()), GLint(_lineal_depth_texture->getHeight()));
-	//std::cout << "Shadow size " << glm::to_string(glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight()));
 	_lineal_shadow_map_texture->use(GL_TEXTURE0);
-	//_lineal_shadow_map_texture->resize(GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
 	_lineal_depth_texture->use(GL_TEXTURE1);
-	//_lineal_depth_texture->resize(GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
-	//glViewport(0, 0, _lineal_shadow_map_texture->getWidth(), _lineal_depth_texture->getHeight());
 
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
 	_generic_buffer->stencilBuffer(0);
-	
-
-	//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorAndDepth();
+
 	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());
-	//glViewport(0, 0, GLsizei(_window_size.x), GLsizei(_window_size.y));
 
 	_generic_buffer->useFrameBuffer();
 	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
 	_generic_buffer->depthBuffer(0);
 	_generic_buffer->clearColor();
 	//RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
-
 }
 
 void getMinViewZPoint()
@@ -546,9 +455,6 @@ void Core::mainRenderPass()
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilMask(0xFF);
 
-	//_default_buffer->useFrameBuffer();
-	//_default_buffer->clearColorDepthAndStencil();
-
 	_generic_buffer->useFrameBuffer(5);
 	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//difuse
 	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 1);//lin depth
@@ -558,25 +464,7 @@ void Core::mainRenderPass()
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorDepthAndStencil();
 
-	//render background
-	//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-
 	checkCritOpenGLError();
-
-	//BBox bbox = _object->getBBox();
-	//std::vector<glm::vec3> box_points = bbox.getAllBoxPoints();
-	//glm::mat4 modelView = _cam.getViewMatrix()*_object->getTransformations();
-	//float min_z = 100000000000;
-	//float max_z = -100000000000;
-	//for (auto point : box_points)
-	//{
-	//	glm::vec4 view_pt = modelView*glm::vec4(point.x, point.y, point.z, 1);
-	//	min_z = min(view_pt.z, min_z);
-	//	max_z = max(view_pt.z, max_z);
-	//}
-	//min_z = min(-_cam.getZfar(), min_z);
-	//max_z = max(-_cam.getZnear(), max_z);
-	//std::cout << "max view Z: " << min_z << std::endl;
 
 	RenderAlgorithms::renderDiffuseAndSpecular(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _cam.getViewMatrix(), _cam.getProjectionMatrix(), _prev_VP, 
 		_cam.getPosition(), _cam.getZfar(), _light->getPosition(), _cam.getZnear(), _roughness, _bumpint, _diffuse_env_texture,
@@ -587,11 +475,7 @@ void Core::mainRenderPass()
 	_prev_VP = _cam.getProjectionMatrix()*_cam.getViewMatrix();
 	_generic_buffer->useFrameBuffer(3);
 	_generic_buffer->colorBuffer(_aux_ssss_texture1->getTextureID(), 2);//specular
-	////render background
-	//_generic_buffer->useFrameBuffer(1);
-	//glStencilFunc(GL_EQUAL, 0, 0xFF);
-	//glStencilMask(0x00);
-	//RenderAlgorithms::renderTexture(_generic_buffer, _cross_bilateral_factor);
+
 	glDisable(GL_STENCIL_TEST);
 
 	_generic_buffer->useFrameBuffer();
@@ -599,8 +483,6 @@ void Core::mainRenderPass()
 	_generic_buffer->clearColor();
 	_generic_buffer->depthBuffer(0);
 	RenderAlgorithms::blurTexture(_generic_buffer, _curvature_tex, _aux_blur_tex, _pixel_size);
-
-	//glDisable(GL_STENCIL_TEST);
 }
 
 void Core::subSurfaceScatteringPass()
@@ -623,8 +505,6 @@ void Core::subSurfaceScatteringPass()
 
 		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*_ssss_mod_factor*0.9, _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		break;
 	case 2: //Perceptual variable #samples
 		_generic_buffer->useFrameBuffer(3);
@@ -636,11 +516,6 @@ void Core::subSurfaceScatteringPass()
 
 		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-		//RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
-		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		break;
 	case 3: //Perceptual
 		_generic_buffer->useFrameBuffer(3);
@@ -652,11 +527,6 @@ void Core::subSurfaceScatteringPass()
 
 		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
-		//RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
-		//_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
-		//RenderAlgorithms::renderTexture(_generic_buffer, _background_texture);
 		break;
 	default:
 		break;
@@ -676,8 +546,6 @@ void Core::addSpecularPass()
 	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 	RenderAlgorithms::renderTexture(_generic_buffer, _specular_texture);
 	glDisable(GL_BLEND);
-
-	//RenderAlgorithms::renderTexture(_default_buffer, _diffuse_color_texture);
 }
 
 #include <glm/gtc/type_ptr.hpp>
@@ -709,9 +577,7 @@ void Core::toneMap()
 
 	if (_control_boolean_params[1])
 	{
-		//glViewport(0, 0, GLsizei(int(_lineal_shadow_map_texture->getWidth())), GLsizei(int(_lineal_depth_texture->getHeight())));
 		RenderAlgorithms::renderTexture(_default_buffer, _lineal_shadow_map_texture);
-		//RenderAlgorithms::renderTexture(_default_buffer, _curvature_tex);
 	}
 }
 
@@ -724,8 +590,6 @@ void Core::loadMesh(const std::string& path)
 	unloadMesh();
 	_object = std::shared_ptr<Entity>(new Entity(MeshImporter::importMeshFromFile(path, true)));
 	_object->setUnitary();
-	//glm::vec3 center = _object->getBBox().getCenter();
-	//_object->translate(-center);
 	_object->translateToOrigin();
 	initializeCam();
 	_use_textures = _object->hasTextures();
@@ -735,8 +599,6 @@ void Core::loadMeshDiffuseTexture(const std::string& path)
 {
 	_mesh_diffuse_texture.reset();
 	_mesh_diffuse_texture = TextureLoader::create2DTexture(path);
-	//_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_mesh_diffuse_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_mesh_diffuse_texture->use();
@@ -849,24 +711,6 @@ void Core::setToneMappingMethod(int val)
 {
 	_tone_mapping_method = val;
 }
-
-//void Core::setControlInt(unsigned int i, int val)
-//{
-//	assert(i < _control_int_params.size());
-//	_control_int_params[i] = val;
-//}
-//
-//void Core::incrControlInt(unsigned int i)
-//{
-//	assert(i < _control_int_params.size());
-//	++_control_int_params[i];
-//}
-//
-//void Core::decrControlInt(unsigned int i)
-//{
-//	assert(i < _control_int_params.size());
-//	--_control_int_params[i];
-//}
 
 void Core::moveLight(glm::vec3 dir)
 {
