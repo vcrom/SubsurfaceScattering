@@ -22,6 +22,7 @@ smooth in vec2 vUV;
 
 uniform sampler2D cross_bilateral_factor;
 uniform sampler2D curvature_texture;
+uniform sampler2D albedo_texture;
 
 ///////////////AUX COLOR TRANSFORMS///////////////
 vec3 rgb2lab(in vec3 rgb){
@@ -79,7 +80,8 @@ float rgb2gray(vec3 rgb)
 vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float sssWidth,  vec2 dir, float fovy, bool follow_surf)
 {
 	// Fetch color of current pixel:
-    vec4 colorM = texture(colorTex, texcoord).rgba;
+    vec3 sample_M = texture(colorTex, texcoord).rgb;
+    vec4 colorM = texture(albedo_texture, texcoord).rgba;
 	#ifdef CROSS_BILATERAL_FILTER
 		float I_p = rgb2gray(colorM.rgb)*texture(cross_bilateral_factor, texcoord).r;
 	#endif
@@ -108,7 +110,8 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		// Fetch color and depth for current sample:
 		vec2 despl = kernel[i].a * finalStep;
 		vec2 offset = texcoord + despl;
-		vec4 colorS = texture2D(color_texture, offset).rgba;
+		vec4 sample_color = texture2D(color_texture, offset).rgba;
+		vec4 colorS = texture(albedo_texture, offset).rgba;
 		if(colorS.rgb == vec3(0)) continue;
 		//vec4 color = colorS;
 
@@ -121,6 +124,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 				s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
 			//#endif
 			colorS.rgb = mix(colorS.rgb, colorM.rgb, s);
+			sample_color.rgb = mix(sample_color.rgb, sample_M, s);
 		}
 
 		vec3 weight;
@@ -149,7 +153,7 @@ vec4 SSSSBlurPS(vec2 texcoord, sampler2D colorTex, sampler2D depthTex,  float ss
 		#endif
 
 		// Accumulate:
-		colorBlurred.rgb += weight * colorS.rgb;
+		colorBlurred.rgb += weight * sample_color.rgb;
 		weigths += weight;
 	}
 	colorBlurred.rgb /= weigths;

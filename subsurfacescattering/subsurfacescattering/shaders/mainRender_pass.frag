@@ -5,6 +5,7 @@ layout(location = 1) out float FragLinearDepth;
 layout(location = 2) out vec3 FragSpecularColor;
 layout(location = 3) out float FragCBFFactor;
 layout(location = 4) out float FragCurvature;
+layout(location = 5) out vec4 AlbedoColor;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 #define SEPARATE_SPECULARS
@@ -415,6 +416,7 @@ void main()
 	//color.rgb = transmittance(translucency, sssWidth, worldPosition, N, L, lightLinearShadowMap, lightViewM, lightProjBiasM, light_far_plane);
 	color.a = albedo.a;
 	FragColor = color;
+	AlbedoColor = albedo;
  //   float col = (dot(N, vec3(0,1,0)) + 1)/2;
 	//FragColor = vec4(mesh_color*col);
 	//FragColor = vec4(1,0, 1, 1);

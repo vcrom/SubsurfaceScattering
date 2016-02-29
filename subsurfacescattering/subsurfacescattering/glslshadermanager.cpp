@@ -281,6 +281,9 @@ void GlslShaderManager::initSSSSHori()
 	glUniform1i(shader("cross_bilateral_factor"), 3);
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
+	shader.addUniform("albedo_texture");
+	glUniform1i(shader("albedo_texture"), 5);
+
 	shader.unUse();
 	checkCritOpenGLError();
 
@@ -311,6 +314,8 @@ void GlslShaderManager::initSSSSVert()
 	glUniform1i(shader("cross_bilateral_factor"), 3); 
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
+	shader.addUniform("albedo_texture");
+	glUniform1i(shader("albedo_texture"), 5);
 
 	shader.unUse();
 	checkCritOpenGLError();
@@ -338,6 +343,8 @@ void GlslShaderManager::initSeparableSSSSHori()
 	glUniform1i(shader("cross_bilateral_factor"), 2);
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
+	shader.addUniform("albedo_texture");
+	glUniform1i(shader("albedo_texture"), 5);
 
 	shader.addUniform("ssss_n_samples"); 
 	shader.addUniform("kernel");
@@ -369,6 +376,8 @@ void GlslShaderManager::initSeparableSSSSVert()
 	glUniform1i(shader("cross_bilateral_factor"), 2);
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
+	shader.addUniform("albedo_texture");
+	glUniform1i(shader("albedo_texture"), 5);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");
@@ -426,6 +435,8 @@ void GlslShaderManager::initSSSSGaussianHori()
 	glUniform1i(shader("cross_bilateral_factor"), 3);
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
+	shader.addUniform("albedo_texture");
+	glUniform1i(shader("albedo_texture"), 5);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");
@@ -460,6 +471,8 @@ void GlslShaderManager::initSSSSGaussianVert()
 	glUniform1i(shader("cross_bilateral_factor"), 3);
 	shader.addUniform("curvature_texture");
 	glUniform1i(shader("curvature_texture"), 4);
+	shader.addUniform("albedo_texture");
+	glUniform1i(shader("albedo_texture"), 5);
 
 	shader.addUniform("ssss_n_samples");
 	shader.addUniform("kernel");

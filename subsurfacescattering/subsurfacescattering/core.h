@@ -87,6 +87,7 @@ private:
 	const float ROT_SPEED = 0.5f;
 	const float ZOOM_SPEED = 0.05f;
 	const float LIGHT_MOV_SPEED = 0.025f;
+	const float CAM_FOVY = glm::radians(45.0f);
 
 	//initialization
 	void initializeGL();
@@ -114,7 +115,7 @@ private:
 		_shadow_map_texture, _lineal_shadow_map_texture, _aux_blur_tex,
 
 		//ssss
-		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2, _aux_ssss_pingpong,
+		_depth_stencil_texture, _diffuse_color_texture, _specular_texture, _lineal_depth_texture, _aux_ssss_texture1, _aux_ssss_texture2, _aux_ssss_pingpong, _albedo_texture,
 
 		//Filter aux
 		_cross_bilateral_factor, _curvature_tex,

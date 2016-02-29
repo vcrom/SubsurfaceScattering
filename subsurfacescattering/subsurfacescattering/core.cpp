@@ -87,6 +87,8 @@ void Core::glewInitialization()
 	std::cout << "\tMax uniform comp: " << aux << std::endl;
 	glGetIntegerv(GL_MAX_VARYING_COMPONENTS, &aux);
 	std::cout << "\tMax varying comp: " << aux << std::endl;
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &aux);
+	std::cout << "\tMax drawBuffers comp: " << aux << std::endl;
 	checkCritOpenGLError();
 }
 
@@ -111,7 +113,7 @@ void Core::initializeTextures()
 	//Shadow map texture
 	_shadow_map_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
 	_shadow_map_texture->use();
-	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT/*GL_DEPTH_COMPONENT32F*/, 32, 32);
+	_shadow_map_texture->loadEmptyTexture(GL_DEPTH_COMPONENT, 32, 32);
 	_shadow_map_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_shadow_map_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	GLfloat border[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -168,6 +170,15 @@ void Core::initializeTextures()
 	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_diffuse_color_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, window_size.x, window_size.y, 0, GL_RED, GL_FLOAT, NULL);
+	checkCritOpenGLError();
+
+	_albedo_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
+	_albedo_texture->use();
+	_albedo_texture->loadEmptyTexture(GL_RGBA32F, 32, 32);
+	_albedo_texture->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_albedo_texture->setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	_albedo_texture->setTexParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_albedo_texture->setTexParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	checkCritOpenGLError();
 
 	_specular_texture = std::shared_ptr<Texture2D>(new Texture2D(GL_TEXTURE_2D));
@@ -269,7 +280,7 @@ void Core::initialize()
 	_generic_buffer->createFrameBuffer();
 
 	//Init cam projection
-	_cam.updateProjection(glm::radians(60.0f), 1.0f);
+	_cam.updateProjection(CAM_FOVY, 1.0f);
 
 	//light
 	_sphere = MeshImporter::importMeshFromFile("meshes/sphere.ply");
@@ -306,8 +317,8 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	GLsizei shadow_width, shadow_height, width, height;
 	width = GLsizei(int(w));
 	height = GLsizei(int(h));
-	shadow_width = width * 2;
-	shadow_height = height * 2;
+	shadow_width = width;
+	shadow_height = height;
 	//shadow_width = 2048; //w
 	//shadow_height = 2048; //h
 
@@ -332,6 +343,9 @@ void Core::resizeTextures(unsigned int w, unsigned int h)
 	_diffuse_color_texture->use();
 	_diffuse_color_texture->resize(width, height);
 
+	_albedo_texture->use();
+	_albedo_texture->resize(width, height);
+
 	_specular_texture->use();
 	_specular_texture->resize(width, height);
 
@@ -354,7 +368,7 @@ void Core::resize(unsigned int w, unsigned int h)
 	_window_size = glm::vec2(int(w), int(h));
 	_pixel_size = glm::vec2(1.0 / float(w), 1.0 / float(h));
 	glViewport(0, 0, GLint(w), GLint(h));
-	_cam.updateProjection(glm::radians(60.0f), float(w) / float(h));
+	_cam.updateProjection(CAM_FOVY, float(w) / float(h));
 	_cam.update();
 	resizeTextures(w, h);
 	computeLightMatrices();
@@ -421,9 +435,10 @@ void Core::renderScene()
 void Core::shadowMapPass()
 {
 	_lineal_shadow_map_texture->use(GL_TEXTURE0);
-	_lineal_depth_texture->use(GL_TEXTURE1);
+	_shadow_map_texture->use(GL_TEXTURE1);
+	//_lineal_depth_texture->use(GL_TEXTURE2);
 
-	_generic_buffer->useFrameBuffer();
+	_generic_buffer->useFrameBuffer(2);
 	_generic_buffer->colorBuffer(_lineal_shadow_map_texture->getTextureID(), 0);
 	_generic_buffer->depthBuffer(_shadow_map_texture->getTextureID());
 	_generic_buffer->stencilBuffer(0);
@@ -431,10 +446,10 @@ void Core::shadowMapPass()
 
 	RenderAlgorithms::getLinealShadowMap(_generic_buffer, _object->getMeshPtr(), _object->getTransformations(), _light_view_matrix, _light_projection_matrix, _cam.getZfar(), _window_size, glm::vec2(_lineal_shadow_map_texture->getWidth(), _lineal_shadow_map_texture->getHeight()), _light->getPosition());
 
-	_generic_buffer->useFrameBuffer();
-	_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
-	_generic_buffer->depthBuffer(0);
-	_generic_buffer->clearColor();
+	//_generic_buffer->useFrameBuffer();
+	//_generic_buffer->colorBuffer(_aux_blur_tex->getTextureID(), 0);
+	//_generic_buffer->depthBuffer(0);
+	//_generic_buffer->clearColor();
 	//RenderAlgorithms::blurTexture(_generic_buffer, _lineal_shadow_map_texture, _aux_blur_tex, _pixel_size);
 }
 
@@ -455,12 +470,13 @@ void Core::mainRenderPass()
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilMask(0xFF);
 
-	_generic_buffer->useFrameBuffer(5);
+	_generic_buffer->useFrameBuffer(6);
 	_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);//difuse
 	_generic_buffer->colorBuffer(_lineal_depth_texture->getTextureID(), 1);//lin depth
 	_generic_buffer->colorBuffer(_specular_texture->getTextureID(), 2);//specular
 	_generic_buffer->colorBuffer(_cross_bilateral_factor->getTextureID(), 3);//cross-bilateral
 	_generic_buffer->colorBuffer(_curvature_tex->getTextureID(), 4);//curvature
+	_generic_buffer->colorBuffer(_albedo_texture->getTextureID(), 5);//albedo
 	_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 	_generic_buffer->clearColorDepthAndStencil();
 
@@ -503,7 +519,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*_ssss_mod_factor*0.9, _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::separableSSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_texture1, _lineal_depth_texture, _cam.getFOV(), _sss_width*_ssss_mod_factor*0.9, _cross_bilateral_factor, _curvature_tex, _albedo_texture);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		break;
 	case 2: //Perceptual variable #samples
@@ -514,7 +530,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::GaussianSSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex, _albedo_texture);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		break;
 	case 3: //Perceptual
@@ -525,7 +541,7 @@ void Core::subSurfaceScatteringPass()
 		_generic_buffer->clearColor();
 		//_generic_buffer->depthAndStencilBuffer(_depth_stencil_texture->getTextureID());
 
-		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex);
+		RenderAlgorithms::SSSEffect(_generic_buffer, _diffuse_color_texture, _aux_ssss_pingpong, _aux_ssss_texture1, _aux_ssss_texture2, _lineal_depth_texture, _pixel_size, _correction, _sss_width*0.2/*_sssStrength*/, _cam.getFOV(), _cross_bilateral_factor, _curvature_tex, _albedo_texture);
 		_generic_buffer->colorBuffer(_diffuse_color_texture->getTextureID(), 0);
 		break;
 	default:
@@ -621,7 +637,7 @@ void Core::loadMeshNormalsTexture(const std::string& path)
 void Core::computeLightMatrices()
 {
 	_light_view_matrix = glm::lookAt(_light->getPosition(), _object->getBBox().getCenter(), glm::vec3(0, 1, 0));
-	_light_projection_matrix = glm::perspective(glm::radians(60.0f), float(_lineal_depth_texture->getWidth())/float(_lineal_depth_texture->getHeight()), _cam.getZnear(), _cam.getZfar());
+	_light_projection_matrix = glm::perspective(glm::radians(60.0f), float(_lineal_depth_texture->getWidth())/float(_lineal_depth_texture->getHeight()), 0.01f, _cam.getZfar());
 }
 
 void Core::unloadMesh()

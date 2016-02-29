@@ -21,6 +21,7 @@ uniform vec2 kernel[100];
 
 uniform sampler2D cross_bilateral_factor;
 uniform sampler2D curvature_texture;
+uniform sampler2D albedo_texture;
 
 #define saturate(a) clamp(a, 0.0, 1.0)
 ///////////////AUX COLOR TRANSFORMS///////////////
@@ -129,7 +130,8 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
     finalStep *= SSSS_STREGTH_SOURCE;
     finalStep *= 1.0 / 3.0;
 
-    vec3 colorM = texture2D(color_texture, vUV).rgb;
+    vec3 sample_M = texture(color_texture, vUV).rgb;
+    vec3 colorM = texture(albedo_texture, vUV).rgb;
 	#ifdef CROSS_BILATERAL_FILTER
 		float I_p = rgb2gray(colorM)*texture(cross_bilateral_factor, vUV).r;
 	#endif
@@ -141,7 +143,8 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
     {
 		vec2 despl = kernel[i].g * finalStep;
         vec2 offset = vUV + despl;
-        vec3 colorS = texture2D(color_texture, offset).rgb;
+		vec3 sample_color = texture2D(color_texture, offset).rgb;
+		vec3 colorS = texture(albedo_texture, offset).rgb;
         float depth = texture2D(depth_texture, offset).r;
         float s = 0;
 		
@@ -150,6 +153,7 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 			s = min(correction * abs(depthM - depth), 1.0);
 			//s = saturate(correction * distanceToProjectionWindow * sssWidth * abs(depthM - depth));
 			colorS = mix(colorS, colorM, s);
+			sample_color = mix(sample_color, sample_M, s);
 		#endif
 
 
@@ -178,7 +182,7 @@ vec4 BlurSSSSPas(float sssWidth, float gauss_size, vec2 pixel_size, vec2 dir, fl
 			weight = kernel[i].r*exp(-10*distance(texture(curvature_texture, vUV).r, texture(curvature_texture, offset).r))*exp(-abs(length(despl)));
 		#endif
 
-        colorBlurred += weight * colorS;
+        colorBlurred += weight * sample_color;
 		weigths += weight;
     }
     return vec4(colorBlurred/vec3(weigths), 1);

@@ -183,6 +183,7 @@ void RenderAlgorithms::getLinealShadowMap(const std::shared_ptr<FrameBuffer> fbo
 	//renderMesh(fbo, mesh, M, V, P, glm::vec3(0, 1, 0));
 	//return;
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
 
 	glViewport(0, 0, GLint(shadow_buffer_size.x), GLint(shadow_buffer_size.y));
 
@@ -324,7 +325,7 @@ std::vector<glm::vec4> initGaussians()
 std::vector<glm::vec4> RenderAlgorithms::_gaussians = initGaussians();
 
 
-void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
+void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex, std::shared_ptr<Texture2D> albedo_tex)
 {
 	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
 
@@ -349,6 +350,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	lineal_depth->use(GL_TEXTURE1);
 	cross_bilateral_factor->use(GL_TEXTURE3);
 	curvature_tex->use(GL_TEXTURE4);
+	albedo_tex->use(GL_TEXTURE5);
 
 	fbo->useFrameBuffer(1);
 	glDisable(GL_DEPTH_TEST);
@@ -386,7 +388,7 @@ void RenderAlgorithms::SSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::sh
 	glDepthMask(GL_TRUE);
 }
 
-void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
+void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> lineal_depth, float cam_fovy, float sssWidth, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex, std::shared_ptr<Texture2D> albedo_tex)
 {
 	//std::cout << "WIDTH: " << sssWidth << std::endl;
 	std::shared_ptr<GlslShader> horizontal = _shader_manager->getShader(GlslShaderManager::Shaders::SEPARABLE_SSSS_HORIZONTAL_BLUR);
@@ -402,6 +404,7 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 	lineal_depth->use(GL_TEXTURE1);
 	cross_bilateral_factor->use(GL_TEXTURE2);
 	curvature_tex->use(GL_TEXTURE4);
+	albedo_tex->use(GL_TEXTURE5);
 
 	fbo->useFrameBuffer();
 	glDisable(GL_DEPTH_TEST);
@@ -425,7 +428,7 @@ void RenderAlgorithms::separableSSSSEffect(const std::shared_ptr<FrameBuffer> fb
 }
 
 
-void RenderAlgorithms::GaussianSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex)
+void RenderAlgorithms::GaussianSSSEffect(const std::shared_ptr<FrameBuffer> fbo, std::shared_ptr<Texture2D> sss_tex, std::shared_ptr<Texture2D> sss_tex_pingpong, std::shared_ptr<Texture2D> rt1_tex, std::shared_ptr<Texture2D> rt2_tex, std::shared_ptr<Texture2D> lineal_depth, glm::vec2 pixel_size, float correction, float sssWidth, float cam_fovy, std::shared_ptr<Texture2D> cross_bilateral_factor, std::shared_ptr<Texture2D> curvature_tex, std::shared_ptr<Texture2D> albedo_tex)
 {
 	std::vector<std::shared_ptr<Texture2D> >pingpong_tex = { sss_tex, sss_tex_pingpong };
 
@@ -450,6 +453,7 @@ void RenderAlgorithms::GaussianSSSEffect(const std::shared_ptr<FrameBuffer> fbo,
 	lineal_depth->use(GL_TEXTURE1);
 	cross_bilateral_factor->use(GL_TEXTURE3);
 	curvature_tex->use(GL_TEXTURE4);
+	albedo_tex->use(GL_TEXTURE5);
 
 
 	fbo->useFrameBuffer(1);
@@ -693,12 +697,12 @@ void RenderAlgorithms::setSeparableKernels(int kernel)
 	glUniform1i(horizontal->operator()("ssss_n_samples"), _num_sss_samples);
 	if (kernel == 0)
 	{
-		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, &_ssss_kernel[0]);
+		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, _ssss_kernel.data());
 		glUniform1f(horizontal->operator()("kernel_range"), 3.0f);
 	}
 	else if (kernel == 1)
 	{
-		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, &_ssss_precomputed_kernel_sampled[0]);
+		glUniform4fv(horizontal->operator()("kernel"), _num_sss_samples * 4, _ssss_precomputed_kernel_sampled.data());
 		glUniform1f(horizontal->operator()("kernel_range"), _pre_int_range);
 	}
 	horizontal->unUse();
@@ -709,12 +713,12 @@ void RenderAlgorithms::setSeparableKernels(int kernel)
 	glUniform1i(vertical->operator()("ssss_n_samples"), _num_sss_samples);
 	if (kernel == 0)
 	{
-		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, &_ssss_kernel[0]);
+		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, _ssss_kernel.data());
 		glUniform1f(vertical->operator()("kernel_range"), 3.0f);
 	}
 	else if (kernel == 1)
 	{
-		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, &_ssss_precomputed_kernel_sampled[0]);
+		glUniform4fv(vertical->operator()("kernel"), _num_sss_samples * 4, _ssss_precomputed_kernel_sampled.data());
 		glUniform1f(vertical->operator()("kernel_range"), _pre_int_range);
 	}
 	vertical->unUse();

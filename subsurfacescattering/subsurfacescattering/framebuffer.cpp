@@ -37,7 +37,8 @@ void FrameBuffer::deleteFrameBuffer()
 #include <iostream>
 void FrameBuffer::useFrameBuffer(unsigned int color_levels)
 {
-	assert(_id != 0);
+	checkCritOpenGLError();
+	assert(_id >= 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
 
@@ -150,7 +151,7 @@ void FrameBuffer::attachRenderBuffer(GLenum attachment, GLuint renderbuffer)
 void FrameBuffer::debugAsserts()
 {
 #ifdef _DEBUG
-	assert(_id != 0);
+	assert(_id >= 0);
 	assert(isBinded());
 #endif
 }
